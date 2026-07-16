@@ -1,5 +1,6 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using PokemonTraining.Api.Data;
 using PokemonTraining.Api.DTOs;
 using PokemonTraining.Api.Entities;
@@ -132,6 +133,152 @@ public class MatriculaService(PokemonTrainingDbContext context) : IMatriculaServ
         return Mapear(matricula);
     }
 
+    public async Task<SimulacaoUpgradeResponse> SimularUpgradeAsync(
+        int matriculaId,
+        UpgradeMatriculaRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var dataUpgrade = DateTime.UtcNow;
+        var dados = await PrepararUpgradeAsync(
+            matriculaId,
+            request.NovoPlanoTreinamentoId,
+            dataUpgrade,
+            cancellationToken);
+
+        return new SimulacaoUpgradeResponse(
+            dados.Matricula.Id,
+            dados.Matricula.PlanoTreinamentoId,
+            dados.Matricula.PlanoTreinamento.Nome,
+            dados.NovoPlano.Id,
+            dados.NovoPlano.Nome,
+            dados.ProRata.DiasRestantes,
+            dados.ProRata.CreditoPlanoAnterior,
+            dados.ProRata.CustoProporcionalNovoPlano,
+            dados.ProRata.PrimeiraCobranca,
+            dataUpgrade);
+    }
+
+    public async Task<UpgradeMatriculaResponse> RealizarUpgradeAsync(
+        int matriculaId,
+        UpgradeMatriculaRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var dataUpgrade = DateTime.UtcNow;
+        IDbContextTransaction? transaction = null;
+
+        try
+        {
+            if (context.Database.IsRelational())
+            {
+                transaction = await context.Database.BeginTransactionAsync(cancellationToken);
+            }
+
+            var dados = await PrepararUpgradeAsync(
+                matriculaId,
+                request.NovoPlanoTreinamentoId,
+                dataUpgrade,
+                cancellationToken);
+
+            var matriculaAnterior = dados.Matricula;
+            matriculaAnterior.Status = StatusMatricula.Concluida;
+            matriculaAnterior.DataFim = dataUpgrade;
+            matriculaAnterior.MotivoEncerramento = $"Upgrade para o plano {dados.NovoPlano.Nome}.";
+
+            var novaMatricula = new Matricula
+            {
+                PokemonId = matriculaAnterior.PokemonId,
+                Pokemon = matriculaAnterior.Pokemon,
+                PlanoTreinamentoId = dados.NovoPlano.Id,
+                PlanoTreinamento = dados.NovoPlano,
+                DataInicio = dataUpgrade,
+                DataFim = null,
+                Status = StatusMatricula.Ativa,
+                ValorMensal = dados.NovoPlano.ValorMensal,
+                MotivoEncerramento = null
+            };
+
+            context.Matriculas.Add(novaMatricula);
+            await context.SaveChangesAsync(cancellationToken);
+
+            if (transaction is not null)
+            {
+                await transaction.CommitAsync(cancellationToken);
+            }
+
+            return new UpgradeMatriculaResponse(
+                matriculaAnterior.Id,
+                novaMatricula.Id,
+                matriculaAnterior.PokemonId,
+                matriculaAnterior.Pokemon.Nome,
+                matriculaAnterior.PlanoTreinamentoId,
+                matriculaAnterior.PlanoTreinamento.Nome,
+                dados.NovoPlano.Id,
+                dados.NovoPlano.Nome,
+                dados.ProRata.DiasRestantes,
+                dados.ProRata.CreditoPlanoAnterior,
+                dados.ProRata.CustoProporcionalNovoPlano,
+                dados.ProRata.PrimeiraCobranca,
+                dataUpgrade);
+        }
+        catch
+        {
+            if (transaction is not null)
+            {
+                await transaction.RollbackAsync(cancellationToken);
+            }
+
+            throw;
+        }
+        finally
+        {
+            if (transaction is not null)
+            {
+                await transaction.DisposeAsync();
+            }
+        }
+    }
+
+    private async Task<DadosUpgrade> PrepararUpgradeAsync(
+        int matriculaId,
+        int novoPlanoId,
+        DateTime dataUpgrade,
+        CancellationToken cancellationToken)
+    {
+        var matricula = await context.Matriculas
+            .Include(x => x.Pokemon)
+            .Include(x => x.PlanoTreinamento)
+            .SingleOrDefaultAsync(x => x.Id == matriculaId, cancellationToken)
+            ?? throw new RecursoNaoEncontradoException("Matrícula não encontrada.");
+
+        var novoPlano = await context.PlanosTreinamento
+            .SingleOrDefaultAsync(x => x.Id == novoPlanoId, cancellationToken)
+            ?? throw new RecursoNaoEncontradoException("Plano de treinamento não encontrado.");
+
+        if (matricula.Status != StatusMatricula.Ativa)
+        {
+            throw new RegraNegocioException("Somente matrículas ativas podem receber upgrade.");
+        }
+
+        if (novoPlano.Ordem <= matricula.PlanoTreinamento.Ordem)
+        {
+            throw new RegraNegocioException("O novo plano deve ser superior ao plano atual.");
+        }
+
+        if (matricula.Pokemon.Nivel < novoPlano.NivelMinimo)
+        {
+            throw new RegraNegocioException(
+                "O Pokémon não possui o nível mínimo exigido para este plano.");
+        }
+
+        var proRata = CalculadoraProRata.Calcular(
+            matricula.DataInicio,
+            dataUpgrade,
+            matricula.ValorMensal,
+            novoPlano.ValorMensal);
+
+        return new DadosUpgrade(matricula, novoPlano, proRata);
+    }
+
     private static MatriculaResponse Mapear(Matricula matricula) => new(
         matricula.Id,
         matricula.PokemonId,
@@ -161,4 +308,9 @@ public class MatriculaService(PokemonTrainingDbContext context) : IMatriculaServ
 
         return false;
     }
+
+    private sealed record DadosUpgrade(
+        Matricula Matricula,
+        PlanoTreinamento NovoPlano,
+        ResultadoProRata ProRata);
 }

@@ -18,4 +18,14 @@ public interface IMatriculaService
         int id,
         CancelarMatriculaRequest request,
         CancellationToken cancellationToken = default);
+
+    Task<SimulacaoUpgradeResponse> SimularUpgradeAsync(
+        int matriculaId,
+        UpgradeMatriculaRequest request,
+        CancellationToken cancellationToken = default);
+
+    Task<UpgradeMatriculaResponse> RealizarUpgradeAsync(
+        int matriculaId,
+        UpgradeMatriculaRequest request,
+        CancellationToken cancellationToken = default);
 }

@@ -28,4 +28,18 @@ public class MatriculasController(IMatriculaService service) : ControllerBase
         CancelarMatriculaRequest request,
         CancellationToken cancellationToken) =>
         Ok(await service.CancelarAsync(id, request, cancellationToken));
+
+    [HttpPost("{id:int}/simular-upgrade")]
+    public async Task<ActionResult<SimulacaoUpgradeResponse>> SimularUpgrade(
+        int id,
+        UpgradeMatriculaRequest request,
+        CancellationToken cancellationToken) =>
+        Ok(await service.SimularUpgradeAsync(id, request, cancellationToken));
+
+    [HttpPost("{id:int}/upgrade")]
+    public async Task<ActionResult<UpgradeMatriculaResponse>> RealizarUpgrade(
+        int id,
+        UpgradeMatriculaRequest request,
+        CancellationToken cancellationToken) =>
+        Ok(await service.RealizarUpgradeAsync(id, request, cancellationToken));
 }
