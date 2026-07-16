@@ -126,7 +126,7 @@ IF NOT EXISTS (SELECT 1 FROM dbo.PlanosTreinamento WHERE Id = 1)
 BEGIN
     SET IDENTITY_INSERT dbo.PlanosTreinamento ON;
     INSERT INTO dbo.PlanosTreinamento (Id, Nome, ValorMensal, Descricao, Ordem, NivelMinimo)
-    VALUES (1, N'Ginásio Local', 50.00, N'Treinos básicos', 1, 1);
+    VALUES (1, N'Gin' + NCHAR(225) + N'sio Local', 50.00, N'Treinos b' + NCHAR(225) + N'sicos', 1, 1);
     SET IDENTITY_INSERT dbo.PlanosTreinamento OFF;
 END;
 
@@ -134,7 +134,7 @@ IF NOT EXISTS (SELECT 1 FROM dbo.PlanosTreinamento WHERE Id = 2)
 BEGIN
     SET IDENTITY_INSERT dbo.PlanosTreinamento ON;
     INSERT INTO dbo.PlanosTreinamento (Id, Nome, ValorMensal, Descricao, Ordem, NivelMinimo)
-    VALUES (2, N'Liga Regional', 120.00, N'Treinos intermediários e batalhas simuladas', 2, 1);
+    VALUES (2, N'Liga Regional', 120.00, N'Treinos intermedi' + NCHAR(225) + N'rios e batalhas simuladas', 2, 1);
     SET IDENTITY_INSERT dbo.PlanosTreinamento OFF;
 END;
 
@@ -142,7 +142,7 @@ IF NOT EXISTS (SELECT 1 FROM dbo.PlanosTreinamento WHERE Id = 3)
 BEGIN
     SET IDENTITY_INSERT dbo.PlanosTreinamento ON;
     INSERT INTO dbo.PlanosTreinamento (Id, Nome, ValorMensal, Descricao, Ordem, NivelMinimo)
-    VALUES (3, N'Elite dos 4', 300.00, N'Preparação completa para a Liga', 3, 50);
+    VALUES (3, N'Elite dos 4', 300.00, N'Prepara' + NCHAR(231) + NCHAR(227) + N'o completa para a Liga', 3, 50);
     SET IDENTITY_INSERT dbo.PlanosTreinamento OFF;
 END;
 GO
