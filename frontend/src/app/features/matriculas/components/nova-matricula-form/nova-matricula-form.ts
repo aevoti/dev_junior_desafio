@@ -1,5 +1,5 @@
 import { CurrencyPipe } from '@angular/common';
-import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { Matricula, PlanoTreinamento, Pokemon } from '../../../../core/models/api.models';
@@ -21,6 +21,7 @@ export class NovaMatriculaForm {
 
   private readonly fb = inject(FormBuilder);
   private readonly service = inject(MatriculaService);
+  private readonly cdr = inject(ChangeDetectorRef);
   enviando = false;
   readonly form = this.fb.nonNullable.group({
     pokemonId: [0, [Validators.required, Validators.min(1)]],
@@ -45,7 +46,7 @@ export class NovaMatriculaForm {
       pokemonId: Number(value.pokemonId),
       planoTreinamentoId: Number(value.planoTreinamentoId),
       dataInicio: new Date(`${value.dataInicio}T12:00:00`).toISOString()
-    }).pipe(finalize(() => this.enviando = false)).subscribe({
+    }).pipe(finalize(() => { this.enviando = false; this.cdr.markForCheck(); })).subscribe({
       next: matricula => this.criada.emit(matricula),
       error: error => this.erro.emit(obterMensagemErro(error))
     });

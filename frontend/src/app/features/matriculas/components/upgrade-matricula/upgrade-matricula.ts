@@ -1,5 +1,5 @@
 import { CurrencyPipe } from '@angular/common';
-import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { Matricula, PlanoTreinamento, SimulacaoUpgrade } from '../../../../core/models/api.models';
@@ -21,6 +21,7 @@ export class UpgradeMatricula implements OnInit {
 
   private readonly fb = inject(FormBuilder);
   private readonly service = inject(MatriculaService);
+  private readonly cdr = inject(ChangeDetectorRef);
   planosSuperiores: PlanoTreinamento[] = [];
   simulacao: SimulacaoUpgrade | null = null;
   processando = false;
@@ -37,8 +38,8 @@ export class UpgradeMatricula implements OnInit {
     this.processando = true;
     this.service.simularUpgrade(this.matricula.id, {
       novoPlanoTreinamentoId: Number(this.form.controls.novoPlanoTreinamentoId.value)
-    }).pipe(finalize(() => this.processando = false)).subscribe({
-      next: simulacao => this.simulacao = simulacao,
+    }).pipe(finalize(() => { this.processando = false; this.cdr.markForCheck(); })).subscribe({
+      next: simulacao => { this.simulacao = simulacao; this.cdr.markForCheck(); },
       error: error => this.erro.emit(obterMensagemErro(error))
     });
   }
@@ -48,7 +49,7 @@ export class UpgradeMatricula implements OnInit {
     this.processando = true;
     this.service.realizarUpgrade(this.matricula.id, {
       novoPlanoTreinamentoId: this.simulacao.novoPlanoId
-    }).pipe(finalize(() => this.processando = false)).subscribe({
+    }).pipe(finalize(() => { this.processando = false; this.cdr.markForCheck(); })).subscribe({
       next: () => this.concluido.emit(),
       error: error => this.erro.emit(obterMensagemErro(error))
     });

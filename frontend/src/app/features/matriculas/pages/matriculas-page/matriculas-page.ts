@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { forkJoin, finalize } from 'rxjs';
 import { Matricula, PlanoTreinamento, Pokemon, StatusMatricula } from '../../../../core/models/api.models';
@@ -21,6 +21,7 @@ export class MatriculasPage implements OnInit {
   private readonly matriculaService = inject(MatriculaService);
   private readonly pokemonService = inject(PokemonService);
   private readonly planoService = inject(PlanoService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   matriculas: Matricula[] = [];
   pokemons: Pokemon[] = [];
@@ -38,8 +39,8 @@ export class MatriculasPage implements OnInit {
       matriculas: this.matriculaService.listar(),
       pokemons: this.pokemonService.listar(),
       planos: this.planoService.listar()
-    }).pipe(finalize(() => this.carregando = false)).subscribe({
-      next: dados => { this.matriculas = dados.matriculas; this.pokemons = dados.pokemons; this.planos = dados.planos; },
+    }).pipe(finalize(() => { this.carregando = false; this.cdr.markForCheck(); })).subscribe({
+      next: dados => { this.matriculas = dados.matriculas; this.pokemons = dados.pokemons; this.planos = dados.planos; this.cdr.markForCheck(); },
       error: error => this.mostrarErro(obterMensagemErro(error))
     });
   }
@@ -72,15 +73,15 @@ export class MatriculasPage implements OnInit {
 
   private carregarMatriculas(busca = '', status: StatusMatricula | '' = ''): void {
     this.carregando = true;
-    this.matriculaService.listar(busca, status).pipe(finalize(() => this.carregando = false)).subscribe({
-      next: matriculas => this.matriculas = matriculas,
+    this.matriculaService.listar(busca, status).pipe(finalize(() => { this.carregando = false; this.cdr.markForCheck(); })).subscribe({
+      next: matriculas => { this.matriculas = matriculas; this.cdr.markForCheck(); },
       error: error => this.mostrarErro(obterMensagemErro(error))
     });
   }
 
   private carregarTudoAuxiliar(): void {
     forkJoin({ matriculas: this.matriculaService.listar(), pokemons: this.pokemonService.listar() }).subscribe({
-      next: dados => { this.matriculas = dados.matriculas; this.pokemons = dados.pokemons; },
+      next: dados => { this.matriculas = dados.matriculas; this.pokemons = dados.pokemons; this.cdr.markForCheck(); },
       error: error => this.mostrarErro(obterMensagemErro(error))
     });
   }
