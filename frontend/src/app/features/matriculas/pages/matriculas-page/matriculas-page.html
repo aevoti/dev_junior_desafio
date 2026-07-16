@@ -14,7 +14,7 @@
 
   <section class="card list-card">
     <div class="section-title"><div><p class="eyebrow">Visão geral</p><h2>Matrículas</h2></div><span>{{ matriculas.length }} registro(s)</span></div>
-    @if (carregando) { <div class="loading" role="status">Carregando matrículas...</div> } @else { <app-matriculas-list [matriculas]="matriculas" (upgrade)="matriculaUpgrade = $event" /> }
+    @if (carregando) { <div class="loading" role="status">Carregando matrículas...</div> } @else { <app-matriculas-list [matriculas]="matriculas" [pokemons]="pokemons" (upgrade)="matriculaUpgrade = $event" /> }
   </section>
 </main>
 

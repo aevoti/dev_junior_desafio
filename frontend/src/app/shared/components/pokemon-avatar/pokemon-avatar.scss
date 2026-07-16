@@ -1,0 +1,13 @@
+.avatar-block { display: grid; justify-items: center; gap: .3rem; flex: 0 0 auto; }
+.avatar { position: relative; display: grid; place-items: center; overflow: hidden; border-radius: 18px; background: linear-gradient(145deg, #f4f7fb, #e5ebf3); }
+img { display: block; object-fit: contain; }
+.pokeball { position: relative; width: 58%; aspect-ratio: 1; border: 3px solid #23364d; border-radius: 50%; background: linear-gradient(#dc3345 0 44%, #23364d 44% 56%, #fff 56%); }
+.pokeball::after { content: ''; position: absolute; inset: 50% auto auto 50%; width: 24%; aspect-ratio: 1; border: 3px solid #23364d; border-radius: 50%; background: white; transform: translate(-50%, -50%); }
+.loading-dot { position: absolute; right: 5px; bottom: 5px; width: 8px; height: 8px; border-radius: 50%; background: #e6b91e; animation: pulse 1s infinite alternate; }
+.types { display: flex; flex-wrap: wrap; justify-content: center; gap: .25rem; }
+.type { padding: .15rem .42rem; border-radius: 999px; color: #26374a; background: #e8edf3; font-size: .66rem; font-weight: 750; text-transform: capitalize; }
+.type-electric { background: #ffed9b; } .type-fire { color: #8c2731; background: #ffd3c9; }
+.type-water { color: #174f84; background: #cce9ff; } .type-grass { color: #28633b; background: #d3f2d5; }
+.type-poison, .type-psychic { color: #693b78; background: #ecd7f4; } .type-normal { background: #ebe8df; }
+@keyframes pulse { to { opacity: .35; transform: scale(.75); } }
+@media (prefers-reduced-motion: reduce) { .loading-dot { animation: none; } }
