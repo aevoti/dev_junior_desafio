@@ -1,0 +1,27 @@
+<div class="overlay" (click)="fechar.emit()">
+  <section class="dialog" role="dialog" aria-modal="true" aria-labelledby="nova-title" (click)="$event.stopPropagation()">
+    <header><div><p class="eyebrow">Cadastro</p><h2 id="nova-title">Nova matrícula</h2></div><button type="button" class="close" aria-label="Fechar" (click)="fechar.emit()">×</button></header>
+    <form [formGroup]="form" (ngSubmit)="enviar()">
+      <label for="pokemon">Pokémon</label>
+      <select id="pokemon" formControlName="pokemonId">
+        <option [ngValue]="0">Selecione</option>
+        @for (pokemon of pokemons; track pokemon.id) { <option [ngValue]="pokemon.id">{{ pokemon.nome }} — Nível {{ pokemon.nivel }} — {{ pokemon.treinadorNome }}</option> }
+      </select>
+      @if (form.controls.pokemonId.touched && form.controls.pokemonId.invalid) { <small class="field-error">Selecione um Pokémon.</small> }
+
+      <label for="plano">Plano</label>
+      <select id="plano" formControlName="planoTreinamentoId">
+        <option [ngValue]="0">Selecione</option>
+        @for (plano of planos; track plano.id) { <option [ngValue]="plano.id">{{ plano.nome }} — {{ plano.valorMensal | currency:'BRL' }} — Nível mínimo {{ plano.nivelMinimo }}</option> }
+      </select>
+      @if (form.controls.planoTreinamentoId.touched && form.controls.planoTreinamentoId.invalid) { <small class="field-error">Selecione um plano.</small> }
+      @if (nivelInsuficiente) { <div class="warning">Este Pokémon não possui o nível mínimo exigido para o plano.</div> }
+
+      <label for="dataInicio">Data de início</label>
+      <input id="dataInicio" type="date" formControlName="dataInicio" />
+      @if (form.controls.dataInicio.touched && form.controls.dataInicio.invalid) { <small class="field-error">Informe a data de início.</small> }
+
+      <footer><button type="button" class="ghost" (click)="fechar.emit()" [disabled]="enviando">Cancelar</button><button type="submit" [disabled]="form.invalid || nivelInsuficiente || enviando">{{ enviando ? 'Criando...' : 'Criar matrícula' }}</button></footer>
+    </form>
+  </section>
+</div>

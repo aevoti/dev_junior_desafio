@@ -1,0 +1,11 @@
+@use '../dialog';
+form { display: grid; gap: .7rem; margin-top: 1.2rem; }
+label { font-weight: 650; }
+select { padding: .75rem; border: 1px solid #c9d3df; border-radius: 8px; background: white; }
+.warning { margin-top: 1rem; padding: .8rem; border-radius: 8px; color: #8a4b0f; background: #fff4d6; }
+.simulation { margin-top: 1.4rem; padding: 1rem; border-radius: 10px; background: #f3f7fb; }
+.simulation h3 { margin-top: 0; }
+dl { display: grid; gap: .5rem; }
+dl div { display: flex; justify-content: space-between; gap: 1rem; }
+dt { color: #52606d; } dd { margin: 0; font-weight: 650; }
+.charge { padding-top: .8rem; border-top: 1px solid #d4deea; font-size: 1.1rem; }

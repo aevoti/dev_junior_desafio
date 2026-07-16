@@ -1,0 +1,11 @@
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; min-width: 760px; }
+th, td { padding: .85rem .7rem; text-align: left; border-bottom: 1px solid #e3e8ef; }
+th { color: #52606d; font-size: .82rem; text-transform: uppercase; }
+.status { display: inline-block; padding: .25rem .55rem; border-radius: 999px; font-size: .8rem; font-weight: 700; background: #edf2f7; }
+.status.ativa { color: #176b45; background: #dcfce7; }
+.status.cancelada { color: #9b2c2c; background: #fee2e2; }
+.status.concluida { color: #3b5b92; background: #dbeafe; }
+.empty { text-align: center; padding: 2.5rem; color: #66788a; }
+.small { padding: .45rem .75rem; }
+.muted { color: #8a99a8; }

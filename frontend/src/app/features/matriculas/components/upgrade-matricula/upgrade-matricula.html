@@ -1,0 +1,32 @@
+<div class="overlay" (click)="fechar.emit()">
+  <section class="dialog" role="dialog" aria-modal="true" aria-labelledby="upgrade-title" (click)="$event.stopPropagation()">
+    <header><div><p class="eyebrow">{{ matricula.pokemonNome }}</p><h2 id="upgrade-title">Upgrade de matrícula</h2></div><button type="button" class="close" aria-label="Fechar" (click)="fechar.emit()">×</button></header>
+    @if (planosSuperiores.length === 0) {
+      <div class="warning">Esta matrícula já está no plano mais alto disponível.</div>
+    } @else {
+      <form [formGroup]="form" (ngSubmit)="simular()">
+        <label for="novoPlano">Novo plano</label>
+        <select id="novoPlano" formControlName="novoPlanoTreinamentoId">
+          <option [ngValue]="0">Selecione</option>
+          @for (plano of planosSuperiores; track plano.id) { <option [ngValue]="plano.id">{{ plano.nome }} — {{ plano.valorMensal | currency:'BRL' }}</option> }
+        </select>
+        <button type="submit" [disabled]="form.invalid || processando">{{ processando && !simulacao ? 'Simulando...' : 'Simular upgrade' }}</button>
+      </form>
+    }
+
+    @if (simulacao) {
+      <div class="simulation">
+        <h3>Resumo da simulação</h3>
+        <dl>
+          <div><dt>Plano atual</dt><dd>{{ simulacao.planoAtualNome }}</dd></div>
+          <div><dt>Novo plano</dt><dd>{{ simulacao.novoPlanoNome }}</dd></div>
+          <div><dt>Dias restantes</dt><dd>{{ simulacao.diasRestantes }}</dd></div>
+          <div><dt>Crédito anterior</dt><dd>{{ simulacao.creditoPlanoAnterior | currency:'BRL' }}</dd></div>
+          <div><dt>Custo proporcional</dt><dd>{{ simulacao.custoProporcionalNovoPlano | currency:'BRL' }}</dd></div>
+        </dl>
+        <p class="charge">Primeira cobrança: <strong>{{ simulacao.primeiraCobranca | currency:'BRL' }}</strong></p>
+        <button type="button" (click)="confirmar()" [disabled]="processando">{{ processando ? 'Confirmando...' : 'Confirmar upgrade' }}</button>
+      </div>
+    }
+  </section>
+</div>

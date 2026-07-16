@@ -1,0 +1,22 @@
+<header class="hero"><div class="container"><p class="eyebrow">AEVO · Desafio técnico</p><h1>Centro de Treinamento Alto Nível</h1><p>Gestão de matrículas e planos de treinamento Pokémon</p></div></header>
+<main class="container">
+  @if (sucesso) { <div class="alert success" role="status">{{ sucesso }} <button aria-label="Fechar mensagem" (click)="sucesso = ''">×</button></div> }
+  @if (erro) { <div class="alert error" role="alert">{{ erro }} <button aria-label="Fechar mensagem" (click)="erro = ''">×</button></div> }
+
+  <section class="card controls">
+    <form [formGroup]="filtros" (ngSubmit)="aplicarFiltros()">
+      <div><label for="busca">Buscar por Pokémon ou treinador</label><input id="busca" type="search" formControlName="busca" placeholder="Ex.: Pikachu ou Ash" /></div>
+      <div><label for="status">Status</label><select id="status" formControlName="status"><option value="">Todos</option><option value="Ativa">Ativa</option><option value="Cancelada">Cancelada</option><option value="Concluida">Concluída</option></select></div>
+      <div class="actions"><button type="submit" [disabled]="carregando">Aplicar</button><button type="button" class="ghost" (click)="limparFiltros()" [disabled]="carregando">Limpar filtros</button></div>
+    </form>
+    <button type="button" class="new" (click)="mostrarNova = true">Nova matrícula</button>
+  </section>
+
+  <section class="card list-card">
+    <div class="section-title"><div><p class="eyebrow">Visão geral</p><h2>Matrículas</h2></div><span>{{ matriculas.length }} registro(s)</span></div>
+    @if (carregando) { <div class="loading" role="status">Carregando matrículas...</div> } @else { <app-matriculas-list [matriculas]="matriculas" (upgrade)="matriculaUpgrade = $event" /> }
+  </section>
+</main>
+
+@if (mostrarNova) { <app-nova-matricula-form [pokemons]="pokemons" [planos]="planos" (fechar)="mostrarNova = false" (criada)="matriculaCriada()" (erro)="mostrarErro($event)" /> }
+@if (matriculaUpgrade) { <app-upgrade-matricula [matricula]="matriculaUpgrade" [planos]="planos" (fechar)="matriculaUpgrade = null" (concluido)="upgradeConcluido()" (erro)="mostrarErro($event)" /> }

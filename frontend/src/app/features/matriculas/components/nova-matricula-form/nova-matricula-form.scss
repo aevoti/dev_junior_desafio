@@ -1,0 +1,7 @@
+@use '../dialog';
+form { display: grid; gap: .45rem; }
+label { margin-top: .55rem; font-weight: 650; }
+select, input { width: 100%; padding: .75rem; border: 1px solid #c9d3df; border-radius: 8px; background: white; }
+footer { display: flex; justify-content: flex-end; gap: .7rem; margin-top: 1.25rem; }
+.warning { padding: .7rem; border-radius: 8px; color: #8a4b0f; background: #fff4d6; }
+.field-error { color: #b42318; }

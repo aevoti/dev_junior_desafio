@@ -1,0 +1,26 @@
+@if (matriculas.length === 0) {
+  <div class="empty">Nenhuma matrícula encontrada.</div>
+} @else {
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Pokémon</th><th>Treinador</th><th>Plano</th><th>Status</th><th>Valor mensal</th><th>Início</th><th>Ação</th></tr></thead>
+      <tbody>
+        @for (matricula of matriculas; track matricula.id) {
+          <tr>
+            <td><strong>{{ matricula.pokemonNome }}</strong></td>
+            <td>{{ matricula.treinadorNome }}</td>
+            <td>{{ matricula.planoNome }}</td>
+            <td><span class="status" [class]="'status ' + matricula.status.toLowerCase()">{{ rotuloStatus(matricula.status) }}</span></td>
+            <td>{{ matricula.valorMensal | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</td>
+            <td>{{ matricula.dataInicio | date:'dd/MM/yyyy':'':'pt-BR' }}</td>
+            <td>
+              @if (matricula.status === 'Ativa') {
+                <button type="button" class="secondary small" (click)="upgrade.emit(matricula)">Upgrade</button>
+              } @else { <span class="muted">—</span> }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}
