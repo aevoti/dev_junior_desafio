@@ -33,6 +33,7 @@ export class MatriculasPage implements OnInit {
   sucesso = '';
   erro = '';
   readonly filtros = this.fb.nonNullable.group({ busca: '', status: '' as StatusMatricula | '' });
+  private filtrosAplicados: { busca: string; status: StatusMatricula | '' } = { busca: '', status: '' };
 
   get matriculasAtivas(): number { return this.matriculas.filter(item => item.status === 'Ativa').length; }
   get matriculasCanceladas(): number { return this.matriculas.filter(item => item.status === 'Cancelada').length; }
@@ -57,12 +58,14 @@ export class MatriculasPage implements OnInit {
 
   aplicarFiltros(): void {
     const { busca, status } = this.filtros.getRawValue();
-    this.carregarMatriculas(busca, status);
+    this.filtrosAplicados = { busca: busca.trim(), status };
+    this.carregarMatriculasAplicadas();
   }
 
   limparFiltros(): void {
     this.filtros.reset({ busca: '', status: '' });
-    this.carregarMatriculas();
+    this.filtrosAplicados = { busca: '', status: '' };
+    this.carregarMatriculasAplicadas();
   }
 
   matriculaCriada(): void {
@@ -76,7 +79,7 @@ export class MatriculasPage implements OnInit {
     this.matriculaUpgrade = null;
     this.sucesso = 'Upgrade realizado com sucesso.';
     this.erro = '';
-    this.carregarMatriculas();
+    this.carregarMatriculasAplicadas();
   }
 
   mostrarErro(message: string): void { this.erro = message; this.sucesso = ''; }
@@ -89,8 +92,16 @@ export class MatriculasPage implements OnInit {
     });
   }
 
+  private carregarMatriculasAplicadas(): void {
+    this.carregarMatriculas(this.filtrosAplicados.busca, this.filtrosAplicados.status);
+  }
+
   private carregarTudoAuxiliar(): void {
-    forkJoin({ matriculas: this.matriculaService.listar(), pokemons: this.pokemonService.listar() }).subscribe({
+    this.carregando = true;
+    forkJoin({
+      matriculas: this.matriculaService.listar(this.filtrosAplicados.busca, this.filtrosAplicados.status),
+      pokemons: this.pokemonService.listar()
+    }).pipe(finalize(() => { this.carregando = false; this.cdr.markForCheck(); })).subscribe({
       next: dados => { this.matriculas = dados.matriculas; this.pokemons = dados.pokemons; this.cdr.markForCheck(); },
       error: error => this.mostrarErro(obterMensagemErro(error))
     });
