@@ -9,7 +9,7 @@
   </div>
   @if (visual?.tipos?.length) {
     <div class="types" aria-label="Tipos do Pokémon">
-      @for (tipo of visual!.tipos; track tipo) { <span [class]="classeTipo(tipo)">{{ traduzirTipo(tipo) }}</span> }
+      @for (tipo of visual!.tipos; track tipo) { <span [class]="classeTipo(tipo)"><span class="type-label">Tipo:</span> {{ traduzirTipo(tipo) }}</span> }
     </div>
   }
 </div>

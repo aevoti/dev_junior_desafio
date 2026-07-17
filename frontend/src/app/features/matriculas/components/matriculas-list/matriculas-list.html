@@ -9,7 +9,11 @@
           <tr>
             <td class="pokemon-cell" data-label="Pokémon">
               <app-pokemon-avatar [nome]="matricula.pokemonNome" [tamanho]="64" />
-              <div class="pokemon-copy"><strong [title]="matricula.pokemonNome">{{ matricula.pokemonNome }}</strong>@if (nivelPokemon(matricula.pokemonId); as nivel) { <small>Nível {{ nivel }}</small> }</div>
+              <div class="pokemon-copy">
+                <strong [title]="matricula.pokemonNome">{{ nomeBase(matricula.pokemonNome) }}</strong>
+                @if (complementoNome(matricula.pokemonNome); as complemento) { <small class="reference" [title]="matricula.pokemonNome">Ref.: {{ complemento }}</small> }
+                @if (nivelPokemon(matricula.pokemonId); as nivel) { <span class="level" [class]="'level ' + classeNivel(nivel)">Lv. {{ nivel }}</span> }
+              </div>
             </td>
             <td data-label="Treinador"><span class="cell-text" [title]="matricula.treinadorNome">{{ matricula.treinadorNome }}</span></td>
             <td class="plan-cell" data-label="Plano">{{ matricula.planoNome }}</td>

@@ -4,10 +4,16 @@ th, td { padding: .9rem .75rem; text-align: left; border-bottom: 1px solid #e6eb
 th { color: #607086; font-size: .75rem; letter-spacing: .045em; text-transform: uppercase; }
 tbody tr { transition: background .15s ease; }
 tbody tr:hover { background: #f8fafc; }
-.pokemon-cell { display: flex; align-items: center; gap: .8rem; min-width: 205px; }
-.pokemon-copy { min-width: 0; display: grid; gap: .2rem; }
+.pokemon-cell { display: flex; align-items: center; gap: .9rem; min-width: 220px; }
+.pokemon-copy { min-width: 0; display: grid; justify-items: start; gap: .28rem; }
 .pokemon-copy strong, .cell-text { display: block; max-width: 190px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.pokemon-copy small { color: var(--muted); font-weight: 650; }
+.pokemon-copy strong { color: #172b45; font-size: 1rem; }
+.pokemon-copy .reference { display: block; max-width: 190px; overflow: hidden; color: var(--muted); font-size: .7rem; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.level { display: inline-flex; align-items: center; padding: .18rem .48rem; border: 1px solid transparent; border-radius: 999px; font-size: .7rem; font-weight: 800; }
+.level-neutral { color: #4b5563; border-color: #d1d5db; background: #f3f4f6; }
+.level-blue { color: #1d4f91; border-color: #b7d5f4; background: #e5f1ff; }
+.level-purple { color: #65358f; border-color: #d8b9ed; background: #f2e6fa; }
+.level-gold { color: #735500; border-color: #ead071; background: #fff2b8; }
 .plan-cell { white-space: nowrap; }
 .status { display: inline-block; padding: .3rem .6rem; border-radius: 999px; font-size: .78rem; font-weight: 750; background: #edf2f7; }
 .status.ativa { color: #116348; background: #dcfce7; }
@@ -29,7 +35,7 @@ tbody tr:hover { background: #f8fafc; }
   td:last-child { border-bottom: 0; }
   td.pokemon-cell { justify-content: flex-start; padding-block: .8rem; text-align: left; }
   td.pokemon-cell::before { display: none; }
-  .pokemon-copy { flex: 1; }
+  .pokemon-copy { flex: 1; align-content: center; }
   .pokemon-copy strong, .cell-text { max-width: 190px; }
   .plan-cell { white-space: normal; }
 }
