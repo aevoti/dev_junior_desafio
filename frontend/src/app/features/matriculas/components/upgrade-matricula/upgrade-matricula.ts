@@ -5,10 +5,11 @@ import { finalize } from 'rxjs';
 import { Matricula, PlanoTreinamento, SimulacaoUpgrade } from '../../../../core/models/api.models';
 import { obterMensagemErro } from '../../../../core/services/api-error';
 import { MatriculaService } from '../../../../core/services/matricula.service';
+import { PokemonAvatar } from '../../../../shared/components/pokemon-avatar/pokemon-avatar';
 
 @Component({
   selector: 'app-upgrade-matricula',
-  imports: [ReactiveFormsModule, CurrencyPipe],
+  imports: [ReactiveFormsModule, CurrencyPipe, PokemonAvatar],
   templateUrl: './upgrade-matricula.html',
   styleUrl: './upgrade-matricula.scss'
 })

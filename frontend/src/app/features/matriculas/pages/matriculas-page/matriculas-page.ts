@@ -1,3 +1,4 @@
+import { CurrencyPipe } from '@angular/common';
 import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { forkJoin, finalize } from 'rxjs';
@@ -12,7 +13,7 @@ import { UpgradeMatricula } from '../../components/upgrade-matricula/upgrade-mat
 
 @Component({
   selector: 'app-matriculas-page',
-  imports: [ReactiveFormsModule, MatriculasList, NovaMatriculaForm, UpgradeMatricula],
+  imports: [ReactiveFormsModule, CurrencyPipe, MatriculasList, NovaMatriculaForm, UpgradeMatricula],
   templateUrl: './matriculas-page.html',
   styleUrl: './matriculas-page.scss'
 })
@@ -32,6 +33,15 @@ export class MatriculasPage implements OnInit {
   sucesso = '';
   erro = '';
   readonly filtros = this.fb.nonNullable.group({ busca: '', status: '' as StatusMatricula | '' });
+
+  get matriculasAtivas(): number { return this.matriculas.filter(item => item.status === 'Ativa').length; }
+  get matriculasCanceladas(): number { return this.matriculas.filter(item => item.status === 'Cancelada').length; }
+  get matriculasConcluidas(): number { return this.matriculas.filter(item => item.status === 'Concluida').length; }
+  get receitaMensalAtiva(): number {
+    return this.matriculas
+      .filter(item => item.status === 'Ativa')
+      .reduce((total, item) => total + item.valorMensal, 0);
+  }
 
   ngOnInit(): void {
     this.carregando = true;

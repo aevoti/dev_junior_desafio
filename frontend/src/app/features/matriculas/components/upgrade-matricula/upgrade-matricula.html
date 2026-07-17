@@ -1,30 +1,32 @@
 <div class="overlay" (click)="fechar.emit()">
   <section class="dialog" role="dialog" aria-modal="true" aria-labelledby="upgrade-title" (click)="$event.stopPropagation()">
-    <header><div><p class="eyebrow">{{ matricula.pokemonNome }}</p><h2 id="upgrade-title">Upgrade de matrícula</h2></div><button type="button" class="close" aria-label="Fechar" (click)="fechar.emit()">×</button></header>
+    <header>
+      <div class="identity"><app-pokemon-avatar [nome]="matricula.pokemonNome" [tamanho]="70" /><div><p class="eyebrow">{{ matricula.pokemonNome }}</p><h2 id="upgrade-title">Upgrade de matrícula</h2><p class="subtitle">Evolua o treinamento sem perder o crédito do plano atual.</p></div></div>
+      <button type="button" class="close" aria-label="Fechar" (click)="fechar.emit()">×</button>
+    </header>
     @if (planosSuperiores.length === 0) {
       <div class="warning">Esta matrícula já está no plano mais alto disponível.</div>
     } @else {
       <form [formGroup]="form" (ngSubmit)="simular()">
-        <label for="novoPlano">Novo plano</label>
+        <label for="novoPlano">Próximo plano de treinamento</label>
         <select id="novoPlano" formControlName="novoPlanoTreinamentoId">
           <option [ngValue]="0">Selecione</option>
           @for (plano of planosSuperiores; track plano.id) { <option [ngValue]="plano.id">{{ plano.nome }} — {{ plano.valorMensal | currency:'BRL' }}</option> }
         </select>
-        <button type="submit" [disabled]="form.invalid || processando">{{ processando && !simulacao ? 'Simulando...' : 'Simular upgrade' }}</button>
+        <button type="submit" class="secondary" [disabled]="form.invalid || processando">{{ processando && !simulacao ? 'Simulando...' : 'Simular upgrade' }}</button>
       </form>
     }
 
     @if (simulacao) {
       <div class="simulation">
+        <div class="plan-flow"><span>{{ simulacao.planoAtualNome }}</span><strong aria-label="para">→</strong><span>{{ simulacao.novoPlanoNome }}</span></div>
         <h3>Resumo da simulação</h3>
         <dl>
-          <div><dt>Plano atual</dt><dd>{{ simulacao.planoAtualNome }}</dd></div>
-          <div><dt>Novo plano</dt><dd>{{ simulacao.novoPlanoNome }}</dd></div>
           <div><dt>Dias restantes</dt><dd>{{ simulacao.diasRestantes }}</dd></div>
-          <div><dt>Crédito anterior</dt><dd>{{ simulacao.creditoPlanoAnterior | currency:'BRL' }}</dd></div>
-          <div><dt>Custo proporcional</dt><dd>{{ simulacao.custoProporcionalNovoPlano | currency:'BRL' }}</dd></div>
+          <div><dt>Crédito do plano anterior</dt><dd>{{ simulacao.creditoPlanoAnterior | currency:'BRL' }}</dd></div>
+          <div><dt>Custo proporcional do novo plano</dt><dd>{{ simulacao.custoProporcionalNovoPlano | currency:'BRL' }}</dd></div>
         </dl>
-        <p class="charge">Primeira cobrança: <strong>{{ simulacao.primeiraCobranca | currency:'BRL' }}</strong></p>
+        <p class="charge"><span>Primeira cobrança</span><strong>{{ simulacao.primeiraCobranca | currency:'BRL' }}</strong></p>
         <button type="button" (click)="confirmar()" [disabled]="processando">{{ processando ? 'Confirmando...' : 'Confirmar upgrade' }}</button>
       </div>
     }

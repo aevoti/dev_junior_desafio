@@ -7,16 +7,16 @@
       <tbody>
         @for (matricula of matriculas; track matricula.id) {
           <tr>
-            <td class="pokemon-cell">
+            <td class="pokemon-cell" data-label="Pokémon">
               <app-pokemon-avatar [nome]="matricula.pokemonNome" [tamanho]="64" />
-              <div><strong [title]="matricula.pokemonNome">{{ matricula.pokemonNome }}</strong>@if (nivelPokemon(matricula.pokemonId); as nivel) { <small>Nível {{ nivel }}</small> }</div>
+              <div class="pokemon-copy"><strong [title]="matricula.pokemonNome">{{ matricula.pokemonNome }}</strong>@if (nivelPokemon(matricula.pokemonId); as nivel) { <small>Nível {{ nivel }}</small> }</div>
             </td>
-            <td>{{ matricula.treinadorNome }}</td>
-            <td>{{ matricula.planoNome }}</td>
-            <td><span class="status" [class]="'status ' + matricula.status.toLowerCase()">{{ rotuloStatus(matricula.status) }}</span></td>
-            <td>{{ matricula.valorMensal | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</td>
-            <td>{{ matricula.dataInicio | date:'dd/MM/yyyy':'':'pt-BR' }}</td>
-            <td>
+            <td data-label="Treinador"><span class="cell-text" [title]="matricula.treinadorNome">{{ matricula.treinadorNome }}</span></td>
+            <td class="plan-cell" data-label="Plano">{{ matricula.planoNome }}</td>
+            <td data-label="Status"><span class="status" [class]="'status ' + matricula.status.toLowerCase()">{{ rotuloStatus(matricula.status) }}</span></td>
+            <td data-label="Valor mensal">{{ matricula.valorMensal | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</td>
+            <td data-label="Início">{{ matricula.dataInicio | date:'dd/MM/yyyy':'':'pt-BR' }}</td>
+            <td data-label="Ação">
               @if (matricula.status === 'Ativa') {
                 <button type="button" class="secondary small" (click)="upgrade.emit(matricula)">Upgrade</button>
               } @else { <span class="muted">—</span> }

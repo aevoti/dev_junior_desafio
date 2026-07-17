@@ -1,7 +1,20 @@
-<header class="hero"><div class="container"><p class="eyebrow">AEVO · Desafio técnico</p><h1>Centro de Treinamento Alto Nível</h1><p>Gestão de matrículas e planos de treinamento Pokémon</p></div></header>
+<header class="hero">
+  <div class="container hero-content">
+    <div class="hero-mark" aria-hidden="true"><span></span></div>
+    <div><p class="eyebrow">Painel do treinador</p><h1>Centro de Treinamento Alto Nível</h1><p>Gestão de matrículas e evolução de Pokémon</p></div>
+    <span class="hero-badge">Temporada 2026</span>
+  </div>
+</header>
 <main class="container">
-  @if (sucesso) { <div class="alert success" role="status">{{ sucesso }} <button aria-label="Fechar mensagem" (click)="sucesso = ''">×</button></div> }
-  @if (erro) { <div class="alert error" role="alert">{{ erro }} <button aria-label="Fechar mensagem" (click)="erro = ''">×</button></div> }
+  @if (sucesso) { <div class="alert success" role="status" aria-live="polite">{{ sucesso }} <button aria-label="Fechar mensagem" (click)="sucesso = ''">×</button></div> }
+  @if (erro) { <div class="alert error" role="alert" aria-live="assertive">{{ erro }} <button aria-label="Fechar mensagem" (click)="erro = ''">×</button></div> }
+
+  <section class="summary" aria-label="Resumo da listagem atual">
+    <article class="summary-card active"><span class="summary-icon">A</span><div><strong>{{ matriculasAtivas }}</strong><span>Matrículas ativas</span></div></article>
+    <article class="summary-card cancelled"><span class="summary-icon">C</span><div><strong>{{ matriculasCanceladas }}</strong><span>Canceladas</span></div></article>
+    <article class="summary-card completed"><span class="summary-icon">✓</span><div><strong>{{ matriculasConcluidas }}</strong><span>Concluídas</span></div></article>
+    <article class="summary-card revenue"><span class="summary-icon">R$</span><div><strong>{{ receitaMensalAtiva | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</strong><span>Receita ativa nesta lista</span></div></article>
+  </section>
 
   <section class="card controls">
     <form [formGroup]="filtros" (ngSubmit)="aplicarFiltros()">
@@ -9,7 +22,7 @@
       <div><label for="status">Status</label><select id="status" formControlName="status"><option value="">Todos</option><option value="Ativa">Ativa</option><option value="Cancelada">Cancelada</option><option value="Concluida">Concluída</option></select></div>
       <div class="actions"><button type="submit" [disabled]="carregando">Aplicar</button><button type="button" class="ghost" (click)="limparFiltros()" [disabled]="carregando">Limpar filtros</button></div>
     </form>
-    <button type="button" class="new" (click)="mostrarNova = true">Nova matrícula</button>
+    <button type="button" class="new" (click)="mostrarNova = true"><span aria-hidden="true">＋</span> Nova matrícula</button>
   </section>
 
   <section class="card list-card">

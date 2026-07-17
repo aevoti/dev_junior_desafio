@@ -1,11 +1,35 @@
 .table-wrap { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; min-width: 760px; }
-th, td { padding: .85rem .7rem; text-align: left; border-bottom: 1px solid #e3e8ef; }
-th { color: #52606d; font-size: .82rem; text-transform: uppercase; }
-.status { display: inline-block; padding: .25rem .55rem; border-radius: 999px; font-size: .8rem; font-weight: 700; background: #edf2f7; }
-.status.ativa { color: #176b45; background: #dcfce7; }
+table { width: 100%; border-collapse: collapse; min-width: 930px; }
+th, td { padding: .9rem .75rem; text-align: left; border-bottom: 1px solid #e6ebf1; vertical-align: middle; }
+th { color: #607086; font-size: .75rem; letter-spacing: .045em; text-transform: uppercase; }
+tbody tr { transition: background .15s ease; }
+tbody tr:hover { background: #f8fafc; }
+.pokemon-cell { display: flex; align-items: center; gap: .8rem; min-width: 205px; }
+.pokemon-copy { min-width: 0; display: grid; gap: .2rem; }
+.pokemon-copy strong, .cell-text { display: block; max-width: 190px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pokemon-copy small { color: var(--muted); font-weight: 650; }
+.plan-cell { white-space: nowrap; }
+.status { display: inline-block; padding: .3rem .6rem; border-radius: 999px; font-size: .78rem; font-weight: 750; background: #edf2f7; }
+.status.ativa { color: #116348; background: #dcfce7; }
 .status.cancelada { color: #9b2c2c; background: #fee2e2; }
-.status.concluida { color: #3b5b92; background: #dbeafe; }
-.empty { text-align: center; padding: 2.5rem; color: #66788a; }
+.status.concluida { color: #28558c; background: #dbeafe; }
+.empty { text-align: center; padding: 3rem 1rem; color: var(--muted); }
 .small { padding: .45rem .75rem; }
 .muted { color: #8a99a8; }
+
+@media (max-width: 650px) {
+  .table-wrap { overflow: visible; }
+  table, tbody, tr, td { display: block; min-width: 0; width: 100%; }
+  thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  tbody { display: grid; gap: .85rem; }
+  tbody tr { padding: .35rem .8rem; border: 1px solid #dfe6ee; border-radius: 13px; background: white; box-shadow: 0 5px 18px rgba(30, 50, 80, .06); }
+  tbody tr:hover { background: white; }
+  td { display: flex; justify-content: space-between; align-items: center; gap: 1rem; min-height: 2.65rem; padding: .58rem 0; border-bottom: 1px dashed #e4e9ef; text-align: right; }
+  td::before { content: attr(data-label); flex: 0 0 auto; color: #617086; font-size: .76rem; font-weight: 750; letter-spacing: .025em; text-transform: uppercase; }
+  td:last-child { border-bottom: 0; }
+  td.pokemon-cell { justify-content: flex-start; padding-block: .8rem; text-align: left; }
+  td.pokemon-cell::before { display: none; }
+  .pokemon-copy { flex: 1; }
+  .pokemon-copy strong, .cell-text { max-width: 190px; }
+  .plan-cell { white-space: normal; }
+}
