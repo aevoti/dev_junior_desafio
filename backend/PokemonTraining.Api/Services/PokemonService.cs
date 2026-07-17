@@ -49,13 +49,13 @@ public class PokemonService(PokemonTrainingDbContext context) : IPokemonService
     }
 
     public async Task<PokemonResponse> TransferirAsync(
-        int id,
+        int pokemonId,
         TransferirPokemonRequest request,
         CancellationToken cancellationToken = default)
     {
         var pokemon = await context.Pokemons
             .Include(x => x.Treinador)
-            .SingleOrDefaultAsync(x => x.Id == id, cancellationToken)
+            .SingleOrDefaultAsync(x => x.Id == pokemonId, cancellationToken)
             ?? throw new RecursoNaoEncontradoException("Pokémon não encontrado.");
 
         var novoTreinador = await context.Treinadores.FindAsync([request.NovoTreinadorId], cancellationToken)
