@@ -6,8 +6,20 @@
   </div>
 </header>
 <main class="container">
-  @if (sucesso) { <div class="alert success" role="status" aria-live="polite">{{ sucesso }} <button aria-label="Fechar mensagem" (click)="sucesso = ''">×</button></div> }
-  @if (erro) { <div class="alert error" role="alert" aria-live="assertive">{{ erro }} <button aria-label="Fechar mensagem" (click)="erro = ''">×</button></div> }
+  @if (sucesso) {
+    <div class="alert success" role="status" aria-live="polite">
+      <span class="feedback-icon success-icon" aria-hidden="true">✓</span>
+      <div class="feedback-copy"><strong>Tudo certo!</strong><span>{{ sucesso }}</span></div>
+      <button aria-label="Fechar mensagem" (click)="sucesso = ''">×</button>
+    </div>
+  }
+  @if (erro) {
+    <div class="alert error" role="alert" aria-live="assertive">
+      <span class="feedback-icon error-icon" aria-hidden="true"><i></i></span>
+      <div class="feedback-copy"><strong>Ops! A ação falhou</strong><span>{{ erro }}</span></div>
+      <button aria-label="Fechar mensagem" (click)="erro = ''">×</button>
+    </div>
+  }
 
   <section class="summary" aria-label="Resumo da listagem atual">
     <article class="summary-card active"><span class="summary-icon">A</span><div><strong>{{ matriculasAtivas }}</strong><span>Matrículas ativas</span></div></article>

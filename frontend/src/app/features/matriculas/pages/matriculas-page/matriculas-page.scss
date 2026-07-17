@@ -31,9 +31,5 @@ input { width: 100%; }
 .eyebrow { margin: 0 0 .2rem; color: var(--pokemon-yellow); font-size: .73rem; font-weight: 850; letter-spacing: .12em; text-transform: uppercase; }
 .list-card .eyebrow { color: var(--pokemon-red); }
 .loading { padding: 2.5rem; text-align: center; color: #52606d; }
-.alert { display: flex; justify-content: space-between; margin-bottom: 1rem; padding: .85rem 1rem; border: 1px solid transparent; border-radius: 10px; }
-.alert.success { color: #176b45; border-color: #a9e8c7; background: #e7faef; }
-.alert.error { color: #9b2c2c; border-color: #f4b5b5; background: #fff0f0; }
-.alert button { padding: 0; border: 0; color: inherit; background: transparent; font-size: 1.2rem; }
 @media (max-width: 950px) { .summary { grid-template-columns: repeat(2, 1fr); } .controls, .controls form { align-items: stretch; flex-direction: column; } .new { width: 100%; } }
 @media (max-width: 520px) { .hero { padding: 1.6rem 0; }.hero-mark { flex-basis: 52px; width: 52px; }.hero-badge { display: none; }.summary { grid-template-columns: 1fr; }.card { padding: .9rem; }.actions { flex-direction: column; }.actions button { width: 100%; } }
