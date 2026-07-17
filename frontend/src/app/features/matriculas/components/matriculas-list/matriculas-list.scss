@@ -8,7 +8,6 @@ tbody tr:hover { background: #f8fafc; }
 .pokemon-copy { min-width: 0; display: grid; justify-items: start; gap: .28rem; }
 .pokemon-copy strong, .cell-text { display: block; max-width: 190px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pokemon-copy strong { color: #172b45; font-size: 1rem; }
-.pokemon-copy .reference { display: block; max-width: 190px; overflow: hidden; color: var(--muted); font-size: .7rem; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
 .level { display: inline-flex; align-items: center; padding: .18rem .48rem; border: 1px solid transparent; border-radius: 999px; font-size: .7rem; font-weight: 800; }
 .level-neutral { color: #4b5563; border-color: #d1d5db; background: #f3f4f6; }
 .level-blue { color: #1d4f91; border-color: #b7d5f4; background: #e5f1ff; }
