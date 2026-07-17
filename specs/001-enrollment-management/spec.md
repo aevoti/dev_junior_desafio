@@ -8,6 +8,14 @@
 
 **Input**: User description: "Gestão de Matrículas (completa) — especificação única cobrindo Treinador, Pokémon, Plano e Matrícula, incluindo R1 (matrícula única ativa), R2 (upgrade pro-rata), R3 (nível mínimo Elite dos 4), R4 (cancelamentos) e R5 (transferência de Pokémon) — todo o núcleo do desafio (DESAFIO.md)."
 
+## Clarifications
+
+### Session 2026-07-17
+
+- Q: Qual regra de arredondamento deve ser aplicada ao valor calculado no cálculo pro-rata do upgrade (R2)? → A: Duas casas decimais, arredondamento padrão (0,5 arredonda para cima)
+- Q: A consulta de MRR deve retornar a linha de Total Geral quando não há nenhuma matrícula ativa em nenhum plano, ou um resultado vazio? → A: Sempre retorna a linha de Total Geral, mesmo com R$ 0,00
+- Q: A busca por nome do Pokémon/Treinador (US3) deve ser sensível a maiúsculas/minúsculas e a acentos? → A: Case-insensitive e accent-insensitive (busca "agua" encontra "Água")
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Matricular Pokémon em Plano de Treinamento (Priority: P1)
@@ -116,6 +124,9 @@ retornam os subconjuntos corretos.
 4. **Given** nenhuma matrícula corresponde à busca, **When** o usuário
    pesquisa por um termo inexistente, **Then** a lista é exibida vazia com
    uma indicação clara de "nenhum resultado", sem erro.
+5. **Given** um Pokémon chamado "Água-viva" cadastrado, **When** o usuário
+   busca por "agua" (sem acento, minúsculo), **Then** a matrícula desse
+   Pokémon aparece no resultado (busca case-insensitive e accent-insensitive).
 
 ---
 
@@ -191,6 +202,9 @@ total geral somam apenas o valor mensal das matrículas ativas.
    executada, **Then** esse plano não aparece com uma linha própria (ver
    Assumptions), mas seu valor de R$ 0,00 está implicitamente refletido por
    sua ausência.
+3. **Given** nenhum plano com qualquer matrícula ativa, **When** a consulta é
+   executada, **Then** o resultado contém apenas a linha de Total Geral, com
+   valor R$ 0,00, em vez de um resultado totalmente vazio.
 
 ### Edge Cases
 
@@ -221,6 +235,10 @@ total geral somam apenas o valor mensal das matrículas ativas.
 - Cálculo pro-rata do upgrade em um mês com 28, 29, 30 ou 31 dias — o
   denominador do cálculo (duração do ciclo) deve refletir o número real de
   dias entre o início do ciclo e seu término, não um valor fixo (R2).
+- Cálculo pro-rata cujo resultado tenha mais de duas casas decimais (ex.:
+  divisão por 29 ou 31 dias) — o valor final deve ser arredondado para duas
+  casas decimais com arredondamento padrão antes de ser exibido ao usuário
+  (R2).
 - Matrícula iniciada em um dia que não existe todo mês (29, 30 ou 31): o
   ciclo seguinte MUST terminar no último dia do mês em que esse dia não
   existir (ex.: matrícula iniciada em 31/01 tem ciclo terminando em 28/02, ou
@@ -256,8 +274,10 @@ total geral somam apenas o valor mensal das matrículas ativas.
   primeira cobrança do novo plano como: (custo do novo plano proporcional aos
   dias restantes do ciclo) menos (crédito do plano antigo proporcional aos
   mesmos dias restantes), usando o número real de dias do ciclo vigente
-  (ver FR-021) como duração do ciclo (não um valor fixo), e MUST expor esse
-  valor calculado ao usuário antes da confirmação.
+  (ver FR-021) como duração do ciclo (não um valor fixo). O resultado MUST
+  ser arredondado para duas casas decimais usando arredondamento padrão
+  (valores exatos em 0,5 na segunda casa decimal arredondam para cima), e o
+  sistema MUST expor esse valor calculado ao usuário antes da confirmação.
 - **FR-010**: Ao confirmar um upgrade, o sistema MUST definir a data de
   término da matrícula anterior como a data do upgrade e criar uma nova
   matrícula ativa (sem data de término) no plano superior, com início na
@@ -285,7 +305,8 @@ total geral somam apenas o valor mensal das matrículas ativas.
   mensal do plano (sem cálculo de pro-rata, por se tratar de um novo ciclo de
   cobrança), sem exigir nenhuma ação manual do Treinador de destino.
 - **FR-016**: O sistema MUST permitir listar matrículas com busca textual por
-  nome do Pokémon ou do Treinador.
+  nome do Pokémon ou do Treinador, de forma case-insensitive e
+  accent-insensitive (ex.: buscar "agua" MUST encontrar "Água").
 - **FR-017**: O sistema MUST permitir filtrar a listagem de matrículas por
   estado derivado da data de término: Ativa (sem data de término), Ativa "a
   encerrar" (data de término igual ou posterior a hoje) ou Encerrada (data de
@@ -296,7 +317,9 @@ total geral somam apenas o valor mensal das matrículas ativas.
 - **FR-019**: O sistema MUST expor uma consulta que retorne a Receita Mensal
   Recorrente agrupada por plano, considerando apenas matrículas ativas (sem
   data de término, ou com data de término igual/posterior a hoje), com uma
-  linha de total geral ao final.
+  linha de total geral ao final. Essa linha de total geral MUST sempre
+  aparecer, mesmo com valor R$ 0,00, inclusive quando nenhum plano tiver
+  matrícula ativa (resultado nunca deve ser um conjunto vazio).
 - **FR-020**: O sistema MUST derivar o estado de uma matrícula (Ativa, Ativa
   "a encerrar", Encerrada) exclusivamente a partir de sua data de término
   opcional, sem persistir um campo de status separado: ausência de data de
@@ -406,6 +429,7 @@ total geral somam apenas o valor mensal das matrículas ativas.
   franquia), não um campo de texto livre.
 - **Unicidade de e-mail do Treinador** é avaliada de forma case-insensitive
   (ex.: "Ana@x.com" e "ana@x.com" são tratados como o mesmo e-mail).
+- **Busca por nome (FR-016)** é case-insensitive e accent-insensitive.
 - **Nível do Pokémon** é sempre um número inteiro entre 1 e 100, inclusive
   nos dois extremos.
 - **Planos sem matrícula ativa não aparecem como linha própria** na consulta

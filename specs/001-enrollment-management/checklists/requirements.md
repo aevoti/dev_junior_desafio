@@ -45,3 +45,9 @@
     tratado como uma instância desse cálculo, não como regra fixa.
   - Essas mesmas decisões já constam documentadas em README.md, seção
     "Decisões técnicas e premissas".
+- Sessão `/speckit-clarify` de 2026-07-17 resolveu 3 novas ambiguidades (ver
+  `## Clarifications` em spec.md): arredondamento do valor pro-rata (R2),
+  comportamento da linha de Total Geral na consulta de MRR quando não há
+  nenhuma matrícula ativa, e sensibilidade a maiúsculas/acentos na busca por
+  nome (US3). Todos os itens do checklist já estavam marcados como
+  aprovados; nenhuma mudança de estado foi necessária.
