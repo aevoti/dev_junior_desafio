@@ -1,0 +1,122 @@
+<div class="page">
+  <div class="page-header">
+    <h1>Matrículas</h1>
+    <a routerLink="/matriculas/nova" class="btn btn-primary">+ Nova Matrícula</a>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filtros">
+    <input
+      type="text"
+      placeholder="Buscar por Pokémon ou Treinador..."
+      [(ngModel)]="busca"
+      (input)="carregar()"
+      class="input-busca"
+    />
+    <select [(ngModel)]="statusFiltro" (change)="carregar()" class="select-status">
+      <option value="">Todos os status</option>
+      <option *ngFor="let s of statusList.slice(1)" [value]="s">{{ s }}</option>
+    </select>
+  </div>
+
+  <div *ngIf="erro" class="alerta-erro">{{ erro }}</div>
+  <div *ngIf="carregando" class="carregando">Carregando...</div>
+
+  <!-- Tabela -->
+  <div class="table-wrapper" *ngIf="!carregando">
+    <table *ngIf="matriculas.length > 0; else vazio">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Pokémon</th>
+          <th>Treinador</th>
+          <th>Plano</th>
+          <th>Início</th>
+          <th>Status</th>
+          <th>Valor</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let m of matriculas">
+          <td>{{ m.id }}</td>
+          <td>{{ m.nomePokemon }}</td>
+          <td>{{ m.nomeTreinador }}</td>
+          <td>{{ planoLabel(m.plano) }}</td>
+          <td>{{ m.dataInicio | date:'dd/MM/yyyy' }}</td>
+          <td><span class="badge" [ngClass]="statusClass(m.status)">{{ m.status }}</span></td>
+          <td>{{ m.valorMensal | currency:'BRL' }}</td>
+          <td>
+            <div class="acoes" *ngIf="m.status === 'Ativa'">
+              <button class="btn btn-sm btn-upgrade" (click)="abrirUpgrade(m)">Upgrade</button>
+              <button class="btn btn-sm btn-cancelar" (click)="cancelar(m.id)">Cancelar</button>
+            </div>
+            <span *ngIf="m.status !== 'Ativa'" class="texto-cinza">—</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <ng-template #vazio>
+      <p class="vazio">Nenhuma matrícula encontrada.</p>
+    </ng-template>
+  </div>
+</div>
+
+<!-- Modal de Upgrade -->
+<div class="modal-overlay" *ngIf="matriculaSelecionada" (click)="fecharUpgrade()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <h2>Upgrade de Plano</h2>
+    <p class="modal-subtitulo">
+      Pokémon: <strong>{{ matriculaSelecionada.nomePokemon }}</strong> —
+      Plano atual: <strong>{{ planoLabel(matriculaSelecionada.plano) }}</strong>
+    </p>
+
+    <div *ngIf="upgradeConfirmado" class="alerta-sucesso">
+      Upgrade realizado com sucesso!
+    </div>
+
+    <div *ngIf="!upgradeConfirmado">
+      <label class="campo-label">Novo plano</label>
+      <select [(ngModel)]="novoPlanoUpgrade" class="select-status full-width" (change)="upgradePreview = null; upgradeErro = ''">
+        <option value="">Selecione o novo plano...</option>
+        <option *ngFor="let p of planosSuperiores(matriculaSelecionada.plano)" [value]="p.valor">
+          {{ p.label }} — R$ {{ p.preco }}/mês
+        </option>
+      </select>
+
+      <button
+        class="btn btn-primary margem-topo"
+        [disabled]="!novoPlanoUpgrade || upgradeCarregando"
+        (click)="calcularPreview()"
+      >
+        Calcular Valor
+      </button>
+
+      <div *ngIf="upgradeErro" class="alerta-erro margem-topo">{{ upgradeErro }}</div>
+
+      <!-- Preview da cobrança -->
+      <div *ngIf="upgradePreview" class="preview-box">
+        <p>{{ upgradePreview.descricao }}</p>
+        <table class="preview-table">
+          <tr>
+            <td>Crédito do plano atual</td>
+            <td>{{ upgradePreview.creditoPlanoAntigo | currency:'BRL' }}</td>
+          </tr>
+          <tr>
+            <td>Custo do novo plano ({{ upgradePreview.diasRestantes }} dias)</td>
+            <td>{{ upgradePreview.custoNovoPlanoDiasRestantes | currency:'BRL' }}</td>
+          </tr>
+          <tr class="destaque">
+            <td><strong>Primeira cobrança</strong></td>
+            <td><strong>{{ upgradePreview.primeiraCobranca | currency:'BRL' }}</strong></td>
+          </tr>
+        </table>
+        <button class="btn btn-primary margem-topo" [disabled]="upgradeCarregando" (click)="confirmarUpgrade()">
+          Confirmar Upgrade
+        </button>
+      </div>
+    </div>
+
+    <button class="btn btn-secondary margem-topo" (click)="fecharUpgrade()">Fechar</button>
+  </div>
+</div>

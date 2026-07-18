@@ -1,0 +1,65 @@
+<div class="page">
+  <div class="page-header">
+    <h1>Nova Matrícula</h1>
+    <a routerLink="/matriculas" class="btn btn-secondary">← Voltar</a>
+  </div>
+
+  <div *ngIf="sucesso" class="alerta-sucesso">
+    Matrícula criada com sucesso! Redirecionando...
+  </div>
+
+  <div *ngIf="erro" class="alerta-erro">{{ erro }}</div>
+
+  <form [formGroup]="form" (ngSubmit)="submeter()" class="formulario" *ngIf="!sucesso">
+
+    <div class="campo">
+      <label>Pokémon *</label>
+      <select formControlName="pokemonId" class="select-status full-width">
+        <option [value]="null">Selecione um Pokémon...</option>
+        <option *ngFor="let p of pokemons" [value]="p.id">
+          {{ p.nome }} ({{ p.tipo }}, Nível {{ p.nivel }}) — {{ p.nomeTreinador }}
+        </option>
+      </select>
+      <div class="campo-erro" *ngIf="form.get('pokemonId')?.invalid && form.get('pokemonId')?.touched">
+        Selecione um Pokémon.
+      </div>
+    </div>
+
+    <div class="campo" *ngIf="pokemonSelecionado">
+      <div class="pokemon-info">
+        <span>Pokémon selecionado: <strong>{{ pokemonSelecionado.nome }}</strong></span>
+        <span>Nível: <strong>{{ pokemonSelecionado.nivel }}</strong></span>
+        <span *ngIf="pokemonSelecionado.nivel < 50" class="aviso-nivel">
+          ⚠ Nível abaixo de 50 — plano Elite dos 4 indisponível.
+        </span>
+      </div>
+    </div>
+
+    <div class="campo">
+      <label>Plano de Treinamento *</label>
+      <div class="planos-grid">
+        <div
+          *ngFor="let p of planos"
+          class="plano-card"
+          [class.plano-selecionado]="form.value.plano === p.valor"
+          [class.plano-desabilitado]="planoDesabilitado(p.valor)"
+          (click)="!planoDesabilitado(p.valor) && form.patchValue({plano: p.valor})"
+        >
+          <strong>{{ p.label }}</strong>
+          <span class="plano-preco">R$ {{ p.preco }}/mês</span>
+          <span *ngIf="p.valor === 'EliteDos4'" class="plano-req">Nível mín. 50</span>
+        </div>
+      </div>
+      <div class="campo-erro" *ngIf="form.get('plano')?.invalid && form.get('plano')?.touched">
+        Selecione um plano.
+      </div>
+    </div>
+
+    <div class="acoes-form">
+      <button type="submit" class="btn btn-primary" [disabled]="enviando">
+        {{ enviando ? 'Criando...' : 'Criar Matrícula' }}
+      </button>
+      <a routerLink="/matriculas" class="btn btn-secondary">Cancelar</a>
+    </div>
+  </form>
+</div>

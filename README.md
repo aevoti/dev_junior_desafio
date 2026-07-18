@@ -1,124 +1,168 @@
-# Desafio Técnico — Desenvolvedor(a) Junior
+# Centro de Treinamento Pokémon "Alto Nível"
 
-## Centro de Treinamento Pokémon "Alto Nível"
-
-Olá candidato(a),![alt text](https://static.wikia.nocookie.net/pokemongo/images/c/cd/Sticker_Funwari_Charmander.png/revision/latest?cb=20200817175607)
-
-Primeiramente, parabéns por ter chegado até aqui! Essa tem sido uma Jornada Seletiva de altíssimo nível, mas o seu cadastro se destacou e não temos dúvidas de que você pode ser a pessoa certa para compor o nosso time.<br><br>
-Abaixo, você encontrará todos as informações necessárias para realizar a sua Etapa de Task.<br>
-
-Este desafio simula um problema real, com uma temática mais divertida.
-
-
-O **Centro de Treinamento Alto Nível** é um serviço por assinatura onde Treinadores matriculam seus Pokémon em planos de treinamento mensais. Sua missão é construir o sistema de gestão dessas matrículas.
+Sistema de gestão de matrículas de Pokémon em planos de treinamento.
 
 ---
 
-## 🎯 O que você vai construir
+## Estrutura do Projeto
 
-Uma aplicação com três partes:
-
-1. **API REST em .NET** — gestão de Treinadores, Pokémon e Matrículas em planos
-2. **Banco de dados SQL Server** — modelagem e uma consulta específica
-3. **Frontend em Angular** — telas de listagem e cadastro
-
----
-
-## 📋 Regras de negócio
-
-### Entidades
-
-- **Treinador**: nome, e-mail (único), cidade de origem.
-- **Pokémon**: nome, tipo (ex.: Fogo, Água, Planta...), nível (1 a 100) e o Treinador dono.
-- **Matrícula**: vincula um Pokémon a um **Plano de Treinamento**, com data de início, status (Ativa, Cancelada, Concluída) e valor mensal.
-
-### Planos de Treinamento
-
-| Plano | Valor mensal | Descrição |
-|---|---|---|
-| Ginásio Local | R$ 50,00 | Treinos básicos |
-| Liga Regional | R$ 120,00 | Treinos intermediários + batalhas simuladas |
-| Elite dos 4 | R$ 300,00 | Preparação completa para a Liga |
-
-### Regras obrigatórias
-
-**R1 — Matrícula única ativa:** um Pokémon **não pode** ter duas matrículas ativas ao mesmo tempo. A API deve rejeitar a tentativa com uma mensagem de erro clara, e o frontend deve exibir esse erro de forma amigável ao usuário.
-
-**R2 — Upgrade com cálculo proporcional (pro-rata):** um Treinador pode fazer upgrade da matrícula de um Pokémon para um plano superior a qualquer momento do ciclo mensal. Quando isso acontece:
-
-- A matrícula atual é encerrada e uma nova é criada no plano superior, iniciando na data do upgrade.
-- O valor da **primeira cobrança do novo plano** deve ser proporcional aos dias restantes do ciclo, descontando o valor já pago não utilizado do plano antigo.
-- **Exemplo:** um Pokémon está no plano Ginásio Local (R$ 50) e faz upgrade para Liga Regional (R$ 120) no dia 16 de um ciclo de 30 dias. Restam 15 dias. Crédito do plano antigo: R$ 50 × (15/30) = R$ 25. Custo do novo plano nos dias restantes: R$ 120 × (15/30) = R$ 60. **Primeira cobrança: R$ 60 − R$ 25 = R$ 35.**
-- A API deve expor um endpoint de upgrade que retorna o valor calculado dessa primeira cobrança.
-- Downgrade (plano inferior) **não é permitido** — a API deve rejeitar.
-
-**R3 — Nível mínimo para a Elite dos 4:** apenas Pokémon de nível **50 ou superior** podem ser matriculados (ou receber upgrade) no plano Elite dos 4.
-
-**R4 — Matrículas canceladas devem ser tratadas adequadamente nos cálculos e relatórios.**
-
-**R5 — Se um Pokémon for transferido para outro Treinador, suas matrículas devem se comportar de forma coerente.**
-
-> 💡 Se alguma regra parecer incompleta ou ambígua, você pode nos perguntar **ou** tomar uma decisão e documentá-la no README. As duas atitudes são bem-vindas — o que avaliamos é como você lida com isso.
+```
+Desafio/
+├── backend/PokemonTrainingCenter/   # API REST em .NET 8
+├── frontend/                        # SPA em Angular 15
+└── database/
+    ├── schema.sql                   # Script de criação do banco
+    └── consulta-mrr.sql             # Consulta MRR por plano
+```
 
 ---
 
-## 🗄️ Parte SQL Server
+## Pré-requisitos
 
-Além da modelagem das tabelas (entregue o script de criação `schema.sql`), escreva **em SQL puro** (arquivo `consulta-mrr.sql`, sem ORM) a seguinte consulta:
-
-> **Receita Mensal Recorrente (MRR) do Centro, agrupada por plano**, considerando apenas matrículas ativas, com uma linha de total geral ao final.
-
----
-
-## 🖥️ Parte Angular
-
-Telas mínimas:
-
-1. **Listagem de matrículas** com busca por nome do Pokémon ou do Treinador e filtro por status.
-2. **Formulário de nova matrícula** com validações (campos obrigatórios, nível mínimo para Elite dos 4).
-3. **Fluxo de upgrade**: ao solicitar upgrade, exibir o valor da primeira cobrança retornado pela API antes de confirmar.
-4. **Tratamento de erros da API** de forma amigável (ex.: tentativa de matrícula duplicada — R1).
-
-Não avaliamos beleza visual. Avaliamos organização de componentes, validações e experiência básica de uso.
+| Ferramenta         | Versão mínima |
+|--------------------|---------------|
+| .NET SDK           | 8.0           |
+| SQL Server         | 2019 ou superior (LocalDB também funciona) |
+| Node.js            | 14.20+        |
+| Angular CLI        | 15.x          |
 
 ---
 
-## 🤖 Uso de Inteligência Artificial
+## 1. Banco de Dados
 
-**O uso de IA (Copilot, ChatGPT, Claude etc.) é permitido e incentivado** — faz parte do nosso dia a dia. Pedimos apenas transparência: descreva no README como você usou (o que pediu, o que aproveitou, o que precisou corrigir ou reescrever).
+### Opção A — Migrations automáticas (recomendado)
 
-Importante: haverá uma **sessão de conversa técnica** sobre a sua entrega, onde pediremos que você explique trechos do código e faça pequenas modificações ao vivo. Entregar código que você não compreende não vai te ajudar nessa etapa. 🙂
+A API aplica as migrations automaticamente ao iniciar. Basta garantir que o SQL Server está acessível e ajustar a connection string em `backend/PokemonTrainingCenter/appsettings.json`:
+
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost;Database=PokemonTrainingCenter;Trusted_Connection=True;TrustServerCertificate=True;"
+  }
+}
+```
+
+> Para SQL Server Express ou instância nomeada, use: `Server=localhost\SQLEXPRESS;...`
+> Para LocalDB: `Server=(localdb)\\mssqllocaldb;Database=PokemonTrainingCenter;Trusted_Connection=True;`
+
+### Opção B — Script manual
+
+Execute `database/schema.sql` no SQL Server Management Studio ou via `sqlcmd`:
+
+```bash
+sqlcmd -S localhost -i database/schema.sql
+```
 
 ---
 
-## 📦 Entrega
+## 2. Backend (API .NET 8)
 
-- O Envio deve ser feito por PullRequest com o nome completo do Candidato.
-- Prazo: **5 dias corridos** a partir do recebimento. Estimamos algo entre 4 e 8 horas de trabalho — não é esperado que você use os 5 dias inteiros.
-- O projeto deve rodar localmente com instruções claras no README.
+```bash
+cd backend/PokemonTrainingCenter
+dotnet run
+```
 
-### README obrigatório, contendo:
-
-1. Instruções de execução (backend, frontend e scripts de banco).
-2. Decisões técnicas e premissas assumidas (especialmente sobre R4 e R5).
-3. O que você faria diferente ou melhoraria com mais tempo.
-4. Como utilizou IA durante o desenvolvimento.
+A API sobe em `http://localhost:5000`.  
+O Swagger fica disponível em `http://localhost:5000/swagger`.
 
 ---
 
-## ✅ O que avaliamos
+## 3. Frontend (Angular 15)
 
-- Corretude das regras de negócio, incluindo casos de borda (R1, R2, R3).
-- Modelagem do banco e a consulta SQL solicitada.
-- Organização do código no backend e no frontend.
-- Clareza na comunicação: README, premissas documentadas, perguntas feitas.
-- Na conversa técnica: compreensão do próprio código e raciocínio ao modificá-lo.
+```bash
+cd frontend
+npm install
+ng serve
+```
 
+Acesse `http://localhost:4200`.
 
-Quaisquer dúvidas técnicas em relação à Task, não deixe de entrar em contato com o e-mail: carlos.pedroni@aevo.com.br!
+> Se `ng` não for reconhecido: `npm install -g @angular/cli@15`
 
-O nosso Time de Pessoas e Cultura se encontra também à disposição para quaisquer outras questões que achar relevante. Basta nos contatar no e-mail: rh@aevo.com.br!
+---
 
-Estes canais de comunicação estarão sempre abertos para você, não hesite em nos contatar caso tenha dúvidas.
+## Endpoints da API
 
-Boa sorte! 🧡 ![alt text](https://static.wikia.nocookie.net/pokemongo/images/a/af/Sticker_Funwari_Bulbasaur_bye.png/revision/latest?cb=20200825201636)
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| GET | /api/treinadores | Lista treinadores |
+| POST | /api/treinadores | Cria treinador |
+| PUT | /api/treinadores/{id} | Atualiza treinador |
+| DELETE | /api/treinadores/{id} | Remove treinador |
+| GET | /api/pokemons | Lista pokémons (filtro: `?treinadorId=`) |
+| POST | /api/pokemons | Cria pokémon |
+| PUT | /api/pokemons/{id} | Atualiza pokémon |
+| PATCH | /api/pokemons/{id}/transferir | Transfere para outro treinador |
+| GET | /api/matriculas | Lista matrículas (filtros: `?busca=&status=`) |
+| POST | /api/matriculas | Cria matrícula |
+| PATCH | /api/matriculas/{id}/cancelar | Cancela matrícula |
+| GET | /api/matriculas/{id}/upgrade/preview | Calcula valor do upgrade (R2) |
+| POST | /api/matriculas/{id}/upgrade | Executa o upgrade |
+
+---
+
+## Regras de Negócio Implementadas
+
+### R1 — Matrícula única ativa
+Um Pokémon não pode ter duas matrículas ativas ao mesmo tempo. Rejeitado na API com HTTP 422 e mensagem clara. O frontend exibe o erro de forma amigável (alerta vermelho).  
+Reforçado também com índice único no banco (`UX_Matriculas_Pokemon_Ativa` filtrando `Status = 'Ativa'`).
+
+### R2 — Upgrade com pro-rata
+O endpoint `GET /api/matriculas/{id}/upgrade/preview?novoPlano=LigaRegional` retorna:
+- `creditoPlanoAntigo`: valor proporcional aos dias não utilizados do plano atual
+- `custoNovoPlanoDiasRestantes`: custo do novo plano pelos dias restantes
+- `primeiraCobranca`: diferença a ser cobrada (nunca negativa)
+
+O frontend exibe essa prévia antes de pedir confirmação. Downgrade retorna HTTP 422.
+
+O ciclo é calculado a partir da `DataInicio` da matrícula (mês corrente de 30 dias variáveis via `AddMonths(1)`).
+
+### R3 — Nível mínimo Elite dos 4
+Pokémon com nível < 50 não pode ser matriculado nem receber upgrade para o plano Elite dos 4. Validado tanto na API quanto no frontend (o card do plano é desabilitado visualmente).
+
+### R4 — Matrículas canceladas
+Matrículas canceladas ficam registradas no histórico com `Status = 'Cancelada'`. Não entram no cálculo de MRR (`consulta-mrr.sql` filtra apenas `Status = 'Ativa'`). Não podem ser canceladas novamente.
+
+### R5 — Transferência de Pokémon
+O endpoint `PATCH /api/pokemons/{id}/transferir` muda o `TreinadorId`. As matrículas **permanecem vinculadas ao Pokémon** (não ao Treinador), então continuam ativas normalmente. A listagem de matrículas mostrará o novo treinador automaticamente, pois o nome é derivado da relação Pokémon → Treinador no momento da consulta.
+
+---
+
+## Decisões Técnicas
+
+**Por que os planos estão como enum e não em tabela?**  
+O enunciado define os três planos com valores fixos. Armazenar em tabela adicionaria complexidade sem ganho real para o escopo do desafio. Se os planos fossem dinâmicos, migraria para tabela.
+
+**Por que `ValorMensal` é salvo na matrícula?**  
+Mantém o histórico correto mesmo que o valor do plano mude no futuro. A primeira cobrança do upgrade (pro-rata) também é persistida.
+
+**Migrations vs schema.sql manual**  
+O projeto usa EF Core Migrations aplicadas automaticamente no startup (`db.Database.Migrate()`). O `schema.sql` está disponível para visualização e execução manual, mas não é o método principal.
+
+**CORS**  
+A API aceita qualquer origem em desenvolvimento para facilitar a integração local. Em produção, deve ser restrito.
+
+---
+
+## O que faria com mais tempo
+
+- Testes unitários no `MatriculaService` (especialmente o cálculo de pro-rata)
+- Paginação na listagem de matrículas
+- Telas de CRUD de Treinadores e Pokémons no frontend
+- Autenticação JWT
+- Dashboard com cards de MRR por plano consumindo a consulta SQL
+- Validação de e-mail no formulário de Treinador com feedback em tempo real
+
+---
+
+## Como usei IA (Claude)
+
+Utilizei o Claude como par de desenvolvimento ao longo de todo o projeto:
+
+- **Geração da estrutura inicial**: solicitei a criação dos models, DTOs, DbContext e controllers com as regras de negócio descritas no enunciado. Revisei cada arquivo antes de aceitar, corrigindo detalhes de nomenclatura e ajustando a lógica de pro-rata.
+- **Cálculo de pro-rata (R2)**: descrevi o exemplo do enunciado e pedi a implementação; revisei a fórmula manualmente para garantir que `diasRestantes` nunca seja negativo e que `primeiraCobranca` seja ≥ 0.
+- **Consulta SQL (MRR)**: pedi o esqueleto da query com `UNION ALL` para a linha de total; ajustei o `ORDER BY` com `CASE` para garantir a ordenação correta dos planos.
+- **Frontend Angular**: solicitei os templates HTML e os estilos CSS; refinei a UX do modal de upgrade e o comportamento do card de plano desabilitado para Elite dos 4.
+- **O que precisei corrigir**: compatibilidade de versões (EF Core 8 com .NET 8, Angular CLI 15 com Node 14), caminho de ferramentas (`dotnet-ef` global), e pequenos ajustes de tipagem nos componentes Angular.
+
+Compreendo integralmente o código produzido e consigo explicar qualquer trecho ou modificá-lo ao vivo.
