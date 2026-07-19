@@ -1,0 +1,21 @@
+# .NET
+api/**/bin/
+api/**/obj/
+api/**/*.user
+
+# Angular / Node
+web/node_modules/
+web/dist/
+web/.angular/
+
+# IDE
+.vs/
+.vscode/
+*.suo
+
+# Ambiente
+.env
+*.local.json
+
+# SQL Server (dados locais do container)
+db-data/

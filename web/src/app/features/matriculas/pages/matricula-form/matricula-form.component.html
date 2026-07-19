@@ -1,0 +1,40 @@
+<section>
+  <h2>Nova Matrícula</h2>
+
+  <p *ngIf="erroApi" role="alert">{{ erroApi }}</p>
+
+  <form #form="ngForm" (ngSubmit)="submeter(form)">
+    <label>
+      ID do Pokémon
+      <input type="number" name="pokemonId" [(ngModel)]="pokemonId" required min="1" />
+    </label>
+
+    <label>
+      Nível do Pokémon
+      <input type="number" name="nivelPokemon" [(ngModel)]="nivelPokemon" required min="1" max="100" />
+    </label>
+
+    <label>
+      Plano de Treinamento
+      <select name="planoTreinamentoId" [(ngModel)]="planoTreinamentoId" required>
+        <option [ngValue]="null" disabled>Selecione um plano</option>
+        <option *ngFor="let plano of planos" [ngValue]="plano.id">
+          {{ plano.nome }} - {{ plano.valorMensal | currency: 'BRL' }}
+        </option>
+      </select>
+    </label>
+
+    <p *ngIf="nivelInsuficiente" role="alert">
+      Este plano exige nível mínimo {{ NIVEL_MINIMO_ELITE_DOS_4 }} (R3).
+    </p>
+
+    <label>
+      Data de início
+      <input type="date" name="dataInicio" [(ngModel)]="dataInicio" required />
+    </label>
+
+    <button type="submit" [disabled]="form.invalid || nivelInsuficiente || enviando">
+      {{ enviando ? 'Salvando...' : 'Matricular' }}
+    </button>
+  </form>
+</section>

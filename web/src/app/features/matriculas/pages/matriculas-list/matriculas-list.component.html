@@ -1,0 +1,47 @@
+<section>
+  <h2>Matrículas</h2>
+
+  <form (ngSubmit)="buscar()">
+    <input
+      type="text"
+      name="busca"
+      placeholder="Buscar por Pokémon ou Treinador"
+      [(ngModel)]="busca"
+    />
+    <select name="status" [(ngModel)]="statusSelecionado">
+      <option value="">Todos os status</option>
+      <option value="Ativa">Ativa</option>
+      <option value="Cancelada">Cancelada</option>
+      <option value="Concluida">Concluída</option>
+    </select>
+    <button type="submit">Buscar</button>
+  </form>
+
+  <p *ngIf="erro" role="alert">{{ erro }}</p>
+  <p *ngIf="carregando">Carregando...</p>
+
+  <table *ngIf="!carregando && matriculas.length">
+    <thead>
+      <tr>
+        <th>Pokémon</th>
+        <th>Treinador</th>
+        <th>Plano</th>
+        <th>Status</th>
+        <th>Valor Mensal</th>
+        <th>Início</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let matricula of matriculas">
+        <td>{{ matricula.pokemonNome }}</td>
+        <td>{{ matricula.treinadorNome }}</td>
+        <td>{{ matricula.planoTreinamentoNome }}</td>
+        <td>{{ matricula.status }}</td>
+        <td>{{ matricula.valorMensal | currency: 'BRL' }}</td>
+        <td>{{ matricula.dataInicio | date: 'dd/MM/yyyy' }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p *ngIf="!carregando && !matriculas.length">Nenhuma matrícula encontrada.</p>
+</section>

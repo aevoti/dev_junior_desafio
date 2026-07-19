@@ -1,0 +1,24 @@
+<div class="modal">
+  <h3>Upgrade de Plano</h3>
+
+  <label>
+    Novo plano
+    <select [(ngModel)]="planoSelecionadoId" name="planoSelecionadoId">
+      <option [ngValue]="null" disabled>Selecione</option>
+      <option *ngFor="let plano of planosDisponiveis" [ngValue]="plano.id">{{ plano.nome }}</option>
+    </select>
+  </label>
+
+  <button type="button" (click)="simular()">Calcular</button>
+
+  <p *ngIf="erro" role="alert">{{ erro }}</p>
+
+  <div *ngIf="simulacao">
+    <p>Crédito do plano antigo: {{ simulacao.creditoPlanoAntigo | currency: 'BRL' }}</p>
+    <p>Custo do novo plano (dias restantes): {{ simulacao.custoNovoPlanoRestante | currency: 'BRL' }}</p>
+    <p><strong>Primeira cobrança: {{ simulacao.valorPrimeiraCobranca | currency: 'BRL' }}</strong></p>
+    <button type="button" (click)="confirmar()">Confirmar upgrade</button>
+  </div>
+
+  <button type="button" (click)="fechado.emit()">Cancelar</button>
+</div>
