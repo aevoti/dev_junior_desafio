@@ -21,6 +21,7 @@ public record MatriculaResponse(
         decimal ValorPrimeiraCobranca,
         int PokemonId,
         string PokemonNome,
+        int Nivel,
         int TreinadorId,
         string TreinadorNome,
         int PlanoId,
