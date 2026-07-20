@@ -1,10 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PokemonTrainingCenter.Domain.Entities;
+using PokemonTrainingCenter.Domain.Repositories;
 
-namespace PokemonTrainingCenter.Domain.Persistence;
+namespace PokemonTrainingCenter.Infrastructure.Persistence;
 
-public class AppDbContext : DbContext
+public class AppDbContext : DbContext, IUnitOfWork
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {

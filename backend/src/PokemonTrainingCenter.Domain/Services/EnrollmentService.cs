@@ -1,7 +1,6 @@
-using Microsoft.EntityFrameworkCore;
 using PokemonTrainingCenter.Domain.Entities;
 using PokemonTrainingCenter.Domain.Exceptions;
-using PokemonTrainingCenter.Domain.Persistence;
+using PokemonTrainingCenter.Domain.Repositories;
 
 namespace PokemonTrainingCenter.Domain.Services;
 
@@ -16,20 +15,33 @@ public class EnrollmentService
     public const int EliteDosQuatroMinimumLevel = 50;
     private const string EliteDosQuatroPlanName = "Elite dos 4";
 
-    private readonly AppDbContext _db;
+    private readonly IEnrollmentRepository _enrollments;
+    private readonly IPokemonRepository _pokemons;
+    private readonly ITrainingPlanRepository _trainingPlans;
+    private readonly ITrainerRepository _trainers;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public EnrollmentService(AppDbContext db)
+    public EnrollmentService(
+        IEnrollmentRepository enrollments,
+        IPokemonRepository pokemons,
+        ITrainingPlanRepository trainingPlans,
+        ITrainerRepository trainers,
+        IUnitOfWork unitOfWork)
     {
-        _db = db;
+        _enrollments = enrollments;
+        _pokemons = pokemons;
+        _trainingPlans = trainingPlans;
+        _trainers = trainers;
+        _unitOfWork = unitOfWork;
     }
 
     /// <summary>Creates a new active enrollment for a Pokémon in a plan (FR-005, FR-006, FR-007).</summary>
     public async Task<Enrollment> CreateEnrollmentAsync(int pokemonId, int trainingPlanId, CancellationToken ct = default)
     {
-        var pokemon = await _db.Pokemons.FirstOrDefaultAsync(p => p.Id == pokemonId, ct)
+        var pokemon = await _pokemons.GetByIdAsync(pokemonId, ct)
             ?? throw new DomainValidationException("Pokémon não encontrado.", 404);
 
-        var plan = await _db.TrainingPlans.FirstOrDefaultAsync(p => p.Id == trainingPlanId, ct)
+        var plan = await _trainingPlans.GetByIdAsync(trainingPlanId, ct)
             ?? throw new DomainValidationException("Plano de treinamento não encontrado.", 404);
 
         await EnsureNoActiveEnrollmentAsync(pokemonId, ct);
@@ -46,17 +58,15 @@ public class EnrollmentService
             MonthlyPrice = plan.MonthlyPrice
         };
 
-        _db.Enrollments.Add(enrollment);
-        await _db.SaveChangesAsync(ct);
+        _enrollments.Add(enrollment);
+        await _unitOfWork.SaveChangesAsync(ct);
 
         return enrollment;
     }
 
     private async Task EnsureNoActiveEnrollmentAsync(int pokemonId, CancellationToken ct)
     {
-        var now = DateTime.UtcNow;
-        var hasActive = await _db.Enrollments.AnyAsync(
-            e => e.PokemonId == pokemonId && (e.EndDate == null || e.EndDate.Value >= now), ct);
+        var hasActive = await _enrollments.HasOpenOrActiveAsync(pokemonId, DateTime.UtcNow, ct);
 
         if (hasActive)
         {
@@ -102,8 +112,8 @@ public class EnrollmentService
             MonthlyPrice = newPlan.MonthlyPrice
         };
 
-        _db.Enrollments.Add(newEnrollment);
-        await _db.SaveChangesAsync(ct);
+        _enrollments.Add(newEnrollment);
+        await _unitOfWork.SaveChangesAsync(ct);
 
         return (enrollment, newEnrollment, proration);
     }
@@ -111,7 +121,7 @@ public class EnrollmentService
     private async Task<(Enrollment Enrollment, TrainingPlan NewPlan, Pokemon Pokemon)> LoadUpgradeContextAsync(
         int enrollmentId, int newTrainingPlanId, CancellationToken ct)
     {
-        var enrollment = await _db.Enrollments.FirstOrDefaultAsync(e => e.Id == enrollmentId, ct)
+        var enrollment = await _enrollments.GetByIdAsync(enrollmentId, ct)
             ?? throw new DomainValidationException("Matrícula não encontrada.", 404);
 
         if (!enrollment.IsActive)
@@ -128,10 +138,10 @@ public class EnrollmentService
             throw new DomainValidationException("Esta matrícula já foi cancelada e não pode receber upgrade.");
         }
 
-        var newPlan = await _db.TrainingPlans.FirstOrDefaultAsync(p => p.Id == newTrainingPlanId, ct)
+        var newPlan = await _trainingPlans.GetByIdAsync(newTrainingPlanId, ct)
             ?? throw new DomainValidationException("Plano de treinamento não encontrado.", 404);
 
-        var pokemon = await _db.Pokemons.FirstAsync(p => p.Id == enrollment.PokemonId, ct);
+        var pokemon = (await _pokemons.GetByIdAsync(enrollment.PokemonId, ct))!;
 
         if (newPlan.MonthlyPrice <= enrollment.MonthlyPrice)
         {
@@ -150,7 +160,7 @@ public class EnrollmentService
     /// <summary>Cancels an active enrollment: EndDate = end of the current paid cycle, no refund (FR-012, R4).</summary>
     public async Task<Enrollment> CancelEnrollmentAsync(int enrollmentId, CancellationToken ct = default)
     {
-        var enrollment = await _db.Enrollments.FirstOrDefaultAsync(e => e.Id == enrollmentId, ct)
+        var enrollment = await _enrollments.GetByIdAsync(enrollmentId, ct)
             ?? throw new DomainValidationException("Matrícula não encontrada.", 404);
 
         if (!enrollment.IsActive)
@@ -163,7 +173,7 @@ public class EnrollmentService
         // ciclo, para o Pokémon manter acesso durante todo esse dia.
         enrollment.EndDate = cycleEnd.Date.AddDays(1).AddTicks(-1);
 
-        await _db.SaveChangesAsync(ct);
+        await _unitOfWork.SaveChangesAsync(ct);
         return enrollment;
     }
 
@@ -176,10 +186,10 @@ public class EnrollmentService
     public async Task<(Pokemon Pokemon, Enrollment? ClosedEnrollment, Enrollment? NewEnrollment)> TransferPokemonAsync(
         int pokemonId, int newTrainerId, CancellationToken ct = default)
     {
-        var pokemon = await _db.Pokemons.FirstOrDefaultAsync(p => p.Id == pokemonId, ct)
+        var pokemon = await _pokemons.GetByIdAsync(pokemonId, ct)
             ?? throw new DomainValidationException("Pokémon não encontrado.", 404);
 
-        var newTrainer = await _db.Trainers.FirstOrDefaultAsync(t => t.Id == newTrainerId, ct)
+        var newTrainer = await _trainers.GetByIdAsync(newTrainerId, ct)
             ?? throw new DomainValidationException("Treinador de destino não encontrado.", 404);
 
         if (pokemon.TrainerId == newTrainerId)
@@ -192,9 +202,7 @@ public class EnrollmentService
         // matrícula encerrada por upgrade/transferência anterior no mesmo
         // dia já tem EndDate no passado em relação a "now", então não é mais
         // ambígua com a matrícula que a substituiu.
-        var activeEnrollment = await _db.Enrollments
-            .Where(e => e.PokemonId == pokemonId && (e.EndDate == null || e.EndDate.Value >= now))
-            .FirstOrDefaultAsync(ct);
+        var activeEnrollment = await _enrollments.GetActiveByPokemonIdAsync(pokemonId, now, ct);
 
         Enrollment? closedEnrollment = null;
         Enrollment? newEnrollment = null;
@@ -217,12 +225,12 @@ public class EnrollmentService
                 EndDate = null,
                 MonthlyPrice = activeEnrollment.MonthlyPrice
             };
-            _db.Enrollments.Add(newEnrollment);
+            _enrollments.Add(newEnrollment);
         }
 
         pokemon.TrainerId = newTrainerId;
         pokemon.Trainer = newTrainer;
-        await _db.SaveChangesAsync(ct);
+        await _unitOfWork.SaveChangesAsync(ct);
 
         return (pokemon, closedEnrollment, newEnrollment);
     }

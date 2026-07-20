@@ -1,9 +1,8 @@
 using System.Globalization;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using PokemonTrainingCenter.Api.Contracts;
-using PokemonTrainingCenter.Domain.Persistence;
+using PokemonTrainingCenter.Domain.Repositories;
 using PokemonTrainingCenter.Domain.Services;
 
 namespace PokemonTrainingCenter.Api.Controllers;
@@ -13,24 +12,19 @@ namespace PokemonTrainingCenter.Api.Controllers;
 public class EnrollmentsController : ControllerBase
 {
     private readonly EnrollmentService _enrollmentService;
-    private readonly AppDbContext _db;
+    private readonly IEnrollmentRepository _enrollments;
 
-    public EnrollmentsController(EnrollmentService enrollmentService, AppDbContext db)
+    public EnrollmentsController(EnrollmentService enrollmentService, IEnrollmentRepository enrollments)
     {
         _enrollmentService = enrollmentService;
-        _db = db;
+        _enrollments = enrollments;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<EnrollmentListItemResponse>>> GetAll(
         [FromQuery] string? search, [FromQuery] string? status)
     {
-        var enrollments = await _db.Enrollments
-            .Include(e => e.Pokemon!)
-            .Include(e => e.Trainer)
-            .Include(e => e.TrainingPlan)
-            .OrderByDescending(e => e.StartDate)
-            .ToListAsync();
+        var enrollments = await _enrollments.GetAllWithDetailsAsync();
 
         IEnumerable<Domain.Entities.Enrollment> filtered = enrollments;
 

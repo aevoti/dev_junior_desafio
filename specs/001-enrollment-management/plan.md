@@ -135,13 +135,16 @@ backend/
 │   │   ├── Entities/          # Trainer, Pokemon, TrainingPlan, Enrollment
 │   │   ├── Enums/             # PokemonType (18 valores fixos)
 │   │   ├── Exceptions/        # DomainValidationException (mensagem + status code)
-│   │   ├── Persistence/       # AppDbContext (movido de Infrastructure — ver nota abaixo)
+│   │   ├── Repositories/      # ITrainerRepository, IPokemonRepository, ITrainingPlanRepository,
+│   │   │                      # IEnrollmentRepository, IUnitOfWork — contratos; Domain não
+│   │   │                      # referencia EF Core (ver nota abaixo)
 │   │   └── Services/          # EnrollmentService (R1-R5), BillingCycleCalculator (R2)
 │   └── PokemonTrainingCenter.Infrastructure/
-│       └── Migrations/        # EF Core migrations (origem do database/schema.sql);
-│                               # MigrationsAssembly configurado explicitamente no
-│                               # Program.cs para apontar aqui, já que o AppDbContext
-│                               # mora no assembly do Domain
+│       ├── Persistence/       # AppDbContext (voltou para cá — ver nota abaixo)
+│       ├── Repositories/      # TrainerRepository, PokemonRepository, TrainingPlanRepository,
+│       │                      # EnrollmentRepository — implementam os contratos do Domain
+│       │                      # usando AppDbContext; AppDbContext também implementa IUnitOfWork
+│       └── Migrations/        # EF Core migrations (origem do database/schema.sql)
 └── tests/
     ├── PokemonTrainingCenter.UnitTests/     # R1-R5 e BillingCycleCalculator (obrigatório)
     └── PokemonTrainingCenter.IntegrationTests/ # Testes de API ponta a ponta (se o tempo permitir)
@@ -171,10 +174,11 @@ database/
 └── consulta-mrr.sql       # SQL puro, sem ORM
 ```
 
-**Nota de implementação (correção de arquitetura)**: o desenho original
-colocava `AppDbContext` em `Infrastructure`, mas isso criaria uma referência
-circular assim que `EnrollmentService` (em `Domain`) precisasse consultar o
-banco — `Infrastructure` já referencia `Domain` para usar as entidades. O
+**Nota de implementação (correção de arquitetura, histórica — superada pela
+nota de revisão "repository pattern" abaixo)**: o desenho original colocava
+`AppDbContext` em `Infrastructure`, mas isso criaria uma referência circular
+assim que `EnrollmentService` (em `Domain`) precisasse consultar o banco —
+`Infrastructure` já referencia `Domain` para usar as entidades. O
 `AppDbContext` foi movido para `Domain/Persistence/`, que passou a
 referenciar `Microsoft.EntityFrameworkCore` e `Microsoft.EntityFrameworkCore.Relational`
 diretamente (pacotes agnósticos de provedor — não acoplam o Domain ao SQL
@@ -182,6 +186,8 @@ Server especificamente). As Migrations continuam fisicamente em
 `Infrastructure/Migrations` (que mantém o pacote `Microsoft.EntityFrameworkCore.SqlServer`),
 com o assembly de destino configurado explicitamente via
 `MigrationsAssembly("PokemonTrainingCenter.Infrastructure")` no `Program.cs`.
+Esse workaround foi revertido — ver "Nota de revisão pós-implementação
+(2026-07-20, parte 5 — repository pattern)" no fim deste arquivo.
 
 **Structure Decision**: Web application de dois projetos (`backend/`,
 `frontend/`) mais `database/` para os scripts SQL — exatamente o layout que
@@ -310,6 +316,40 @@ Discutido também, mas **não implementado nesta rodada**: um endpoint de
 de R1 bloquear novas matrículas para o Pokémon até o cancelamento se
 consolidar. Registrado em "Melhorias futuras" do README em vez de
 implementado agora, para não expandir o escopo desta correção pontual.
+
+## Nota de revisão pós-implementação (2026-07-20, parte 5 — repository pattern)
+
+Revisão manual de arquitetura (não um bug): `EnrollmentService` (Domain) e
+todos os 4 controllers (`EnrollmentsController`, `TrainersController`,
+`PokemonsController`, `TrainingPlansController`) acessavam `AppDbContext`
+diretamente. Introduzido repository pattern para isolar o acesso a dados:
+
+- **Interfaces no `Domain/Repositories/`** (`ITrainerRepository`,
+  `IPokemonRepository`, `ITrainingPlanRepository`, `IEnrollmentRepository`,
+  `IUnitOfWork`) — cada uma expõe só os métodos que o código já chamava (ex.:
+  `IEnrollmentRepository.GetAllWithDetailsAsync`, `HasOpenOrActiveAsync`),
+  sem CRUD genérico especulativo.
+- **Implementações no `Infrastructure/Repositories/`**, usando
+  `AppDbContext`. `AppDbContext` passa a implementar `IUnitOfWork`
+  diretamente (já expõe `SaveChangesAsync(CancellationToken)` com a
+  assinatura exata do EF Core), evitando uma classe wrapper extra.
+- **`AppDbContext` volta para `Infrastructure/Persistence/`**: com as
+  interfaces de repository fazendo essa ponte, `Domain` deixa de precisar
+  referenciar EF Core — o motivo original para movê-lo para `Domain`
+  (evitar referência circular, ver nota de implementação acima) deixa de
+  existir. `Domain.csproj` perde as referências a
+  `Microsoft.EntityFrameworkCore`/`.Relational`.
+- `EnrollmentService` e os 4 controllers passam a depender das interfaces
+  (+ `IUnitOfWork` onde gravam), nunca de `AppDbContext` diretamente.
+  Filtragem em memória (busca normalizada, filtro de status) continua nos
+  controllers — é apresentação, não acesso a dados.
+- Testes (`EnrollmentServiceTests`, `EnrollmentQueryTests`) continuam usando
+  `AppDbContext` com o provider InMemory (nenhuma mudança de comportamento
+  testado), mas constroem `EnrollmentService` passando as implementações de
+  `Infrastructure/Repositories/` em vez do `AppDbContext` cru.
+
+Mudança arquitetural pura — nenhuma regra de negócio (R1-R5) ou contrato de
+API (`contracts/api.md`) é afetado.
 
 ## Nota de revisão pós-implementação (2026-07-20, parte 4 — reorganização de pastas)
 

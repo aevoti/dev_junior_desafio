@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using PokemonTrainingCenter.Api.Contracts;
-using PokemonTrainingCenter.Domain.Persistence;
+using PokemonTrainingCenter.Domain.Repositories;
 
 namespace PokemonTrainingCenter.Api.Controllers;
 
@@ -9,21 +8,18 @@ namespace PokemonTrainingCenter.Api.Controllers;
 [Route("api/training-plans")]
 public class TrainingPlansController : ControllerBase
 {
-    private readonly AppDbContext _db;
+    private readonly ITrainingPlanRepository _trainingPlans;
 
-    public TrainingPlansController(AppDbContext db)
+    public TrainingPlansController(ITrainingPlanRepository trainingPlans)
     {
-        _db = db;
+        _trainingPlans = trainingPlans;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<TrainingPlanResponse>>> GetAll()
     {
-        var plans = await _db.TrainingPlans
-            .OrderBy(p => p.MonthlyPrice)
-            .Select(p => new TrainingPlanResponse(p.Id, p.Name, p.MonthlyPrice, p.Description))
-            .ToListAsync();
+        var plans = await _trainingPlans.GetAllOrderedByPriceAsync();
 
-        return Ok(plans);
+        return Ok(plans.Select(p => new TrainingPlanResponse(p.Id, p.Name, p.MonthlyPrice, p.Description)));
     }
 }

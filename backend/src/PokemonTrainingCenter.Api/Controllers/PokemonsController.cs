@@ -1,9 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using PokemonTrainingCenter.Api.Contracts;
 using PokemonTrainingCenter.Domain.Entities;
 using PokemonTrainingCenter.Domain.Enums;
-using PokemonTrainingCenter.Domain.Persistence;
+using PokemonTrainingCenter.Domain.Repositories;
 using PokemonTrainingCenter.Domain.Services;
 
 namespace PokemonTrainingCenter.Api.Controllers;
@@ -12,12 +11,17 @@ namespace PokemonTrainingCenter.Api.Controllers;
 [Route("api/pokemons")]
 public class PokemonsController : ControllerBase
 {
-    private readonly AppDbContext _db;
+    private readonly IPokemonRepository _pokemons;
+    private readonly ITrainerRepository _trainers;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly EnrollmentService _enrollmentService;
 
-    public PokemonsController(AppDbContext db, EnrollmentService enrollmentService)
+    public PokemonsController(
+        IPokemonRepository pokemons, ITrainerRepository trainers, IUnitOfWork unitOfWork, EnrollmentService enrollmentService)
     {
-        _db = db;
+        _pokemons = pokemons;
+        _trainers = trainers;
+        _unitOfWork = unitOfWork;
         _enrollmentService = enrollmentService;
     }
 
@@ -36,7 +40,7 @@ public class PokemonsController : ControllerBase
             return BadRequest(new { message = "Tipo de Pokémon inválido." });
         }
 
-        var trainer = await _db.Trainers.FirstOrDefaultAsync(t => t.Id == request.TrainerId);
+        var trainer = await _trainers.GetByIdAsync(request.TrainerId);
         if (trainer is null)
         {
             return NotFound(new { message = "Treinador não encontrado." });
@@ -51,8 +55,8 @@ public class PokemonsController : ControllerBase
             Trainer = trainer
         };
 
-        _db.Pokemons.Add(pokemon);
-        await _db.SaveChangesAsync();
+        _pokemons.Add(pokemon);
+        await _unitOfWork.SaveChangesAsync();
 
         var response = ToResponse(pokemon);
         return CreatedAtAction(nameof(GetAll), new { id = pokemon.Id }, response);
@@ -61,10 +65,7 @@ public class PokemonsController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<PokemonResponse>>> GetAll()
     {
-        var pokemons = await _db.Pokemons
-            .Include(p => p.Trainer)
-            .OrderBy(p => p.Name)
-            .ToListAsync();
+        var pokemons = await _pokemons.GetAllWithTrainerAsync();
 
         return Ok(pokemons.Select(ToResponse));
     }

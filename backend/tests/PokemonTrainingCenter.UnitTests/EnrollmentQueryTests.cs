@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using PokemonTrainingCenter.Domain.Entities;
 using PokemonTrainingCenter.Domain.Enums;
-using PokemonTrainingCenter.Domain.Persistence;
+using PokemonTrainingCenter.Infrastructure.Persistence;
 
 namespace PokemonTrainingCenter.UnitTests;
 

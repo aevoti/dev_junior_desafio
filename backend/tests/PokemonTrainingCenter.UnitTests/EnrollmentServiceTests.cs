@@ -2,8 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using PokemonTrainingCenter.Domain.Entities;
 using PokemonTrainingCenter.Domain.Enums;
 using PokemonTrainingCenter.Domain.Exceptions;
-using PokemonTrainingCenter.Domain.Persistence;
 using PokemonTrainingCenter.Domain.Services;
+using PokemonTrainingCenter.Infrastructure.Persistence;
+using PokemonTrainingCenter.Infrastructure.Repositories;
 
 namespace PokemonTrainingCenter.UnitTests;
 
@@ -17,6 +18,13 @@ public class EnrollmentServiceTests
         return new AppDbContext(options);
     }
 
+    private static EnrollmentService NewSut(AppDbContext db) => new(
+        new EnrollmentRepository(db),
+        new PokemonRepository(db),
+        new TrainingPlanRepository(db),
+        new TrainerRepository(db),
+        db);
+
     private static async Task<(AppDbContext Db, EnrollmentService Sut, Trainer Trainer, TrainingPlan GinasioLocal, TrainingPlan EliteDosQuatro)> ArrangeAsync()
     {
         var db = NewInMemoryDb();
@@ -29,7 +37,7 @@ public class EnrollmentServiceTests
         db.TrainingPlans.AddRange(ginasioLocal, eliteDosQuatro);
         await db.SaveChangesAsync();
 
-        return (db, new EnrollmentService(db), trainer, ginasioLocal, eliteDosQuatro);
+        return (db, NewSut(db), trainer, ginasioLocal, eliteDosQuatro);
     }
 
     // R1 — matrícula única ativa.
