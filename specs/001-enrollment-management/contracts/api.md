@@ -39,8 +39,9 @@ cadastrado para outro Treinador."
 
 ### `GET /api/trainers`
 
-Lista Treinadores (para preencher seletor de destino na transferência e o
-formulário de matrícula). Response `200 OK`: array do shape acima.
+Lista Treinadores (para preencher seletor de destino na transferência, o
+formulário de cadastro de Pokémon e a listagem de Treinadores — US6,
+FR-025). Response `200 OK`: array do shape acima.
 
 ---
 
@@ -55,15 +56,22 @@ Request:
 { "name": "Pikachu", "type": "Electric", "level": 25, "trainerId": 1 }
 ```
 
-Response `201 Created`: mesmo shape com `id`.
+Response `201 Created`:
+```json
+{ "id": 5, "name": "Pikachu", "type": "Electric", "level": 25, "trainerId": 1, "trainerName": "Ash Ketchum" }
+```
+(`trainerName` é denormalizado na resposta — Session 2026-07-20 — para a
+listagem de Pokémons (US6, FR-026) não precisar cruzar com `GET
+/api/trainers` no cliente.)
 
 Erros: `400 Bad Request` se `level` fora de 1-100, ou `type` fora da lista
 fixa de 18 valores.
 
 ### `GET /api/pokemons`
 
-Lista Pokémon (para formulário de matrícula e tela de transferência).
-Response `200 OK`: array do shape acima.
+Lista Pokémon (para formulário de matrícula, tela de transferência e a
+listagem de Pokémons — US6, FR-026). Response `200 OK`: array do shape
+acima.
 
 ### `POST /api/pokemons/{id}/transfer`
 
@@ -212,11 +220,14 @@ Erros: mesmos do preview.
 
 ### `POST /api/enrollments/{id}/cancel`
 
-Cancela uma matrícula ativa — FR-012, US4.
+Cancela uma matrícula ativa — FR-012, US4. `endDate` é definido como o fim
+do dia (calendário UTC) em que o ciclo pago vigente termina — não apenas a
+data — para o Pokémon manter acesso durante todo esse dia (Session
+2026-07-20, FR-020).
 
 Response `200 OK`:
 ```json
-{ "id": 10, "endDate": "2026-07-31T00:00:00Z", "status": "EndingSoon" }
+{ "id": 10, "endDate": "2026-07-31T23:59:59.9999999Z", "status": "EndingSoon" }
 ```
 
 Erros: `400 Bad Request` se a matrícula já estiver encerrada.

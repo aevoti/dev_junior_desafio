@@ -16,6 +16,12 @@
 - Q: A consulta de MRR deve retornar a linha de Total Geral quando não há nenhuma matrícula ativa em nenhum plano, ou um resultado vazio? → A: Sempre retorna a linha de Total Geral, mesmo com R$ 0,00
 - Q: A busca por nome do Pokémon/Treinador (US3) deve ser sensível a maiúsculas/minúsculas e a acentos? → A: Case-insensitive e accent-insensitive (busca "agua" encontra "Água")
 
+### Session 2026-07-20 (revisão pós-implementação)
+
+- Q: Como o status derivado (FR-020) deve tratar o mesmo dia em que uma matrícula é encerrada por upgrade/transferência vs. por cancelamento? → A: Comparação por instante exato (não mais só por data): cancelamento mantém acesso até o fim do dia (calendário UTC) do ciclo pago vigente; upgrade e transferência encerram a matrícula anterior imediatamente no instante da operação, já que uma nova matrícula equivalente passa a cobrir o Pokémon a partir desse mesmo instante.
+- Q: O formulário de cadastro de Treinador deve aceitar e-mails sem TLD (ex.: "nome@dominio")? → A: Não — exigir um domínio com TLD de pelo menos 2 caracteres (ex.: "nome@dominio.com").
+- Q: A nova listagem de Pokémons deve exibir o nome do Treinador dono? Se sim, a API deve devolver esse dado pronto (denormalizado) ou o frontend deve cruzar com a listagem de Treinadores? → A: Denormalizado na resposta da API (`trainerName` em `PokemonResponse`), mesmo padrão já usado em `EnrollmentListItemResponse`.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Matricular Pokémon em Plano de Treinamento (Priority: P1)
@@ -206,6 +212,43 @@ total geral somam apenas o valor mensal das matrículas ativas.
    executada, **Then** o resultado contém apenas a linha de Total Geral, com
    valor R$ 0,00, em vez de um resultado totalmente vazio.
 
+### User Story 6 - Consultar Treinadores e Pokémons Cadastrados (Priority: P6)
+
+Qualquer usuário do sistema visualiza a lista de Treinadores e a lista de
+Pokémons cadastrados, para acompanhar o estado do sistema sem precisar
+recorrer ao banco de dados diretamente. Ao concluir com sucesso qualquer
+formulário de cadastro (Treinador, Pokémon ou Matrícula), o usuário é
+automaticamente levado para a listagem correspondente.
+
+**Why this priority**: é uma melhoria de usabilidade que não altera nenhuma
+regra de negócio (R1-R5) nem os cálculos financeiros do desafio; depende
+apenas de dados já existirem (User Story 1).
+
+**Independent Test**: pode ser testado cadastrando Treinadores e Pokémons e
+conferindo se ambos aparecem em suas respectivas listagens com os dados
+corretos, e se o formulário de cada um redireciona para a listagem certa ao
+concluir.
+
+**Acceptance Scenarios**:
+
+1. **Given** Treinadores cadastrados, **When** o usuário acessa a página de
+   Treinadores, **Then** a lista exibe nome, e-mail e cidade de cada um, sem
+   necessidade de filtro (lista completa).
+2. **Given** Pokémons cadastrados, **When** o usuário acessa a página de
+   Pokémons, **Then** a lista exibe nome, tipo, nível e o nome do Treinador
+   dono de cada um, sem necessidade de filtro (lista completa).
+3. **Given** o usuário está em qualquer página de listagem (Matrículas,
+   Treinadores, Pokémons), **When** ele quer cadastrar um novo registro,
+   **Then** um botão "+ Novo" na própria listagem o leva ao formulário
+   correspondente (o menu superior não lista mais os formulários
+   diretamente, só as listagens).
+4. **Given** o usuário preencheu corretamente o formulário de Treinador,
+   Pokémon ou Nova Matrícula, **When** o cadastro é concluído com sucesso,
+   **Then** o sistema exibe uma confirmação de sucesso e redireciona
+   automaticamente para a listagem correspondente (FR-023).
+
+---
+
 ### Edge Cases
 
 - Tentativa de criar uma segunda matrícula Ativa para um Pokémon que já
@@ -219,6 +262,9 @@ total geral somam apenas o valor mensal das matrículas ativas.
 - Tentativa de downgrade de plano (R2) — deve ser rejeitada.
 - Cadastro de Treinador com e-mail já usado por outro Treinador — deve ser
   rejeitado.
+- Cadastro de Treinador com e-mail em formato inválido (ex.: sem "@", sem
+  domínio, ou sem um TLD com pelo menos 2 caracteres após o último ponto,
+  como "nome@dominio") — deve ser rejeitado com mensagem clara (FR-024).
 - Cadastro de Pokémon com nível fora do intervalo 1-100 — deve ser rejeitado.
 - Cadastro de Pokémon com tipo fora da lista fixa de 18 tipos — deve ser
   rejeitado (ex.: valor livre digitado pelo usuário).
@@ -230,8 +276,15 @@ total geral somam apenas o valor mensal das matrículas ativas.
   transferência, mesmo que essa data caia no meio do ciclo mensal pago, e uma
   nova matrícula equivalente deve ser criada automaticamente sob o Treinador
   de destino, cobrada integralmente a partir dessa data (R5).
-- Matrícula com data de término igual a hoje deve ainda contar como ativa
-  (o corte para "encerrada" é estritamente no dia seguinte).
+- Matrícula cancelada com data de término marcada para hoje deve continuar
+  ativa até o fim desse dia (calendário UTC) — o corte para "encerrada"
+  acontece apenas na virada do dia (FR-012, FR-020).
+- Matrícula encerrada por upgrade (FR-010) ou transferência (FR-015) no
+  mesmo dia de outra operação deve deixar de contar como ativa
+  imediatamente a partir do instante exato da operação, mesmo que ainda
+  seja o mesmo dia calendário (FR-020) — diferente do comportamento de
+  cancelamento acima, já que uma nova matrícula equivalente já cobre o
+  Pokémon a partir desse instante.
 - Cálculo pro-rata do upgrade em um mês com 28, 29, 30 ou 31 dias — o
   denominador do cálculo (duração do ciclo) deve refletir o número real de
   dias entre o início do ciclo e seu término, não um valor fixo (R2).
@@ -286,8 +339,9 @@ total geral somam apenas o valor mensal das matrículas ativas.
   valor mensal igual ou inferior ao da matrícula atual (downgrade não
   permitido).
 - **FR-012**: O sistema MUST permitir cancelar uma matrícula ativa, definindo
-  sua data de término como o fim do ciclo mensal pago vigente (sem estorno do
-  valor já pago).
+  sua data de término como o fim do dia (calendário UTC) em que o ciclo
+  mensal pago vigente termina (sem estorno do valor já pago) — o Pokémon
+  mantém acesso ao treinamento durante todo esse dia (ver FR-020).
 - **FR-013**: O sistema MUST excluir matrículas cuja data de término seja
   anterior a hoje de qualquer cálculo de receita ativa (R4), mantendo-as
   visíveis no histórico e na listagem geral.
@@ -308,9 +362,10 @@ total geral somam apenas o valor mensal das matrículas ativas.
   nome do Pokémon ou do Treinador, de forma case-insensitive e
   accent-insensitive (ex.: buscar "agua" MUST encontrar "Água").
 - **FR-017**: O sistema MUST permitir filtrar a listagem de matrículas por
-  estado derivado da data de término: Ativa (sem data de término), Ativa "a
-  encerrar" (data de término igual ou posterior a hoje) ou Encerrada (data de
-  término anterior a hoje).
+  estado derivado do instante de término (ver FR-020): Ativa (sem data de
+  término), Ativa "a encerrar" (instante de término igual ou posterior ao
+  instante atual) ou Encerrada (instante de término anterior ao instante
+  atual).
 - **FR-018**: O sistema MUST validar campos obrigatórios no formulário de
   nova matrícula (Pokémon, Plano) antes de permitir o envio; a data de início
   não é um campo do formulário, pois é definida automaticamente pelo sistema.
@@ -322,9 +377,16 @@ total geral somam apenas o valor mensal das matrículas ativas.
   matrícula ativa (resultado nunca deve ser um conjunto vazio).
 - **FR-020**: O sistema MUST derivar o estado de uma matrícula (Ativa, Ativa
   "a encerrar", Encerrada) exclusivamente a partir de sua data de término
-  opcional, sem persistir um campo de status separado: ausência de data de
-  término ou data igual/posterior a hoje MUST ser tratada como ativa; data
-  anterior a hoje MUST ser tratada como encerrada.
+  opcional, sem persistir um campo de status separado, comparando o
+  **instante exato** armazenado em `EndDate` com o instante atual (não
+  apenas a data): ausência de data de término, ou instante de término
+  igual/posterior ao instante atual, MUST ser tratado como ativo; instante
+  de término anterior ao instante atual MUST ser tratado como encerrado.
+  Isso garante que uma matrícula encerrada por upgrade (FR-010) ou
+  transferência (FR-015) deixe de contar como ativa imediatamente a partir
+  do instante da operação — mesmo no mesmo dia calendário —, enquanto o
+  cancelamento (FR-012), que grava o fim do dia (UTC) como instante de
+  término, mantém a matrícula ativa até a virada desse dia.
 - **FR-021**: O ciclo mensal usado no pro-rata do upgrade (FR-009) MUST ser
   definido como o intervalo entre a data de início da matrícula (ou o
   aniversário mensal mais recente dela) e a mesma data um mês depois; quando
@@ -338,6 +400,19 @@ total geral somam apenas o valor mensal das matrículas ativas.
   18 valores (Normal, Fogo, Água, Planta, Elétrico, Gelo, Lutador, Venenoso,
   Terra, Voador, Psíquico, Inseto, Pedra, Fantasma, Dragão, Sombrio, Aço,
   Fada), rejeitando qualquer valor fora dessa lista.
+- **FR-023**: Ao concluir com sucesso o cadastro de Treinador, Pokémon ou
+  Matrícula, o sistema MUST exibir uma confirmação de sucesso ao usuário e
+  redirecioná-lo para a página de listagem correspondente (Treinadores,
+  Pokémons ou Matrículas), sem exigir navegação manual.
+- **FR-024**: O sistema MUST rejeitar o cadastro de Treinador com e-mail em
+  formato inválido — sem "@", sem domínio, ou sem um TLD de pelo menos 2
+  caracteres após o último ponto (ex.: "nome@dominio" é inválido;
+  "nome@dominio.com" é válido) —, retornando uma mensagem de erro clara.
+- **FR-025**: O sistema MUST permitir listar todos os Treinadores
+  cadastrados, exibindo nome, e-mail e cidade, sem exigir filtro ou busca.
+- **FR-026**: O sistema MUST permitir listar todos os Pokémons cadastrados,
+  exibindo nome, tipo, nível e o nome do Treinador dono, sem exigir filtro
+  ou busca.
 
 ### Key Entities
 
@@ -390,6 +465,10 @@ total geral somam apenas o valor mensal das matrículas ativas.
   da transferência (sem perda do registro histórico) e em uma nova matrícula
   ativa criada automaticamente no mesmo plano sob o Treinador de destino, sem
   exigir nenhuma ação manual adicional (R5).
+- **SC-009**: Um usuário consegue visualizar todos os Treinadores e todos os
+  Pokémons cadastrados em telas dedicadas, e é levado automaticamente à
+  listagem correspondente (com confirmação de sucesso) ao concluir qualquer
+  formulário de cadastro, sem passos manuais adicionais de navegação.
 
 ## Assumptions
 
@@ -406,7 +485,27 @@ total geral somam apenas o valor mensal das matrículas ativas.
   opcional; o estado exibido ao usuário (Ativa, Ativa "a encerrar", Encerrada)
   é sempre calculado a partir dessa data, nunca armazenado separadamente —
   decisão registrada para resolver a ambiguidade original do enunciado sobre
-  a diferença entre "Cancelada" e "Concluída" (R4).
+  a diferença entre "Cancelada" e "Concluída" (R4). A comparação usada na
+  derivação é por **instante exato**, não por data (ver FR-020): o que muda
+  de um caso para outro é o instante gravado em `EndDate`, não a fórmula de
+  comparação — cancelamento (FR-012) grava o fim do dia (UTC) do ciclo pago,
+  preservando o acesso até a virada do dia; upgrade (FR-010) e transferência
+  (FR-015) gravam o instante exato da operação, encerrando a matrícula
+  anterior imediatamente, já que uma nova matrícula equivalente passa a
+  cobrir o Pokémon a partir desse mesmo instante.
+- **Armazenamento de datas em UTC**: todos os timestamps (`StartDate`,
+  `EndDate`) são armazenados em UTC, independente do fuso horário de quem
+  opera o sistema — prática recomendada para evitar bugs de fuso
+  horário/horário de verão. Isso é intencional, não um defeito: quem
+  inspeciona o banco diretamente (fora da aplicação) verá horários
+  deslocados do horário local de Brasília (UTC-3, ex.: uma ação às 11h
+  local aparece como 14h no banco). O "fim do dia" usado no cancelamento
+  (FR-012) refere-se ao fim do dia calendário em UTC, não ao fim do dia no
+  fuso horário local do usuário — uma simplificação deliberada, já que o
+  sistema não implementa fuso horário configurável por usuário (ver
+  Melhorias futuras do README). Datas exibidas nas telas de listagem são
+  convertidas para o fuso horário local do navegador apenas para leitura,
+  nunca para cálculo de regras de negócio.
 - **Transferência de Pokémon é direta, imediata e recria a matrícula
   automaticamente**: não há fluxo de solicitação/aceite entre o Treinador de
   origem e o de destino nesta feature; a transferência se efetiva com a

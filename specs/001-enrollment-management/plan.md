@@ -149,8 +149,13 @@ backend/
 frontend/
 └── src/
     └── app/
-        ├── trainers/               # Cadastro de Treinador (US1)
-        ├── pokemons/               # Cadastro e transferência de Pokémon (US1, US4)
+        ├── trainers/
+        │   ├── trainer-form/       # Cadastro de Treinador (US1)
+        │   └── trainers-list/      # Listagem de Treinadores, sem filtro (US6)
+        ├── pokemons/
+        │   ├── pokemon-form/       # Cadastro de Pokémon (US1)
+        │   ├── pokemon-transfer/   # Transferência de Pokémon (US4)
+        │   └── pokemons-list/      # Listagem de Pokémons, sem filtro (US6)
         ├── enrollments/            # Listagem + busca + filtro por status (US3)
         ├── enrollment-form/        # Nova matrícula (US1)
         ├── enrollment-upgrade/     # Fluxo de upgrade com preview do valor pro-rata (US2)
@@ -188,3 +193,49 @@ ASP.NET Core ou ao EF Core.
 ## Complexity Tracking
 
 > Nenhuma violação do Constitution Check — seção não aplicável a este plano.
+
+## Nota de revisão pós-implementação (2026-07-20)
+
+Após a primeira entrega completa (todas as tasks de `tasks.md` em `[X]`),
+uma revisão manual do código identificou 5 correções técnicas necessárias,
+sem alterar a arquitetura descrita acima:
+
+- **Change detection zoneless mal configurado**: o `frontend/package.json`
+  não depende de `zone.js` e `app.config.ts` não declara
+  `provideZonelessChangeDetection()` — a aplicação já roda zoneless (padrão
+  do Angular 22), mas sem os providers corretos, mutações de campo simples
+  dentro de `.subscribe()` não disparam re-render sozinhas. Fix: declarar
+  `provideZonelessChangeDetection()` explicitamente e migrar o estado de
+  listas/loading (`enrollments-list`, os 3 formulários) para `signal()`, que
+  o scheduler zoneless já rastreia nativamente. Explica dois sintomas
+  reportados: listagem de matrículas parada até interação, e `<select>` que
+  só abre as opções no segundo clique.
+- **`output()` sem consumidor**: os 3 formulários (`enrollment-form`,
+  `trainer-form`, `pokemon-form`) emitem `output<T>()` mas são carregados
+  via rota (`loadComponent`), sem componente pai ouvindo o evento — por
+  isso nenhuma mensagem de sucesso aparecia. Fix: trocar por navegação via
+  `Router` para a listagem correspondente (FR-023), com um sinal de sucesso
+  passado por router state.
+- **Validação de e-mail permissiva**: `Validators.email` do Angular aceita
+  endereços sem TLD (ex.: `nome@dominio`). Fix: regex customizada (FR-024).
+- **Granularidade do status derivado por instante, não por data (FR-020)**:
+  `Enrollment.IsActive`, `EnrollmentResponse.ResolveStatus` e as duas
+  consultas de "matrícula ativa" em `EnrollmentService` truncavam `EndDate`
+  para `.Date` antes de comparar. Fix: comparação pelo instante completo,
+  com `CancelEnrollmentAsync` passando a gravar o fim do dia (UTC) do ciclo
+  em vez do instante exato do ciclo (ver Assumptions do spec.md). Isso
+  também elimina a necessidade do workaround `OrderByDescending(StartDate)`
+  documentado em `TransferPokemonAsync` — sem truncar para `.Date`, uma
+  matrícula já substituída no mesmo dia deixa de aparecer na consulta de
+  "matrícula ativa" imediatamente, então a ambiguidade que motivou o
+  `OrderByDescending` não existe mais.
+- **`consulta-mrr.sql` usava `GETDATE()` (hora do servidor) em vez de
+  `GETUTCDATE()`**: inconsistente com o backend (`DateTime.UtcNow`) e,
+  combinado com a comparação por data, causava contagem duplicada de
+  receita no dia de um upgrade/transferência (a matrícula antiga, já
+  encerrada, ainda batia com `EndDate >= CAST(GETDATE() AS date)`). Fix:
+  `GETUTCDATE()` e comparação por instante, consistente com a mudança
+  acima.
+
+Nenhuma dessas correções introduz dependência nova nem contradiz o
+Constitution Check original — Gate PASS mantido.
