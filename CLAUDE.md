@@ -39,6 +39,11 @@ completa do repositório.
 - Nunca dar `git add`/`git commit` em `README.md` a menos que o usuário peça
   explicitamente — esse arquivo é commitado por último, pelo próprio
   usuário, mesmo que o resto do trabalho já tenha sido commitado em partes.
+- Ao final de uma rodada de correções/funcionalidades, atualizar o conteúdo
+  do `README.md` com o que for necessário (decisões técnicas, uso de IA,
+  melhorias futuras) — mesmo sem commitá-lo (ver regra acima). Editar o
+  conteúdo e commitar são coisas independentes; a primeira não deve ser
+  esquecida só porque a segunda espera um sinal do usuário.
 
 ## Idioma — regra obrigatória para todo conteúdo gerado neste projeto
 
