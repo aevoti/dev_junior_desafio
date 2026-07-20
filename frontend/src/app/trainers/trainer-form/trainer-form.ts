@@ -1,8 +1,9 @@
-import { Component, inject, output } from '@angular/core';
+import { Component, inject, output, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { Trainer } from '../../shared/models/trainer.model';
 import { TrainerApiService } from '../../shared/services/trainer-api.service';
+import { emailWithTldValidator } from '../../shared/validators/email-with-tld.validator';
 
 @Component({
   selector: 'app-trainer-form',
@@ -16,12 +17,13 @@ export class TrainerForm {
 
   readonly created = output<Trainer>();
 
-  errorMessage: string | null = null;
-  submitting = false;
+  // signal(), não campos soltos — ver enrollments-list.ts/app.config.ts.
+  readonly errorMessage = signal<string | null>(null);
+  readonly submitting = signal(false);
 
   readonly form = this.fb.nonNullable.group({
     name: ['', Validators.required],
-    email: ['', [Validators.required, Validators.email]],
+    email: ['', [Validators.required, emailWithTldValidator]],
     city: ['', Validators.required],
   });
 
@@ -31,18 +33,18 @@ export class TrainerForm {
       return;
     }
 
-    this.errorMessage = null;
-    this.submitting = true;
+    this.errorMessage.set(null);
+    this.submitting.set(true);
 
     this.trainerApi.create(this.form.getRawValue()).subscribe({
       next: (trainer) => {
-        this.submitting = false;
+        this.submitting.set(false);
         this.form.reset();
         this.created.emit(trainer);
       },
       error: (err: Error) => {
-        this.submitting = false;
-        this.errorMessage = err.message;
+        this.submitting.set(false);
+        this.errorMessage.set(err.message);
       },
     });
   }

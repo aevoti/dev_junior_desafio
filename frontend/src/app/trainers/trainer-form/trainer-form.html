@@ -1,8 +1,8 @@
 <form [formGroup]="form" (ngSubmit)="submit()" class="mb-4">
   <h2 class="h5">Cadastrar Treinador</h2>
 
-  @if (errorMessage) {
-    <div class="alert alert-danger" role="alert">{{ errorMessage }}</div>
+  @if (errorMessage()) {
+    <div class="alert alert-danger" role="alert">{{ errorMessage() }}</div>
   }
 
   <div class="mb-2">
@@ -26,7 +26,7 @@
       formControlName="email"
       [class.is-invalid]="form.controls.email.invalid && form.controls.email.touched"
     />
-    <div class="invalid-feedback">Informe um e-mail válido.</div>
+    <div class="invalid-feedback">Informe um e-mail válido (ex.: nome&#64;dominio.com).</div>
   </div>
 
   <div class="mb-3">
@@ -41,5 +41,5 @@
     <div class="invalid-feedback">A cidade é obrigatória.</div>
   </div>
 
-  <button type="submit" class="btn btn-primary" [disabled]="submitting">Cadastrar</button>
+  <button type="submit" class="btn btn-primary" [disabled]="submitting()">Cadastrar</button>
 </form>
