@@ -2,8 +2,6 @@
 
 Aplicação full stack para gestão de treinadores, Pokémon e matrículas em planos mensais de treinamento, com regras de upgrade, cálculo proporcional, transferência entre treinadores e apuração de Receita Mensal Recorrente (MRR).
 
-O [enunciado original do desafio](docs/DESAFIO_ORIGINAL.md) está preservado separadamente.
-
 ## Visão geral
 
 A solução reúne uma API REST em .NET 8, persistência em SQL Server, uma interface em Angular 21, scripts SQL e testes automatizados. O sistema administra matrículas de Pokémon em planos de treinamento, preservando o histórico e aplicando regras de elegibilidade, cobrança, cancelamento, upgrade e transferência.
