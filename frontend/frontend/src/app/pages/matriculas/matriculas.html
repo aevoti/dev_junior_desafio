@@ -1,0 +1,358 @@
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="mb-1">Matrículas</h1>
+
+            <p class="text-secondary mb-0">
+                Gerencie as matrículas dos Pokémon nos planos de treinamento.
+            </p>
+        </div>
+
+        <button type="button" class="btn btn-danger" (click)="abrirFormulario()">
+            Nova matrícula
+        </button>
+    </div>
+
+    @if (exibirFormulario) {
+    <div class="card border-0 shadow-sm p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="h5 mb-0">
+                Nova matrícula
+            </h2>
+
+            <button type="button" class="btn-close" aria-label="Fechar" [disabled]="salvando"
+                (click)="fecharFormulario()"></button>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label for="pokemonId" class="form-label">
+                    Pokémon
+                </label>
+
+                <select id="pokemonId" class="form-select" [(ngModel)]="novaMatricula.pokemonId" [disabled]="salvando">
+                    <option [ngValue]="0">
+                        Selecione um Pokémon
+                    </option>
+
+                    @for (pokemon of pokemons; track pokemon.id) {
+                    <option [ngValue]="pokemon.id">
+                        {{ pokemon.nome }} - {{ pokemon.treinadorNome }}
+                    </option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <label for="planoTreinamentoId" class="form-label">
+                    Plano
+                </label>
+
+                <select id="planoTreinamentoId" class="form-select" [(ngModel)]="novaMatricula.planoTreinamentoId"
+                    [disabled]="salvando">
+                    <option [ngValue]="0">
+                        Selecione um plano
+                    </option>
+
+                    @for (plano of planos; track plano.id) {
+                    <option [ngValue]="plano.id">
+                        {{ plano.nome }} -
+                        {{ plano.valorMensal | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+                    </option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <label for="dataInicio" class="form-label">
+                    Data de início
+                </label>
+
+                <input id="dataInicio" type="date" class="form-control" [(ngModel)]="novaMatricula.dataInicio"
+                    [disabled]="salvando" />
+            </div>
+
+            <div class="col-12 d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-outline-secondary" [disabled]="salvando"
+                    (click)="fecharFormulario()">
+                    Cancelar
+                </button>
+
+                <button type="button" class="btn btn-danger" [disabled]="salvando" (click)="salvarMatricula()">
+                    @if (salvando) {
+                    Salvando...
+                    } @else {
+                    Salvar matrícula
+                    }
+                </button>
+            </div>
+        </div>
+    </div>
+    }
+
+    @if (exibirFormularioUpgrade && matriculaUpgrade) {
+    <div class="card border-primary shadow-sm p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h2 class="h5 mb-1">
+                    Upgrade de matrícula
+                </h2>
+    
+                <p class="text-secondary mb-0">
+                    Pokémon:
+                    <strong>{{ matriculaUpgrade.pokemonNome }}</strong>
+    
+                    | Plano atual:
+                    <strong>{{ matriculaUpgrade.planoTreinamentoNome }}</strong>
+                </p>
+            </div>
+    
+            <button type="button" class="btn-close" aria-label="Fechar" [disabled]="simulandoUpgrade || confirmandoUpgrade"
+                (click)="fecharUpgrade()"></button>
+        </div>
+    
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label for="novoPlanoTreinamentoId" class="form-label">
+                    Novo plano
+                </label>
+    
+                <select id="novoPlanoTreinamentoId" class="form-select" [(ngModel)]="upgradeRequest.novoPlanoTreinamentoId"
+                    [disabled]="simulandoUpgrade || confirmandoUpgrade">
+                    <option [ngValue]="0">
+                        Selecione o novo plano
+                    </option>
+    
+                    @for (plano of planos; track plano.id) {
+                    <option [ngValue]="plano.id">
+                        {{ plano.nome }} -
+                        {{ plano.valorMensal | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+                    </option>
+                    }
+                </select>
+            </div>
+    
+            <div class="col-md-6">
+                <label for="dataUpgrade" class="form-label">
+                    Data do upgrade
+                </label>
+    
+                <input id="dataUpgrade" type="date" class="form-control" [(ngModel)]="upgradeRequest.dataUpgrade"
+                    [disabled]="simulandoUpgrade || confirmandoUpgrade" />
+            </div>
+    
+            <div class="col-12 d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-outline-secondary" [disabled]="simulandoUpgrade || confirmandoUpgrade"
+                    (click)="fecharUpgrade()">
+                    Cancelar
+                </button>
+    
+                <button type="button" class="btn btn-primary" [disabled]="simulandoUpgrade || confirmandoUpgrade"
+                    (click)="simularUpgrade()">
+                    @if (simulandoUpgrade) {
+                    Simulando...
+                    } @else {
+                    Simular upgrade
+                    }
+                </button>
+            </div>
+        </div>
+    
+        @if (simulacaoUpgrade) {
+        <div class="alert alert-info mt-4 mb-0">
+            <h3 class="h6">
+                Resultado da simulação
+            </h3>
+    
+            <p class="mb-3">
+                Valor da primeira cobrança:
+                <strong>
+                    {{
+                    simulacaoUpgrade.valorPrimeiraCobranca
+                    | currency:'BRL':'symbol':'1.2-2':'pt-BR'
+                    }}
+                </strong>
+            </p>
+    
+            <button type="button" class="btn btn-success" [disabled]="confirmandoUpgrade" (click)="confirmarUpgrade()">
+                @if (confirmandoUpgrade) {
+                Confirmando...
+                } @else {
+                Confirmar upgrade
+                }
+            </button>
+        </div>
+        }
+    </div>
+    }
+
+    <div class="card border-0 shadow-sm p-4 mb-4">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label for="busca" class="form-label">
+                    Buscar
+                </label>
+
+                <input id="busca" type="text" class="form-control" placeholder="Buscar por Pokémon ou Treinador"
+                    [(ngModel)]="busca" (keyup.enter)="carregarMatriculas()" />
+            </div>
+
+            <div class="col-md-3">
+                <label for="status" class="form-label">
+                    Status
+                </label>
+
+                <select id="status" class="form-select" [(ngModel)]="status">
+                    <option [ngValue]="undefined">
+                        Todos
+                    </option>
+
+                    <option [ngValue]="1">
+                        Ativa
+                    </option>
+
+                    <option [ngValue]="2">
+                        Cancelada
+                    </option>
+
+                    <option [ngValue]="3">
+                        Concluída
+                    </option>
+                </select>
+            </div>
+
+            <div class="col-md-3 d-flex align-items-end gap-2">
+                <button type="button" class="btn btn-primary" [disabled]="carregando" (click)="carregarMatriculas()">
+                    Buscar
+                </button>
+
+                <button type="button" class="btn btn-outline-secondary" [disabled]="carregando"
+                    (click)="limparFiltros()">
+                    Limpar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    @if (mensagemSucesso) {
+    <div class="alert alert-success">
+        {{ mensagemSucesso }}
+    </div>
+    }
+
+    @if (mensagemErro) {
+    <div class="alert alert-danger">
+        {{ mensagemErro }}
+    </div>
+    }
+
+    @if (carregando) {
+    <div class="card border-0 shadow-sm p-5 text-center">
+        <div class="spinner-border text-primary mx-auto mb-3" role="status"></div>
+
+        <span>Carregando matrículas...</span>
+    </div>
+    } @else {
+    <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Pokémon</th>
+                        <th>Treinador</th>
+                        <th>Plano</th>
+                        <th>Data de início</th>
+                        <th>Data de encerramento</th>
+                        <th>Status</th>
+                        <th>Valor mensal</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @for (matricula of matriculas; track matricula.id) {
+                    <tr>
+                        <td>
+                            {{ matricula.pokemonNome }}
+                        </td>
+
+                        <td>
+                            {{ matricula.treinadorNome }}
+                        </td>
+
+                        <td>
+                            {{ matricula.planoTreinamentoNome }}
+                        </td>
+
+                        <td>
+                            {{ matricula.dataInicio | date:'dd/MM/yyyy' }}
+                        </td>
+
+                        <td>
+                            @if (matricula.dataEncerramento) {
+                            {{ matricula.dataEncerramento | date:'dd/MM/yyyy' }}
+                            } @else {
+                            -
+                            }
+                        </td>
+
+                        <td>
+                            @if (matricula.status === 1) {
+                            <span class="badge text-bg-success">
+                                Ativa
+                            </span>
+                            } @else if (matricula.status === 2) {
+                            <span class="badge text-bg-danger">
+                                Cancelada
+                            </span>
+                            } @else if (matricula.status === 3) {
+                            <span class="badge text-bg-primary">
+                                Concluída
+                            </span>
+                            } @else {
+                            <span class="badge text-bg-secondary">
+                                {{ obterNomeStatus(matricula.status) }}
+                            </span>
+                            }
+                        </td>
+
+                        <td>
+                            {{ matricula.valorMensal | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+                        </td>
+
+                        <td>
+                            @if (matricula.status === 1) {
+                            <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-sm btn-primary" (click)="abrirUpgrade(matricula)">
+                            Upgrade
+                        </button>
+
+                                <button type="button" class="btn btn-sm btn-outline-danger"
+                                    [disabled]="cancelandoId === matricula.id" (click)="cancelarMatricula(matricula)">
+                                    @if (cancelandoId === matricula.id) {
+                                    Cancelando...
+                                    } @else {
+                                    Cancelar
+                                    }
+                                </button>
+                            </div>
+                            } @else {
+                            <span class="text-secondary">
+                                Sem ações
+                            </span>
+                            }
+                        </td>
+                    </tr>
+                    } @empty {
+                    <tr>
+                        <td colspan="8" class="text-center text-secondary py-5">
+                            Nenhuma matrícula encontrada.
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    }
+</div>

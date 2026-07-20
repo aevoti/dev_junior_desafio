@@ -88,9 +88,14 @@ public class Pokemon
 
     public virtual void TransferirTreinador(Treinador treinador)
     {
+        if (treinador is null)
+            throw new RegraNegocioException(
+                "O novo treinador é obrigatório.");
+
         if (treinador.Id == TreinadorId)
             throw new RegraNegocioException(
                 "O Pokémon já pertence a este treinador.");
+
         SetTreinador(treinador);
     }
 }

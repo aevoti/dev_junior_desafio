@@ -1,0 +1,140 @@
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="mb-1">Treinadores</h1>
+
+            <p class="text-secondary mb-0">
+                Cadastre e consulte os treinadores do centro.
+            </p>
+        </div>
+
+        <button type="button" class="btn btn-danger" (click)="abrirFormulario()">
+            Novo treinador
+        </button>
+    </div>
+
+    @if (mensagemSucesso) {
+    <div class="alert alert-success">
+        {{ mensagemSucesso }}
+    </div>
+    }
+
+    @if (mensagemErro) {
+    <div class="alert alert-danger">
+        {{ mensagemErro }}
+    </div>
+    }
+
+    @if (mostrarFormulario) {
+    <div class="card border-0 shadow-sm p-4 mb-4">
+        <h2 class="h5 mb-3">
+            Cadastrar treinador
+        </h2>
+
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label for="nome" class="form-label">
+                    Nome
+                </label>
+
+                <input id="nome" type="text" class="form-control" placeholder="Nome do treinador" [(ngModel)]="nome" />
+            </div>
+
+            <div class="col-md-4">
+                <label for="email" class="form-label">
+                    E-mail
+                </label>
+
+                <input id="email" type="email" class="form-control" placeholder="email@exemplo.com"
+                    [(ngModel)]="email" />
+            </div>
+
+            <div class="col-md-4">
+                <label for="cidadeOrigem" class="form-label">
+                    Cidade de origem
+                </label>
+
+                <input id="cidadeOrigem" type="text" class="form-control" placeholder="Cidade de origem"
+                    [(ngModel)]="cidadeOrigem" />
+            </div>
+
+            <div class="col-12 d-flex gap-2">
+                <button type="button" class="btn btn-danger" [disabled]="salvando" (click)="salvarTreinador()">
+                    @if (salvando) {
+                    Salvando...
+                    } @else {
+                    Salvar
+                    }
+                </button>
+
+                <button type="button" class="btn btn-outline-secondary" [disabled]="salvando"
+                    (click)="fecharFormulario()">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+    }
+
+    <div class="card border-0 shadow-sm p-4 mb-4">
+        <div class="row g-3">
+            <div class="col-md-8">
+                <label for="busca" class="form-label">
+                    Buscar
+                </label>
+
+                <input id="busca" type="text" class="form-control" placeholder="Buscar treinador" [(ngModel)]="busca"
+                    (keyup.enter)="carregarTreinadores()" />
+            </div>
+
+            <div class="col-md-4 d-flex align-items-end gap-2">
+                <button type="button" class="btn btn-primary" [disabled]="carregando" (click)="carregarTreinadores()">
+                    Buscar
+                </button>
+
+                <button type="button" class="btn btn-outline-secondary" [disabled]="carregando"
+                    (click)="limparFiltros()">
+                    Limpar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    @if (carregando) {
+    <div class="card border-0 shadow-sm p-5 text-center">
+        <div class="spinner-border text-primary mx-auto mb-3" role="status"></div>
+
+        <span>Carregando treinadores...</span>
+    </div>
+    } @else {
+    <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>E-mail</th>
+                        <th>Cidade de origem</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @for (treinador of treinadores; track treinador.id) {
+                    <tr>
+                        <td>{{ treinador.nome }}</td>
+                        <td>{{ treinador.email }}</td>
+                        <td>{{ treinador.cidadeOrigem }}</td>
+                    </tr>
+                    } @empty {
+                    <tr>
+                        <td colspan="3" class="text-center text-secondary py-5">
+                            Nenhum treinador encontrado.
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    }
+</div>

@@ -1,0 +1,192 @@
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="mb-1">Pokémon</h1>
+
+            <p class="text-secondary mb-0">
+                Cadastre e consulte os Pokémon do centro de treinamento.
+            </p>
+        </div>
+
+        <button type="button" class="btn btn-danger" (click)="abrirFormulario()">
+            Novo Pokémon
+        </button>
+    </div>
+
+    @if (mensagemSucesso) {
+    <div class="alert alert-success">
+        {{ mensagemSucesso }}
+    </div>
+    }
+
+    @if (mensagemErro) {
+    <div class="alert alert-danger">
+        {{ mensagemErro }}
+    </div>
+    }
+
+    @if (mostrarFormulario) {
+    <div class="card border-0 shadow-sm p-4 mb-4">
+        <h2 class="h5 mb-3">
+            Cadastrar Pokémon
+        </h2>
+
+        <div class="row g-3">
+            <div class="col-md-3">
+                <label for="nome" class="form-label">
+                    Nome
+                </label>
+
+                <input id="nome" type="text" class="form-control" placeholder="Nome do Pokémon" [(ngModel)]="nome" />
+            </div>
+
+            <div class="col-md-3">
+                <label for="tipo" class="form-label">
+                    Tipo
+                </label>
+
+                <select id="tipo" class="form-select" [(ngModel)]="tipo">
+                    <option [ngValue]="undefined">
+                        Selecione
+                    </option>
+                
+                    <option [ngValue]="1">Normal</option>
+                    <option [ngValue]="2">Fogo</option>
+                    <option [ngValue]="3">Água</option>
+                    <option [ngValue]="4">Planta</option>
+                    <option [ngValue]="5">Elétrico</option>
+                    <option [ngValue]="6">Gelo</option>
+                    <option [ngValue]="7">Lutador</option>
+                    <option [ngValue]="8">Veneno</option>
+                    <option [ngValue]="9">Terra</option>
+                    <option [ngValue]="10">Voador</option>
+                    <option [ngValue]="11">Psíquico</option>
+                    <option [ngValue]="12">Inseto</option>
+                    <option [ngValue]="13">Pedra</option>
+                    <option [ngValue]="14">Fantasma</option>
+                    <option [ngValue]="15">Dragão</option>
+                    <option [ngValue]="16">Sombrio</option>
+                    <option [ngValue]="17">Aço</option>
+                    <option [ngValue]="18">Fada</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <label for="nivel" class="form-label">
+                    Nível
+                </label>
+
+                <input id="nivel" type="number" min="1" max="100" class="form-control" placeholder="1 a 100"
+                    [(ngModel)]="nivel" />
+            </div>
+
+            <div class="col-md-4">
+                <label for="treinador" class="form-label">
+                    Treinador
+                </label>
+
+                <select id="treinador" class="form-select" [(ngModel)]="treinadorId">
+                    <option [ngValue]="undefined">
+                        Selecione um treinador
+                    </option>
+
+                    @for (
+                    treinador of treinadores;
+                    track treinador.id
+                    ) {
+                    <option [ngValue]="treinador.id">
+                        {{ treinador.nome }}
+                    </option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-12 d-flex gap-2">
+                <button type="button" class="btn btn-danger" [disabled]="salvando" (click)="salvarPokemon()">
+                    @if (salvando) {
+                    Salvando...
+                    } @else {
+                    Salvar
+                    }
+                </button>
+
+                <button type="button" class="btn btn-outline-secondary" [disabled]="salvando"
+                    (click)="fecharFormulario()">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+    }
+
+    <div class="card border-0 shadow-sm p-4 mb-4">
+        <div class="row g-3">
+            <div class="col-md-8">
+                <label for="busca" class="form-label">
+                    Buscar
+                </label>
+
+                <input id="busca" type="text" class="form-control" placeholder="Buscar por nome do Pokémon"
+                    [(ngModel)]="busca" (keyup.enter)="carregarPokemons()" />
+            </div>
+
+            <div class="col-md-4 d-flex align-items-end gap-2">
+                <button type="button" class="btn btn-primary" [disabled]="carregando" (click)="carregarPokemons()">
+                    Buscar
+                </button>
+
+                <button type="button" class="btn btn-outline-secondary" [disabled]="carregando"
+                    (click)="limparFiltros()">
+                    Limpar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    @if (carregando) {
+    <div class="card border-0 shadow-sm p-5 text-center">
+        <div class="spinner-border text-primary mx-auto mb-3" role="status"></div>
+
+        <span>Carregando Pokémon...</span>
+    </div>
+    } @else {
+    <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Tipo</th>
+                        <th>Nível</th>
+                        <th>Treinador</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @for (pokemon of pokemons; track pokemon.id) {
+                    <tr>
+                        <td>{{ pokemon.nome }}</td>
+
+                        <td>
+                            <span class="badge text-bg-success">
+                                {{ obterNomeTipo(pokemon.tipo) }}
+                            </span>
+                        </td>
+
+                        <td>{{ pokemon.nivel }}</td>
+
+                        <td>{{ pokemon.treinadorNome }}</td>
+                    </tr>
+                    } @empty {
+                    <tr>
+                        <td colspan="4" class="text-center text-secondary py-5">
+                            Nenhum Pokémon encontrado.
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    }
+</div>

@@ -4,34 +4,35 @@
     Banco: SQL Server
 */
 
-CREATE TABLE Treinadores
+CREATE TABLE Treinador
 (
     Id INT IDENTITY(1, 1) NOT NULL,
     Nome VARCHAR(150) NOT NULL,
     Email VARCHAR(254) NOT NULL,
     CidadeOrigem VARCHAR(150) NOT NULL,
 
-    CONSTRAINT PK_Treinadores
+    CONSTRAINT PK_Treinador
         PRIMARY KEY (Id),
 
-    CONSTRAINT UQ_Treinadores_Email
+    CONSTRAINT UQ_Treinador_Email
         UNIQUE (Email),
 
-    CONSTRAINT CK_Treinadores_Nome
+    CONSTRAINT CK_Treinador_Nome
         CHECK (LEN(LTRIM(RTRIM(Nome))) > 0),
 
-    CONSTRAINT CK_Treinadores_Email
-        CHECK (
+    CONSTRAINT CK_Treinador_Email
+        CHECK
+        (
             LEN(LTRIM(RTRIM(Email))) > 0
             AND Email LIKE '%@%'
         ),
 
-    CONSTRAINT CK_Treinadores_CidadeOrigem
+    CONSTRAINT CK_Treinador_CidadeOrigem
         CHECK (LEN(LTRIM(RTRIM(CidadeOrigem))) > 0)
 );
 GO
 
-CREATE TABLE Pokemons
+CREATE TABLE Pokemon
 (
     Id INT IDENTITY(1, 1) NOT NULL,
     Nome VARCHAR(100) NOT NULL,
@@ -39,25 +40,25 @@ CREATE TABLE Pokemons
     Nivel INT NOT NULL,
     TreinadorId INT NOT NULL,
 
-    CONSTRAINT PK_Pokemons
+    CONSTRAINT PK_Pokemon
         PRIMARY KEY (Id),
 
-    CONSTRAINT FK_Pokemons_Treinadores
+    CONSTRAINT FK_Pokemon_Treinador
         FOREIGN KEY (TreinadorId)
-        REFERENCES Treinadores (Id),
+        REFERENCES Treinador (Id),
 
-    CONSTRAINT CK_Pokemons_Nome
+    CONSTRAINT CK_Pokemon_Nome
         CHECK (LEN(LTRIM(RTRIM(Nome))) > 0),
 
-    CONSTRAINT CK_Pokemons_Tipo
+    CONSTRAINT CK_Pokemon_Tipo
         CHECK (Tipo > 0),
 
-    CONSTRAINT CK_Pokemons_Nivel
+    CONSTRAINT CK_Pokemon_Nivel
         CHECK (Nivel BETWEEN 1 AND 100)
 );
 GO
 
-CREATE TABLE PlanosTreinamento
+CREATE TABLE PlanoTreinamento
 (
     Id INT IDENTITY(1, 1) NOT NULL,
     Nome VARCHAR(100) NOT NULL,
@@ -65,30 +66,30 @@ CREATE TABLE PlanosTreinamento
     Descricao VARCHAR(300) NOT NULL,
     NivelPlano INT NOT NULL,
 
-    CONSTRAINT PK_PlanosTreinamento
+    CONSTRAINT PK_PlanoTreinamento
         PRIMARY KEY (Id),
 
-    CONSTRAINT UQ_PlanosTreinamento_Nome
+    CONSTRAINT UQ_PlanoTreinamento_Nome
         UNIQUE (Nome),
 
-    CONSTRAINT UQ_PlanosTreinamento_NivelPlano
+    CONSTRAINT UQ_PlanoTreinamento_NivelPlano
         UNIQUE (NivelPlano),
 
-    CONSTRAINT CK_PlanosTreinamento_Nome
+    CONSTRAINT CK_PlanoTreinamento_Nome
         CHECK (LEN(LTRIM(RTRIM(Nome))) > 0),
 
-    CONSTRAINT CK_PlanosTreinamento_ValorMensal
+    CONSTRAINT CK_PlanoTreinamento_ValorMensal
         CHECK (ValorMensal > 0),
 
-    CONSTRAINT CK_PlanosTreinamento_Descricao
+    CONSTRAINT CK_PlanoTreinamento_Descricao
         CHECK (LEN(LTRIM(RTRIM(Descricao))) > 0),
 
-    CONSTRAINT CK_PlanosTreinamento_NivelPlano
+    CONSTRAINT CK_PlanoTreinamento_NivelPlano
         CHECK (NivelPlano BETWEEN 1 AND 3)
 );
 GO
 
-CREATE TABLE Matriculas
+CREATE TABLE Matricula
 (
     Id INT IDENTITY(1, 1) NOT NULL,
     PokemonId INT NOT NULL,
@@ -98,56 +99,57 @@ CREATE TABLE Matriculas
     Status INT NOT NULL,
     ValorMensal DECIMAL(18, 2) NOT NULL,
 
-    CONSTRAINT PK_Matriculas
+    CONSTRAINT PK_Matricula
         PRIMARY KEY (Id),
 
-    CONSTRAINT FK_Matriculas_Pokemons
+    CONSTRAINT FK_Matricula_Pokemon
         FOREIGN KEY (PokemonId)
-        REFERENCES Pokemons (Id),
+        REFERENCES Pokemon (Id),
 
-    CONSTRAINT FK_Matriculas_PlanosTreinamento
+    CONSTRAINT FK_Matricula_PlanoTreinamento
         FOREIGN KEY (PlanoTreinamentoId)
-        REFERENCES PlanosTreinamento (Id),
+        REFERENCES PlanoTreinamento (Id),
 
-    CONSTRAINT CK_Matriculas_Status
+    CONSTRAINT CK_Matricula_Status
         CHECK (Status IN (1, 2, 3)),
 
-    CONSTRAINT CK_Matriculas_ValorMensal
+    CONSTRAINT CK_Matricula_ValorMensal
         CHECK (ValorMensal > 0),
 
-    CONSTRAINT CK_Matriculas_DataEncerramento
-        CHECK (
+    CONSTRAINT CK_Matricula_DataEncerramento
+        CHECK
+        (
             DataEncerramento IS NULL
             OR DataEncerramento >= DataInicio
         )
 );
 GO
 
-CREATE INDEX IX_Pokemons_TreinadorId
-    ON Pokemons (TreinadorId);
+CREATE INDEX IX_Pokemon_TreinadorId
+    ON Pokemon (TreinadorId);
 GO
 
-CREATE INDEX IX_Pokemons_Nome
-    ON Pokemons (Nome);
+CREATE INDEX IX_Pokemon_Nome
+    ON Pokemon (Nome);
 GO
 
-CREATE INDEX IX_Matriculas_PokemonId
-    ON Matriculas (PokemonId);
+CREATE INDEX IX_Matricula_PokemonId
+    ON Matricula (PokemonId);
 GO
 
-CREATE INDEX IX_Matriculas_PlanoTreinamentoId
-    ON Matriculas (PlanoTreinamentoId);
+CREATE INDEX IX_Matricula_PlanoTreinamentoId
+    ON Matricula (PlanoTreinamentoId);
 GO
 
-CREATE INDEX IX_Matriculas_Status
-    ON Matriculas (Status);
+CREATE INDEX IX_Matricula_Status
+    ON Matricula (Status);
 GO
 
-CREATE INDEX IX_Matriculas_DataInicio
-    ON Matriculas (DataInicio);
+CREATE INDEX IX_Matricula_DataInicio
+    ON Matricula (DataInicio);
 GO
 
-CREATE UNIQUE INDEX UQ_Matriculas_PokemonAtivo
-    ON Matriculas (PokemonId)
+CREATE UNIQUE INDEX UQ_Matricula_PokemonAtivo
+    ON Matricula (PokemonId)
     WHERE Status = 1;
 GO

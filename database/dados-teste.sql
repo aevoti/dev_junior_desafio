@@ -1,4 +1,6 @@
-INSERT INTO Treinadores
+DECLARE @TreinadorId INT;
+
+INSERT INTO Treinador
 (
     Nome,
     Email,
@@ -10,9 +12,10 @@ VALUES
     'ash@pokemon.com',
     'Pallet'
 );
-GO
 
-INSERT INTO Pokemons
+SET @TreinadorId = SCOPE_IDENTITY();
+
+INSERT INTO Pokemon
 (
     Nome,
     Tipo,
@@ -24,12 +27,11 @@ VALUES
     'Pikachu',
     4,
     35,
-    1
+    @TreinadorId
 );
 GO
 
-
-INSERT INTO PlanosTreinamento
+INSERT INTO PlanoTreinamento
 (
     Nome,
     ValorMensal,
