@@ -4,6 +4,7 @@ export interface Pokemon {
   type: string;
   level: number;
   trainerId: number;
+  trainerName: string;
 }
 
 export interface CreatePokemonRequest {

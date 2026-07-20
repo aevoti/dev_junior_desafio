@@ -11,8 +11,16 @@ export const routes: Routes = [
     loadComponent: () => import('./enrollment-form/enrollment-form').then((m) => m.EnrollmentForm),
   },
   {
+    path: 'treinadores',
+    loadComponent: () => import('./trainers/trainers-list/trainers-list').then((m) => m.TrainersList),
+  },
+  {
     path: 'treinadores/novo',
     loadComponent: () => import('./trainers/trainer-form/trainer-form').then((m) => m.TrainerForm),
+  },
+  {
+    path: 'pokemons',
+    loadComponent: () => import('./pokemons/pokemons-list/pokemons-list').then((m) => m.PokemonsList),
   },
   {
     path: 'pokemons/novo',
