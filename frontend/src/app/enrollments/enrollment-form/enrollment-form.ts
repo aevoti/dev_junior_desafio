@@ -2,11 +2,11 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import { Pokemon } from '../shared/models/pokemon.model';
-import { TrainingPlan } from '../shared/models/training-plan.model';
-import { EnrollmentApiService } from '../shared/services/enrollment-api.service';
-import { PokemonApiService } from '../shared/services/pokemon-api.service';
-import { TrainingPlanApiService } from '../shared/services/training-plan-api.service';
+import { Pokemon } from '../../shared/models/pokemon.model';
+import { TrainingPlan } from '../../shared/models/training-plan.model';
+import { EnrollmentApiService } from '../../shared/services/enrollment-api.service';
+import { PokemonApiService } from '../../shared/services/pokemon-api.service';
+import { TrainingPlanApiService } from '../../shared/services/training-plan-api.service';
 
 const ELITE_DOS_QUATRO_PLAN_NAME = 'Elite dos 4';
 const ELITE_DOS_QUATRO_MINIMUM_LEVEL = 50;

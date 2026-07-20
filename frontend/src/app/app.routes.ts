@@ -8,7 +8,7 @@ export const routes: Routes = [
   },
   {
     path: 'matriculas/nova',
-    loadComponent: () => import('./enrollment-form/enrollment-form').then((m) => m.EnrollmentForm),
+    loadComponent: () => import('./enrollments/enrollment-form/enrollment-form').then((m) => m.EnrollmentForm),
   },
   {
     path: 'treinadores',
@@ -28,7 +28,8 @@ export const routes: Routes = [
   },
   {
     path: 'matriculas/:id/upgrade',
-    loadComponent: () => import('./enrollment-upgrade/enrollment-upgrade').then((m) => m.EnrollmentUpgrade),
+    loadComponent: () =>
+      import('./enrollments/enrollment-upgrade/enrollment-upgrade').then((m) => m.EnrollmentUpgrade),
   },
   {
     path: 'pokemons/transferir',

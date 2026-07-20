@@ -2,10 +2,10 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { UpgradePreviewResponse } from '../shared/models/enrollment.model';
-import { TrainingPlan } from '../shared/models/training-plan.model';
-import { EnrollmentApiService } from '../shared/services/enrollment-api.service';
-import { TrainingPlanApiService } from '../shared/services/training-plan-api.service';
+import { UpgradePreviewResponse } from '../../shared/models/enrollment.model';
+import { TrainingPlan } from '../../shared/models/training-plan.model';
+import { EnrollmentApiService } from '../../shared/services/enrollment-api.service';
+import { TrainingPlanApiService } from '../../shared/services/training-plan-api.service';
 
 @Component({
   selector: 'app-enrollment-upgrade',
