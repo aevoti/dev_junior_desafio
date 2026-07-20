@@ -29,6 +29,7 @@ public class AppDbContext : DbContext
         {
             entity.ToTable("Pokemons");
             entity.Property(p => p.Nome).HasMaxLength(150).IsRequired();
+            entity.Property(p => p.Tipo).HasConversion<string>().HasMaxLength(30).IsRequired();
             entity.HasOne(p => p.Treinador)
                   .WithMany(t => t.Pokemons)
                   .HasForeignKey(p => p.TreinadorId)
@@ -46,6 +47,7 @@ public class AppDbContext : DbContext
         {
             entity.ToTable("Matriculas");
             entity.Property(m => m.ValorMensal).HasColumnType("decimal(10,2)");
+            entity.Property(m => m.Status).HasConversion<string>().HasMaxLength(20).IsRequired();
             entity.HasOne(m => m.Pokemon)
                   .WithMany(p => p.Matriculas)
                   .HasForeignKey(m => m.PokemonId)

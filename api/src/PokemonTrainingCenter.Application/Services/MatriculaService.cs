@@ -73,7 +73,50 @@ public class MatriculaService : IMatriculaService
             matricula.ValorMensal);
     }
 
+    /// <summary>Calcula o pro-rata do upgrade (R2) sem persistir nada — usado pela UI para
+    /// exibir o valor da primeira cobrança antes do Treinador confirmar.</summary>
+    public async Task<UpgradeMatriculaResponse> SimularUpgradeAsync(int matriculaId, UpgradeMatriculaRequest request)
+    {
+        var calculo = await ValidarECalcularUpgradeAsync(matriculaId, request);
+        return new UpgradeMatriculaResponse(0, calculo.Credito, calculo.Custo, calculo.Cobranca);
+    }
+
     public async Task<UpgradeMatriculaResponse> UpgradeAsync(int matriculaId, UpgradeMatriculaRequest request)
+    {
+        var calculo = await ValidarECalcularUpgradeAsync(matriculaId, request);
+
+        calculo.MatriculaAtual.Status = StatusMatricula.Concluida;
+        calculo.MatriculaAtual.DataFim = calculo.DataUpgrade;
+        await _matriculaRepository.AtualizarAsync(calculo.MatriculaAtual);
+
+        var novaMatricula = new Matricula
+        {
+            PokemonId = calculo.Pokemon.Id,
+            PlanoTreinamentoId = calculo.NovoPlano.Id,
+            DataInicio = calculo.DataUpgrade,
+            Status = StatusMatricula.Ativa,
+            ValorMensal = calculo.NovoPlano.ValorMensal,
+            MatriculaOrigemId = calculo.MatriculaAtual.Id,
+        };
+        await _matriculaRepository.AdicionarAsync(novaMatricula);
+
+        return new UpgradeMatriculaResponse(
+            novaMatricula.Id,
+            calculo.Credito,
+            calculo.Custo,
+            calculo.Cobranca);
+    }
+
+    private record UpgradeCalculado(
+        Matricula MatriculaAtual,
+        PlanoTreinamento NovoPlano,
+        Pokemon Pokemon,
+        DateTime DataUpgrade,
+        decimal Credito,
+        decimal Custo,
+        decimal Cobranca);
+
+    private async Task<UpgradeCalculado> ValidarECalcularUpgradeAsync(int matriculaId, UpgradeMatriculaRequest request)
     {
         var matriculaAtual = await _matriculaRepository.ObterPorIdAsync(matriculaId)
             ?? throw new DomainException("Matrícula não encontrada.");
@@ -123,26 +166,9 @@ public class MatriculaService : IMatriculaService
         var custoNovoPlanoRestante = Math.Round(novoPlano.ValorMensal * diasRestantes / CicloDias, 2);
         var valorPrimeiraCobranca = Math.Max(0, custoNovoPlanoRestante - creditoPlanoAntigo);
 
-        matriculaAtual.Status = StatusMatricula.Concluida;
-        matriculaAtual.DataFim = dataUpgrade;
-        await _matriculaRepository.AtualizarAsync(matriculaAtual);
-
-        var novaMatricula = new Matricula
-        {
-            PokemonId = pokemon.Id,
-            PlanoTreinamentoId = novoPlano.Id,
-            DataInicio = dataUpgrade,
-            Status = StatusMatricula.Ativa,
-            ValorMensal = novoPlano.ValorMensal,
-            MatriculaOrigemId = matriculaAtual.Id,
-        };
-        await _matriculaRepository.AdicionarAsync(novaMatricula);
-
-        return new UpgradeMatriculaResponse(
-            novaMatricula.Id,
-            creditoPlanoAntigo,
-            custoNovoPlanoRestante,
-            valorPrimeiraCobranca);
+        return new UpgradeCalculado(
+            matriculaAtual, novoPlano, pokemon, dataUpgrade,
+            creditoPlanoAntigo, custoNovoPlanoRestante, valorPrimeiraCobranca);
     }
 
     public async Task CancelarAsync(int matriculaId)

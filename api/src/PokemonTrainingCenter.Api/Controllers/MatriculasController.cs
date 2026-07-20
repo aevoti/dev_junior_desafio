@@ -32,7 +32,16 @@ public class MatriculasController : ControllerBase
         return CreatedAtAction(nameof(Listar), new { }, matricula);
     }
 
-    /// <summary>Executa o upgrade de plano (R2) e retorna o valor pro-rata da primeira cobrança.</summary>
+    /// <summary>Calcula o valor pro-rata do upgrade (R2) sem efetivar nada — usado pela UI
+    /// para exibir a primeira cobrança antes do Treinador confirmar.</summary>
+    [HttpPost("{id:int}/upgrade/simular")]
+    public async Task<IActionResult> SimularUpgrade(int id, [FromBody] UpgradeMatriculaRequest request)
+    {
+        var resultado = await _matriculaService.SimularUpgradeAsync(id, request);
+        return Ok(resultado);
+    }
+
+    /// <summary>Efetiva o upgrade de plano (R2): encerra a matrícula atual e cria a nova.</summary>
     [HttpPost("{id:int}/upgrade")]
     public async Task<IActionResult> Upgrade(int id, [FromBody] UpgradeMatriculaRequest request)
     {

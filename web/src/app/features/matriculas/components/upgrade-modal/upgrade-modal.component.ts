@@ -6,16 +6,16 @@ import { PlanoTreinamento } from '../../../../core/models/plano-treinamento.mode
 import { UpgradeMatriculaResponse } from '../../../../core/models/matricula.model';
 
 /**
- * Modal do fluxo de upgrade (R2): calcula e exibe o valor da primeira
- * cobrança pro-rata retornado pela API antes do usuário confirmar.
- * TODO: acionar a partir de um botão "Upgrade" na matriculas-list.component
- * e tratar erro de downgrade / nível mínimo (R3) de forma amigável.
+ * Modal do fluxo de upgrade (R2): "Calcular" só simula (sem side-effect) e mostra
+ * o valor da primeira cobrança pro-rata; o upgrade só é efetivado de fato quando
+ * o usuário clica em "Confirmar upgrade".
  */
 @Component({
   selector: 'app-upgrade-modal',
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './upgrade-modal.component.html',
+  styleUrl: './upgrade-modal.component.scss',
 })
 export class UpgradeModalComponent {
   private readonly matriculaService = inject(MatriculaService);
@@ -28,18 +28,18 @@ export class UpgradeModalComponent {
   simulacao: UpgradeMatriculaResponse | null = null;
   erro: string | null = null;
   planoSelecionadoId: number | null = null;
+  confirmando = false;
 
-  // NOTA: hoje POST /matriculas/{id}/upgrade já efetiva o upgrade ao mesmo tempo
-  // que calcula o valor. Para a UX pedida ("exibir valor antes de confirmar"),
-  // o próximo passo é separar em endpoint de simulação (GET, sem side-effect)
-  // + endpoint de confirmação (POST), documentado no README como melhoria futura.
+  private dataUpgrade = new Date().toISOString().substring(0, 10);
+
   simular(): void {
     if (!this.planoSelecionadoId) return;
     this.erro = null;
+    this.simulacao = null;
     this.matriculaService
-      .upgrade(this.matriculaId, {
+      .simularUpgrade(this.matriculaId, {
         novoPlanoTreinamentoId: this.planoSelecionadoId,
-        dataUpgrade: new Date().toISOString().substring(0, 10),
+        dataUpgrade: this.dataUpgrade,
       })
       .subscribe({
         next: (resultado) => (this.simulacao = resultado),
@@ -48,6 +48,23 @@ export class UpgradeModalComponent {
   }
 
   confirmar(): void {
-    this.confirmado.emit();
+    if (!this.planoSelecionadoId) return;
+    this.erro = null;
+    this.confirmando = true;
+    this.matriculaService
+      .upgrade(this.matriculaId, {
+        novoPlanoTreinamentoId: this.planoSelecionadoId,
+        dataUpgrade: this.dataUpgrade,
+      })
+      .subscribe({
+        next: () => {
+          this.confirmando = false;
+          this.confirmado.emit();
+        },
+        error: (err: Error) => {
+          this.erro = err.message;
+          this.confirmando = false;
+        },
+      });
   }
 }

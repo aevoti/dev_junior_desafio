@@ -26,7 +26,13 @@ export class MatriculaService {
     return this.http.post<Matricula>(this.baseUrl, request);
   }
 
-  // R2: retorna o valor calculado da primeira cobrança pro-rata, para confirmação do usuário antes de efetivar.
+  // R2: calcula o valor da primeira cobrança pro-rata SEM efetivar o upgrade — usado
+  // para exibir o valor ao usuário antes da confirmação.
+  simularUpgrade(matriculaId: number, request: UpgradeMatriculaRequest): Observable<UpgradeMatriculaResponse> {
+    return this.http.post<UpgradeMatriculaResponse>(`${this.baseUrl}/${matriculaId}/upgrade/simular`, request);
+  }
+
+  // R2: efetiva o upgrade (encerra a matrícula atual e cria a nova no plano superior).
   upgrade(matriculaId: number, request: UpgradeMatriculaRequest): Observable<UpgradeMatriculaResponse> {
     return this.http.post<UpgradeMatriculaResponse>(`${this.baseUrl}/${matriculaId}/upgrade`, request);
   }

@@ -1,0 +1,32 @@
+<div class="app-shell">
+  <header class="app-header">
+    <a class="brand" routerLink="/matriculas">
+      <svg class="brand-ball" viewBox="0 0 48 48" aria-hidden="true">
+        <circle cx="24" cy="24" r="20.5" fill="#fff" stroke="#16181d" stroke-width="3" />
+        <path d="M3.5 24a20.5 20.5 0 0 1 41 0Z" fill="var(--primary)" stroke="#16181d" stroke-width="3" />
+        <rect x="3.5" y="22.5" width="41" height="3" fill="#16181d" />
+        <circle cx="24" cy="24" r="6.5" fill="#fff" stroke="#16181d" stroke-width="3" />
+        <circle cx="24" cy="24" r="2.5" fill="#16181d" />
+      </svg>
+      <span class="brand-text">
+        <strong>Centro de Treinamento</strong>
+        <span>Alto Nível</span>
+      </span>
+    </a>
+
+    <nav class="app-nav">
+      <a routerLink="/matriculas" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }"
+        >Matrículas</a
+      >
+      <a routerLink="/matriculas/nova" routerLinkActive="is-active">Nova Matrícula</a>
+    </nav>
+
+    <app-theme-toggle />
+  </header>
+
+  <main class="app-main">
+    <div [@routeFade]="prepareRoute(outlet)">
+      <router-outlet #outlet="outlet" />
+    </div>
+  </main>
+</div>

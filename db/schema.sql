@@ -15,6 +15,11 @@ GO
 USE PokemonTrainingCenter;
 GO
 
+-- Exigido pelo SQL Server para criar índices filtrados (usado em UQ_Matriculas_PokemonAtiva, R1).
+SET ANSI_NULLS ON;
+SET QUOTED_IDENTIFIER ON;
+GO
+
 -- -----------------------------------------------------------------------------
 -- Treinadores
 -- -----------------------------------------------------------------------------
