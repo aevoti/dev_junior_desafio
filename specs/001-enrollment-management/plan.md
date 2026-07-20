@@ -239,3 +239,19 @@ sem alterar a arquitetura descrita acima:
 
 Nenhuma dessas correções introduz dependência nova nem contradiz o
 Constitution Check original — Gate PASS mantido.
+
+**Achado durante a verificação ponta a ponta (não estava na lista original)**:
+ao validar T074 (exibição de datas) contra a API e o banco reais, a coluna
+"Início" mostrou o valor UTC cru (ex.: 14:40) em vez da hora local de
+Brasília (11:40) — o mesmo sintoma do apontamento original sobre horários
+"+3h", agora visível porque nenhuma tela exibia datas antes desta revisão.
+Causa raiz: o SQL Server (`datetime2`) não preserva `DateTimeKind`; ao reler
+do banco, o EF Core devolve `Kind=Unspecified`, e o `System.Text.Json` só
+inclui o sufixo `Z` quando `Kind=Utc` — sem o `Z`, o `DatePipe` do Angular
+interpreta a string como já sendo hora local do navegador, sem nenhuma
+conversão. Fix: um `ValueConverter` global em `AppDbContext.ConfigureConventions`
+que marca todo `DateTime`/`DateTime?` lido do banco como `DateTimeKind.Utc`,
+garantindo que a API sempre serialize com `Z` e o frontend converta
+corretamente. Validado visualmente contra a API e o banco reais via
+Playwright: a mesma matrícula que antes mostrava "14:40" passou a mostrar
+"11:40" após o fix, sem nenhuma mudança no dado armazenado.

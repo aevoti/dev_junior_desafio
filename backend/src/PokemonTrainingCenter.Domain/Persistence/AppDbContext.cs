@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PokemonTrainingCenter.Domain.Entities;
 
 namespace PokemonTrainingCenter.Domain.Persistence;
@@ -13,6 +14,39 @@ public class AppDbContext : DbContext
     public DbSet<Pokemon> Pokemons => Set<Pokemon>();
     public DbSet<TrainingPlan> TrainingPlans => Set<TrainingPlan>();
     public DbSet<Enrollment> Enrollments => Set<Enrollment>();
+
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+        base.ConfigureConventions(configurationBuilder);
+
+        // Todos os timestamps são gravados em UTC (DateTime.UtcNow — ver
+        // spec.md Assumptions "Armazenamento de datas em UTC"), mas o SQL
+        // Server (datetime2) não preserva DateTimeKind: ao reler, o EF Core
+        // devolve Kind=Unspecified, o que fazia o JSON da API sair sem o
+        // sufixo "Z" — o navegador então interpretava o valor UTC como se já
+        // fosse hora local, sem nenhuma conversão (bug encontrado ao validar
+        // a exibição de datas na listagem de matrículas contra a API real).
+        configurationBuilder.Properties<DateTime>().HaveConversion<UtcDateTimeConverter>();
+        configurationBuilder.Properties<DateTime?>().HaveConversion<NullableUtcDateTimeConverter>();
+    }
+
+    private sealed class UtcDateTimeConverter : ValueConverter<DateTime, DateTime>
+    {
+        public UtcDateTimeConverter() : base(
+            v => v,
+            v => DateTime.SpecifyKind(v, DateTimeKind.Utc))
+        {
+        }
+    }
+
+    private sealed class NullableUtcDateTimeConverter : ValueConverter<DateTime?, DateTime?>
+    {
+        public NullableUtcDateTimeConverter() : base(
+            v => v,
+            v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : v)
+        {
+        }
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -277,6 +277,14 @@ pós-implementação") para o diagnóstico técnico completo de cada item.
   hoje exibe essas datas — em
   `frontend/src/app/enrollments/enrollments-list/enrollments-list.html`
 
+- [X] T075 Adicionar `ValueConverter` global em
+  `AppDbContext.ConfigureConventions`
+  (`backend/src/PokemonTrainingCenter.Domain/Persistence/AppDbContext.cs`)
+  marcando `DateTime`/`DateTime?` lidos do banco como `DateTimeKind.Utc` —
+  achado ao validar T074 contra a API real: sem isso, o JSON saía sem `Z` e
+  o frontend exibia o valor UTC cru como se já fosse hora local (mesmo
+  sintoma do apontamento original sobre horários "+3h")
+
 **Checkpoint**: todos os apontamentos da revisão de 2026-07-20 corrigidos;
 `dotnet test` e os cenários manuais relevantes de `quickstart.md`
 revalidados; README atualizado por último (fora desta fase, ver
