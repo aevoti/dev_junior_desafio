@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { Pokemon, TransferPokemonResponse } from '../../shared/models/pokemon.model';
@@ -17,11 +17,12 @@ export class PokemonTransfer implements OnInit {
   private readonly pokemonApi = inject(PokemonApiService);
   private readonly trainerApi = inject(TrainerApiService);
 
-  pokemons: Pokemon[] = [];
-  trainers: Trainer[] = [];
-  errorMessage: string | null = null;
-  result: TransferPokemonResponse | null = null;
-  submitting = false;
+  // signal(), não campos soltos — ver enrollments-list.ts/app.config.ts.
+  readonly pokemons = signal<Pokemon[]>([]);
+  readonly trainers = signal<Trainer[]>([]);
+  readonly errorMessage = signal<string | null>(null);
+  readonly result = signal<TransferPokemonResponse | null>(null);
+  readonly submitting = signal(false);
 
   readonly form = this.fb.nonNullable.group({
     pokemonId: [null as number | null, Validators.required],
@@ -29,8 +30,8 @@ export class PokemonTransfer implements OnInit {
   });
 
   ngOnInit(): void {
-    this.pokemonApi.list().subscribe((pokemons) => (this.pokemons = pokemons));
-    this.trainerApi.list().subscribe((trainers) => (this.trainers = trainers));
+    this.pokemonApi.list().subscribe((pokemons) => this.pokemons.set(pokemons));
+    this.trainerApi.list().subscribe((trainers) => this.trainers.set(trainers));
   }
 
   submit(): void {
@@ -39,21 +40,21 @@ export class PokemonTransfer implements OnInit {
       return;
     }
 
-    this.errorMessage = null;
-    this.result = null;
-    this.submitting = true;
+    this.errorMessage.set(null);
+    this.result.set(null);
+    this.submitting.set(true);
 
     const value = this.form.getRawValue();
     this.pokemonApi.transfer(value.pokemonId!, { newTrainerId: value.newTrainerId! }).subscribe({
       next: (result) => {
-        this.submitting = false;
-        this.result = result;
+        this.submitting.set(false);
+        this.result.set(result);
         this.form.reset();
       },
       // R5: destino inexistente ou igual ao Treinador atual chega aqui como mensagem amigável.
       error: (err: Error) => {
-        this.submitting = false;
-        this.errorMessage = err.message;
+        this.submitting.set(false);
+        this.errorMessage.set(err.message);
       },
     });
   }

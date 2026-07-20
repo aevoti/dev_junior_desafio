@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -21,12 +21,14 @@ export class EnrollmentUpgrade implements OnInit {
   private readonly trainingPlanApi = inject(TrainingPlanApiService);
 
   private enrollmentId!: number;
-  trainingPlans: TrainingPlan[] = [];
-  errorMessage: string | null = null;
-  submitting = false;
+
+  // signal(), não campos soltos — ver enrollments-list.ts/app.config.ts.
+  readonly trainingPlans = signal<TrainingPlan[]>([]);
+  readonly errorMessage = signal<string | null>(null);
+  readonly submitting = signal(false);
 
   /** Preenchido após "Calcular" (US2, cenário 1) — só confirma depois de ver o valor. */
-  preview: UpgradePreviewResponse | null = null;
+  readonly preview = signal<UpgradePreviewResponse | null>(null);
 
   readonly form = this.fb.nonNullable.group({
     newTrainingPlanId: [null as number | null, Validators.required],
@@ -34,9 +36,9 @@ export class EnrollmentUpgrade implements OnInit {
 
   ngOnInit(): void {
     this.enrollmentId = Number(this.route.snapshot.paramMap.get('id'));
-    this.trainingPlanApi.list().subscribe((plans) => (this.trainingPlans = plans));
+    this.trainingPlanApi.list().subscribe((plans) => this.trainingPlans.set(plans));
 
-    this.form.controls.newTrainingPlanId.valueChanges.subscribe(() => (this.preview = null));
+    this.form.controls.newTrainingPlanId.valueChanges.subscribe(() => this.preview.set(null));
   }
 
   calculatePreview(): void {
@@ -45,43 +47,43 @@ export class EnrollmentUpgrade implements OnInit {
       return;
     }
 
-    this.errorMessage = null;
-    this.preview = null;
-    this.submitting = true;
+    this.errorMessage.set(null);
+    this.preview.set(null);
+    this.submitting.set(true);
 
     this.enrollmentApi
       .previewUpgrade(this.enrollmentId, { newTrainingPlanId: this.form.getRawValue().newTrainingPlanId! })
       .subscribe({
         next: (preview) => {
-          this.submitting = false;
-          this.preview = preview;
+          this.submitting.set(false);
+          this.preview.set(preview);
         },
         // R2 (downgrade) e R3 (nível mínimo) chegam aqui como mensagem amigável.
         error: (err: Error) => {
-          this.submitting = false;
-          this.errorMessage = err.message;
+          this.submitting.set(false);
+          this.errorMessage.set(err.message);
         },
       });
   }
 
   confirm(): void {
-    if (!this.preview) {
+    if (!this.preview()) {
       return;
     }
 
-    this.errorMessage = null;
-    this.submitting = true;
+    this.errorMessage.set(null);
+    this.submitting.set(true);
 
     this.enrollmentApi
       .confirmUpgrade(this.enrollmentId, { newTrainingPlanId: this.form.getRawValue().newTrainingPlanId! })
       .subscribe({
         next: () => {
-          this.submitting = false;
+          this.submitting.set(false);
           this.router.navigateByUrl('/matriculas');
         },
         error: (err: Error) => {
-          this.submitting = false;
-          this.errorMessage = err.message;
+          this.submitting.set(false);
+          this.errorMessage.set(err.message);
         },
       });
   }
