@@ -1,0 +1,105 @@
+<section>
+  <h2 class="page-title">Matrículas</h2>
+
+  <form class="toolbar" (ngSubmit)="buscar()">
+    <label class="field">
+      Busca
+      <input
+        class="input"
+        type="text"
+        name="busca"
+        placeholder="Pokémon ou Treinador"
+        [(ngModel)]="busca"
+      />
+    </label>
+    <label class="field">
+      Status
+      <select class="select" name="status" [(ngModel)]="statusSelecionado">
+        <option value="">Todos os status</option>
+        <option value="Ativa">Ativa</option>
+        <option value="Cancelada">Cancelada</option>
+        <option value="Concluida">Concluída</option>
+      </select>
+    </label>
+    <button class="btn btn-primary" type="submit">Buscar</button>
+  </form>
+
+  <p class="alert alert-error" *ngIf="erro" role="alert">{{ erro }}</p>
+  <p *ngIf="carregando">Carregando...</p>
+
+  <div class="card table-wrapper" *ngIf="!carregando && matriculas.length">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Pokémon</th>
+          <th>Treinador</th>
+          <th>Plano</th>
+          <th>Status</th>
+          <th>Valor Mensal</th>
+          <th>Início</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let matricula of matriculas">
+          <td>{{ matricula.pokemonNome }}</td>
+          <td>{{ matricula.treinadorNome }}</td>
+          <td>{{ matricula.planoTreinamentoNome }}</td>
+          <td><app-status-badge [status]="matricula.status" /></td>
+          <td>{{ matricula.valorMensal | currency: 'BRL' }}</td>
+          <td>{{ matricula.dataInicio | date: 'dd/MM/yyyy' }}</td>
+          <td>
+            <div class="row-actions">
+              <ng-container *ngIf="matricula.status === 'Ativa'">
+                <button
+                  class="btn btn-secondary btn-sm"
+                  type="button"
+                  [disabled]="!planosSuperiores(matricula).length"
+                  [title]="!planosSuperiores(matricula).length ? 'Já está no plano mais alto' : ''"
+                  (click)="abrirUpgrade(matricula)"
+                >
+                  Upgrade
+                </button>
+                <button
+                  class="btn btn-ghost btn-sm"
+                  type="button"
+                  [disabled]="cancelandoId === matricula.id"
+                  (click)="cancelar(matricula)"
+                >
+                  {{ cancelandoId === matricula.id ? 'Cancelando...' : 'Cancelar' }}
+                </button>
+              </ng-container>
+              <button
+                class="btn btn-ghost btn-sm"
+                type="button"
+                [disabled]="!treinadorAtualId(matricula)"
+                (click)="abrirTransferencia(matricula)"
+              >
+                Transferir
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="empty-state" *ngIf="!carregando && !matriculas.length">Nenhuma matrícula encontrada.</p>
+
+  <app-upgrade-modal
+    *ngIf="matriculaEmUpgrade as matricula"
+    [matriculaId]="matricula.id"
+    [planosDisponiveis]="planosSuperiores(matricula)"
+    (fechado)="matriculaEmUpgrade = null"
+    (confirmado)="onUpgradeConfirmado()"
+  />
+
+  <app-transferir-modal
+    *ngIf="matriculaEmTransferencia as matricula"
+    [pokemonId]="matricula.pokemonId"
+    [pokemonNome]="matricula.pokemonNome"
+    [treinadorAtualId]="treinadorAtualId(matricula)!"
+    (fechado)="matriculaEmTransferencia = null"
+    (confirmado)="onTransferenciaConfirmada()"
+  />
+</section>

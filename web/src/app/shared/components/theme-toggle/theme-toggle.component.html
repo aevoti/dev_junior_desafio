@@ -1,0 +1,18 @@
+<button
+  type="button"
+  class="theme-toggle"
+  [class.is-dark]="themeService.theme() === 'dark'"
+  (click)="themeService.toggle()"
+  [attr.aria-label]="themeService.theme() === 'dark' ? 'Ativar tema claro' : 'Ativar tema escuro'"
+  [attr.title]="themeService.theme() === 'dark' ? 'Ativar tema claro' : 'Ativar tema escuro'"
+>
+  <svg class="icon icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+    <circle cx="12" cy="12" r="4" />
+    <path
+      d="M12 2v2.2M12 19.8V22M4.2 4.2l1.55 1.55M18.25 18.25l1.55 1.55M2 12h2.2M19.8 12H22M4.2 19.8l1.55-1.55M18.25 5.75l1.55-1.55"
+    />
+  </svg>
+  <svg class="icon icon-moon" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z" />
+  </svg>
+</button>

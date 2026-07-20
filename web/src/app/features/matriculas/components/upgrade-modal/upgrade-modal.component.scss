@@ -1,0 +1,27 @@
+.modal-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.simulation {
+  margin-top: 1rem;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.simulation p {
+  margin: 0;
+}
+
+.simulation .btn {
+  align-self: flex-start;
+  margin-top: 0.5rem;
+}

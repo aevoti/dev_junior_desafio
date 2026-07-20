@@ -1,0 +1,29 @@
+<div class="modal-backdrop" (click)="fechado.emit()">
+  <div class="modal-panel" (click)="$event.stopPropagation()">
+    <h3 class="page-title">Upgrade de Plano</h3>
+
+    <label class="field">
+      Novo plano
+      <select class="select" [(ngModel)]="planoSelecionadoId" name="planoSelecionadoId">
+        <option [ngValue]="null" disabled>Selecione</option>
+        <option *ngFor="let plano of planosDisponiveis" [ngValue]="plano.id">{{ plano.nome }}</option>
+      </select>
+    </label>
+
+    <div class="modal-actions">
+      <button class="btn btn-secondary" type="button" (click)="simular()">Calcular</button>
+      <button class="btn btn-ghost" type="button" (click)="fechado.emit()">Cancelar</button>
+    </div>
+
+    <p class="alert alert-error" *ngIf="erro" role="alert">{{ erro }}</p>
+
+    <div class="card simulation" *ngIf="simulacao">
+      <p>Crédito do plano antigo: {{ simulacao.creditoPlanoAntigo | currency: 'BRL' }}</p>
+      <p>Custo do novo plano (dias restantes): {{ simulacao.custoNovoPlanoRestante | currency: 'BRL' }}</p>
+      <p><strong>Primeira cobrança: {{ simulacao.valorPrimeiraCobranca | currency: 'BRL' }}</strong></p>
+      <button class="btn btn-primary" type="button" [disabled]="confirmando" (click)="confirmar()">
+        {{ confirmando ? 'Confirmando...' : 'Confirmar upgrade' }}
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,124 +1,180 @@
-# Desafio Técnico — Desenvolvedor(a) Junior
+# Centro de Treinamento Pokémon "Alto Nível"
 
-## Centro de Treinamento Pokémon "Alto Nível"
+Sistema de gestão de matrículas do desafio técnico da Aevo (vaga Desenvolvedor(a) Junior). API em .NET 8, frontend em Angular 17 e SQL Server puro, com as 5 regras de negócio (R1-R5) implementadas e testadas de ponta a ponta contra um banco real.
 
-Olá candidato(a),![alt text](https://static.wikia.nocookie.net/pokemongo/images/c/cd/Sticker_Funwari_Charmander.png/revision/latest?cb=20200817175607)
+## Organização do repositório
 
-Primeiramente, parabéns por ter chegado até aqui! Essa tem sido uma Jornada Seletiva de altíssimo nível, mas o seu cadastro se destacou e não temos dúvidas de que você pode ser a pessoa certa para compor o nosso time.<br><br>
-Abaixo, você encontrará todos as informações necessárias para realizar a sua Etapa de Task.<br>
+```
+dev_junior_desafio/
+├── api/                 <- backend (.NET 8 / ASP.NET Core Web API)
+├── web/                 <- frontend (Angular 17, standalone components)
+├── db/                  <- scripts SQL puro (schema.sql, seed.sql, consulta-mrr.sql)
+├── docker-compose.yml   <- sobe SQL Server + API (+ web, opcional)
+├── setup.sh             <- automatiza o setup inicial (ver abaixo)
+└── README.md
+```
 
-Este desafio simula um problema real, com uma temática mais divertida.
+### `api/` — Backend (.NET 8 / ASP.NET Core Web API)
 
+Arquitetura em camadas (Clean Architecture simplificada):
 
-O **Centro de Treinamento Alto Nível** é um serviço por assinatura onde Treinadores matriculam seus Pokémon em planos de treinamento mensais. Sua missão é construir o sistema de gestão dessas matrículas.
+```
+api/
+├── src/
+│   ├── PokemonTrainingCenter.Api/              <- Controllers, Program.cs, Swagger
+│   ├── PokemonTrainingCenter.Domain/           <- Entidades, enums, DomainException
+│   ├── PokemonTrainingCenter.Application/      <- DTOs, interfaces, MatriculaService (regras de negócio)
+│   └── PokemonTrainingCenter.Infrastructure/   <- AppDbContext (EF Core), repositórios
+└── tests/
+    └── PokemonTrainingCenter.Tests/            <- 15 testes de unidade do MatriculaService (xUnit)
+```
 
----
+**Tecnologias:** .NET 8, ASP.NET Core Web API, Entity Framework Core (SQL Server), Swashbuckle (Swagger), xUnit.
 
-## 🎯 O que você vai construir
+### `web/` — Frontend (Angular)
 
-Uma aplicação com três partes:
+```
+web/src/app/
+├── core/
+│   ├── models/         <- interfaces TypeScript espelhando os DTOs da API
+│   ├── services/        <- MatriculaService, PokemonService, PlanoTreinamentoService, ThemeService
+│   └── interceptors/    <- errorInterceptor (normaliza erros da API em mensagens amigáveis)
+├── features/matriculas/
+│   ├── pages/matriculas-list/     <- Listagem: busca + filtro por status + ações (Upgrade/Cancelar)
+│   ├── pages/matricula-form/      <- Formulário de nova matrícula (select de Pokémon, validações)
+│   └── components/upgrade-modal/  <- Fluxo de upgrade: simula e mostra o valor antes de confirmar
+└── shared/components/
+    ├── status-badge/    <- badge colorido por status (Ativa/Cancelada/Concluída)
+    └── theme-toggle/    <- botão sol/lua (tema claro/escuro)
+```
 
-1. **API REST em .NET** — gestão de Treinadores, Pokémon e Matrículas em planos
-2. **Banco de dados SQL Server** — modelagem e uma consulta específica
-3. **Frontend em Angular** — telas de listagem e cadastro
+**Tecnologias:** Angular 17 (standalone components, sem NgModule), TypeScript, RxJS, `@angular/animations` (transição de rota).
 
----
+### `db/` — SQL Server
 
-## 📋 Regras de negócio
+- `schema.sql`: DDL das 4 tabelas, com o índice único filtrado que reforça a R1 (`WHERE Status = 'Ativa'`) também a nível de banco.
+- `seed.sql`: popula 10 Treinadores, 10 Pokémon e 10 Matrículas de exemplo (cobrindo os 3 planos, os 3 status e uma cadeia de upgrade). Idempotente.
+- `consulta-mrr.sql`: MRR agrupado por plano (só matrículas `Ativa`), com linha de total geral via `GROUPING SETS`.
 
-### Entidades
+## Como rodar
 
-- **Treinador**: nome, e-mail (único), cidade de origem.
-- **Pokémon**: nome, tipo (ex.: Fogo, Água, Planta...), nível (1 a 100) e o Treinador dono.
-- **Matrícula**: vincula um Pokémon a um **Plano de Treinamento**, com data de início, status (Ativa, Cancelada, Concluída) e valor mensal.
+### Opção rápida: `setup.sh`
 
-### Planos de Treinamento
+```bash
+# Dar permissão de execução ao script
+chmod +x setup.sh
+bash setup.sh
+```
 
-| Plano | Valor mensal | Descrição |
+Sobe SQL Server + API via Docker Compose, espera o banco ficar pronto, aplica `schema.sql` e `seed.sql` automaticamente. Idempotente — pode rodar de novo sem duplicar dados (pula o schema se o banco já existir). Ao final, mostra os próximos passos pro frontend.
+
+Pré-requisitos: Docker Desktop com virtualização habilitada.
+
+### Passo a passo manual
+
+**1. Banco + API (Docker):**
+
+```bash
+docker compose up -d --build sqlserver api
+```
+
+**2. Aplicar schema e seed:**
+
+```bash
+docker exec -i pkm-sqlserver /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "YourStrong!Passw0rd" -C < db/schema.sql
+docker exec -i pkm-sqlserver /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "YourStrong!Passw0rd" -C < db/seed.sql
+```
+
+API disponível em `http://localhost:5000` (Swagger em `/swagger`).
+
+**3. Frontend:**
+
+```bash
+cd web
+npm install
+npm start
+```
+
+Acesse `http://localhost:4200`. `environment.ts` já aponta para `http://localhost:5000/api`.
+
+**4. Rodar a API fora do Docker** (alternativa ao passo 1, se preferir `dotnet run` local com um SQL Server já disponível em `localhost:1433`):
+
+```bash
+cd api
+dotnet restore && dotnet build
+dotnet run --project src/PokemonTrainingCenter.Api
+```
+
+**5. Testes de unidade:**
+
+```bash
+cd api
+dotnet test
+```
+
+## Endpoints da API
+
+Documentação interativa completa em `http://localhost:5000/swagger`. Resumo:
+
+**Matrículas**
+| Método | Rota | Descrição |
 |---|---|---|
-| Ginásio Local | R$ 50,00 | Treinos básicos |
-| Liga Regional | R$ 120,00 | Treinos intermediários + batalhas simuladas |
-| Elite dos 4 | R$ 300,00 | Preparação completa para a Liga |
+| GET | `/api/matriculas` | Lista matrículas (filtros `busca` e `status`) |
+| POST | `/api/matriculas` | Cria matrícula (valida R1 e R3) |
+| POST | `/api/matriculas/{id}/upgrade/simular` | Calcula o pro-rata do upgrade **sem** efetivar (R2) |
+| POST | `/api/matriculas/{id}/upgrade` | Efetiva o upgrade calculado (R2) |
+| POST | `/api/matriculas/{id}/cancelar` | Cancela a matrícula (R4) |
 
-### Regras obrigatórias
+**Pokémon**
+| Método | Rota | Descrição |
+|---|---|---|
+| GET | `/api/pokemons` | Lista todos |
+| GET | `/api/pokemons/{id}` | Obtém por id |
+| POST | `/api/pokemons` | Cria um Pokémon |
+| PUT | `/api/pokemons/{id}/transferir` | Transfere para outro Treinador (R5) |
 
-**R1 — Matrícula única ativa:** um Pokémon **não pode** ter duas matrículas ativas ao mesmo tempo. A API deve rejeitar a tentativa com uma mensagem de erro clara, e o frontend deve exibir esse erro de forma amigável ao usuário.
+**Treinadores**
+| Método | Rota | Descrição |
+|---|---|---|
+| GET | `/api/treinadores` | Lista todos |
+| GET | `/api/treinadores/{id}` | Obtém por id |
+| POST | `/api/treinadores` | Cria um Treinador (valida e-mail único) |
 
-**R2 — Upgrade com cálculo proporcional (pro-rata):** um Treinador pode fazer upgrade da matrícula de um Pokémon para um plano superior a qualquer momento do ciclo mensal. Quando isso acontece:
+**Planos de Treinamento**
+| Método | Rota | Descrição |
+|---|---|---|
+| GET | `/api/planos-treinamento` | Lista os 3 planos |
 
-- A matrícula atual é encerrada e uma nova é criada no plano superior, iniciando na data do upgrade.
-- O valor da **primeira cobrança do novo plano** deve ser proporcional aos dias restantes do ciclo, descontando o valor já pago não utilizado do plano antigo.
-- **Exemplo:** um Pokémon está no plano Ginásio Local (R$ 50) e faz upgrade para Liga Regional (R$ 120) no dia 16 de um ciclo de 30 dias. Restam 15 dias. Crédito do plano antigo: R$ 50 × (15/30) = R$ 25. Custo do novo plano nos dias restantes: R$ 120 × (15/30) = R$ 60. **Primeira cobrança: R$ 60 − R$ 25 = R$ 35.**
-- A API deve expor um endpoint de upgrade que retorna o valor calculado dessa primeira cobrança.
-- Downgrade (plano inferior) **não é permitido** — a API deve rejeitar.
+## Decisões técnicas e premissas assumidas
 
-**R3 — Nível mínimo para a Elite dos 4:** apenas Pokémon de nível **50 ou superior** podem ser matriculados (ou receber upgrade) no plano Elite dos 4.
+- **R2 (upgrade pro-rata):** ciclo fixo de **30 dias** contado a partir da `DataInicio` da matrícula atual — é a suposição mais simples compatível com o exemplo do enunciado (dia 16/30 → R$35,00, validado nos testes). Upgrades pedidos após o fim do ciclo (>30 dias decorridos) não geram crédito nem cobrança negativa (fica R$0, nunca negativo). A UI segue o fluxo pedido no enunciado — **simular sem efetivar** (`POST /matriculas/{id}/upgrade/simular`) e só persistir de fato ao clicar em "Confirmar upgrade" (`POST /matriculas/{id}/upgrade`) — dois endpoints separados no backend para isso.
+- **R3 (nível mínimo):** vale tanto na criação quanto no upgrade da matrícula (upgradar pra Elite dos 4 com Pokémon de nível insuficiente também é rejeitado).
+- **R4 (matrículas canceladas):** o índice único de R1 é filtrado por `Status = 'Ativa'`, então uma matrícula `Cancelada` nunca bloqueia uma nova para o mesmo Pokémon. A consulta de MRR filtra explicitamente `Status = 'Ativa'`. Decisão: `Cancelada`/`Concluida` mantêm histórico (nunca são deletadas) e ficam de fora de qualquer somatório financeiro.
+- **R5 (transferência de Pokémon):** a `Matricula` referencia o `Pokemon`, não o `Treinador`, diretamente. Por isso, transferir um Pokémon (`PUT /pokemons/{id}/transferir`) só precisa atualizar `Pokemon.TreinadorId` — nenhuma matrícula (ativa ou histórica) precisa ser tocada, pois o vínculo com o Treinador é sempre resolvido via `Pokemon.TreinadorId`. É o comportamento mais simples e coerente com o modelo: a matrícula "segue" o Pokémon.
+- **Tipo do Pokémon:** modelado como enum fixo (`TipoPokemon`: Fogo, Água, Planta...) em vez de texto livre, para consistência e validação; mapeado como `NVARCHAR` no banco (não `INT`) via `HasConversion<string>()` no EF Core, para o schema continuar legível em SQL puro.
 
-**R4 — Matrículas canceladas devem ser tratadas adequadamente nos cálculos e relatórios.**
+## O que eu faria diferente / melhoraria com mais tempo
 
-**R5 — Se um Pokémon for transferido para outro Treinador, suas matrículas devem se comportar de forma coerente.**
+- Telas dedicadas no Angular para criar Treinador e Pokémon (hoje só existem os endpoints na API — `POST /treinadores` e `POST /pokemons` — sem UI, já que o enunciado só pedia as telas de matrícula).
+- Uma tela/confirmação para a transferência de Pokémon (R5) — hoje só testável via API/Swagger.
+- Testes de integração da API (`WebApplicationFactory`) Hoje só existem os 15 testes de unidade do `MatriculaService`.
+- Um pipeline de CI (GitHub/GitLab Actions) rodando `dotnet test`, `ng build` e o **build de produção do Docker** a cada push.
+- Paginação na listagem de matrículas.
+- EF Core Migrations em vez de `schema.sql` aplicado manualmente (mantive SQL puro porque é item explícito do desafio).
+- Autenticação/autorização (a API está aberta; fora de escopo pro desafio, mas seria o próximo passo em um sistema real).
 
-> 💡 Se alguma regra parecer incompleta ou ambígua, você pode nos perguntar **ou** tomar uma decisão e documentá-la no README. As duas atitudes são bem-vindas — o que avaliamos é como você lida com isso.
+## Uso de IA
 
----
+Usei o Claude Code do início ao fim deste projeto, em várias sessões de trabalho colaborativo (não foi "gerar tudo de uma vez"):
 
-## 🗄️ Parte SQL Server
+1. **Scaffold inicial:** pedi a estrutura em camadas dos três módulos (API .NET, Angular, SQL) a partir do enunciado. Nessa etapa, o `MatriculaService` ficou como stub (`NotImplementedException`) de propósito — a IA documentou isso com transparência no próprio código.
+2. **Implementação das regras de negócio (R1-R4):** pedi para implementar o `MatriculaService` de verdade. Revisei a lógica do pro-rata manualmente conferindo contra o exemplo do enunciado.
+3. **Validação de ponta a ponta contra banco real:** ao testar tudo via `curl` contra SQL Server real em Docker (não só compilar), a IA encontrou e corrigiu **3 bugs reais** que só apareciam em runtime:
+   - Falta de `SET QUOTED_IDENTIFIER ON` antes de criar o índice filtrado no `schema.sql` (erro ao rodar o script do zero).
+   - `Pokemon.Tipo` e `Matricula.Status` mapeados como `INT` pelo EF Core por padrão, mas armazenados como `NVARCHAR` no schema — quebrava toda leitura com `InvalidCastException`.
+   - `GET /api/pokemons` retornando 500 por referência circular (`Pokemon → Treinador → Pokemons → ...`) ao serializar a entidade do EF Core direto em vez de um DTO.
+4. **Frontend — tema Pokémon e modo claro/escuro:** pedi cores/tema temático, transições e um botão sol/lua, com a restrição explícita de usar só recursos nativos do Angular (signals, standalone components, `@angular/animations`), sem bibliotecas de UI novas. A IA implementou um `ThemeService` baseado em `signal`, CSS custom properties para os dois temas, e padronizou botões/cards/badges em classes globais reutilizáveis.
+5. **Dados de teste:** pedi um `seed.sql` com 10 registros distintos e um `setup.sh` para automatizar o clone inicial. A IA testou os dois de ponta a ponta (inclusive dropando o banco pra simular um clone novo) antes de considerar pronto.
+6. **Fechamento de lacunas (R5, testes, upgrade simular/confirmar):** pedi pra IA comparar o projeto inteiro contra o enunciado original de novo. Ela identificou, com honestidade, que R5 não tinha nenhum código (só uma decisão documentada), que o botão de Upgrade da listagem não estava ligado ao modal, e que o `POST /upgrade` efetivava a mudança na mesma chamada que calculava o valor — o que quebrava a UX pedida ("mostrar valor antes de confirmar"). A partir disso, separei o endpoint em `/upgrade/simular` (sem side-effect) e `/upgrade` (efetiva), implementei R5, liguei os botões que faltavam na listagem e escrevi os 15 testes de unidade que cobrem os casos de borda do pro-rata (primeiro dia, último dia, downgrade, nível insuficiente).
 
-Além da modelagem das tabelas (entregue o script de criação `schema.sql`), escreva **em SQL puro** (arquivo `consulta-mrr.sql`, sem ORM) a seguinte consulta:
-
-> **Receita Mensal Recorrente (MRR) do Centro, agrupada por plano**, considerando apenas matrículas ativas, com uma linha de total geral ao final.
-
----
-
-## 🖥️ Parte Angular
-
-Telas mínimas:
-
-1. **Listagem de matrículas** com busca por nome do Pokémon ou do Treinador e filtro por status.
-2. **Formulário de nova matrícula** com validações (campos obrigatórios, nível mínimo para Elite dos 4).
-3. **Fluxo de upgrade**: ao solicitar upgrade, exibir o valor da primeira cobrança retornado pela API antes de confirmar.
-4. **Tratamento de erros da API** de forma amigável (ex.: tentativa de matrícula duplicada — R1).
-
-Não avaliamos beleza visual. Avaliamos organização de componentes, validações e experiência básica de uso.
-
----
-
-## 🤖 Uso de Inteligência Artificial
-
-**O uso de IA (Copilot, ChatGPT, Claude etc.) é permitido e incentivado** — faz parte do nosso dia a dia. Pedimos apenas transparência: descreva no README como você usou (o que pediu, o que aproveitou, o que precisou corrigir ou reescrever).
-
-Importante: haverá uma **sessão de conversa técnica** sobre a sua entrega, onde pediremos que você explique trechos do código e faça pequenas modificações ao vivo. Entregar código que você não compreende não vai te ajudar nessa etapa. 🙂
-
----
-
-## 📦 Entrega
-
-- O Envio deve ser feito por PullRequest com o nome completo do Candidato.
-- Prazo: **5 dias corridos** a partir do recebimento. Estimamos algo entre 4 e 8 horas de trabalho — não é esperado que você use os 5 dias inteiros.
-- O projeto deve rodar localmente com instruções claras no README.
-
-### README obrigatório, contendo:
-
-1. Instruções de execução (backend, frontend e scripts de banco).
-2. Decisões técnicas e premissas assumidas (especialmente sobre R4 e R5).
-3. O que você faria diferente ou melhoraria com mais tempo.
-4. Como utilizou IA durante o desenvolvimento.
-
----
-
-## ✅ O que avaliamos
-
-- Corretude das regras de negócio, incluindo casos de borda (R1, R2, R3).
-- Modelagem do banco e a consulta SQL solicitada.
-- Organização do código no backend e no frontend.
-- Clareza na comunicação: README, premissas documentadas, perguntas feitas.
-- Na conversa técnica: compreensão do próprio código e raciocínio ao modificá-lo.
-
-
-Quaisquer dúvidas técnicas em relação à Task, não deixe de entrar em contato com o e-mail: carlos.pedroni@aevo.com.br!
-
-O nosso Time de Pessoas e Cultura se encontra também à disposição para quaisquer outras questões que achar relevante. Basta nos contatar no e-mail: rh@aevo.com.br!
-
-Estes canais de comunicação estarão sempre abertos para você, não hesite em nos contatar caso tenha dúvidas.
-
-Boa sorte! 🧡 ![alt text](https://static.wikia.nocookie.net/pokemongo/images/a/af/Sticker_Funwari_Bulbasaur_bye.png/revision/latest?cb=20200825201636)
+Todo o código foi revisado por mim antes de aceitar — nada foi commitado automaticamente pela IA sem eu pedir explicitamente.
