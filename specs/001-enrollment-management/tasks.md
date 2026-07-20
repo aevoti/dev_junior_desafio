@@ -338,6 +338,29 @@ verificação manual revalidados.
 
 ---
 
+## Phase 11: Bloquear Upgrade em Matrícula Cancelada (2026-07-20, parte 3)
+
+**Purpose**: bug encontrado em teste manual do fluxo de upgrade. Ver
+`plan.md` ("parte 3") para o diagnóstico.
+
+- [X] T082 Rejeitar upgrade (preview e confirm) quando
+  `enrollment.EndDate.HasValue` — mesmo que ainda ativa (status "Ativa a
+  encerrar") — com mensagem distinta da usada para matrícula encerrada, em
+  `LoadUpgradeContextAsync`
+  (`backend/src/PokemonTrainingCenter.Domain/Services/EnrollmentService.cs`)
+  (FR-008)
+- [X] T083 [P] Adicionar teste de regressão cobrindo os dois casos: upgrade
+  rejeitado em matrícula cancelada (`EndDate` no futuro) e em matrícula
+  encerrada (`EndDate` no passado — já funcionava, mas sem teste dedicado)
+  em `backend/tests/PokemonTrainingCenter.UnitTests/EnrollmentServiceTests.cs`
+  (depende de T082)
+
+**Checkpoint**: upgrade em matrícula cancelada rejeitado com mensagem
+clara; verificado via `curl` direto contra a API (não só o frontend);
+`dotnet test` revalidado.
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies

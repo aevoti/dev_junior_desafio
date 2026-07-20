@@ -27,6 +27,11 @@
 - Q: Ao transferir um Pokémon (R5), a matrícula deve continuar mostrando o Treinador que era dono do Pokémon durante aquele período, ou o dono atual? → A: O Treinador histórico (quem era dono no momento da criação da matrícula) — a transferência não deve reescrever o Treinador de matrículas já existentes, ativas ou encerradas.
 - Q: Esse histórico deve ser um snapshot por FK (`Enrollment.TrainerId` apontando para o `Trainer`) ou apenas um nome de texto copiado? → A: FK (`Enrollment.TrainerId`), consistente com o restante do modelo (Treinador nunca é editado/removido nesta feature, então a FK é tão estável quanto uma string, e preserva a possibilidade de navegar para os outros dados do Treinador).
 
+### Session 2026-07-20 (3) — teste manual, upgrade em matrícula cancelada
+
+- Q: Uma matrícula já cancelada (status "Ativa a encerrar", `EndDate` definido mas ainda no futuro) deve poder receber upgrade? → A: Não — uma vez cancelada, a matrícula não deve mais ser alterada; rejeitar com mensagem clara e distinta da usada para matrícula já encerrada (FR-008).
+- Q: Isso significa que também deveria existir uma forma de reverter o cancelamento (já que, sem isso, o Pokémon fica bloqueado por R1 para novas matrículas até o ciclo terminar)? → A: Sim, faz sentido, mas fica registrado como melhoria futura (README) — implementar agora aumentaria o escopo desta correção (novo endpoint, lógica de domínio, UI) além do bug reportado.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Matricular Pokémon em Plano de Treinamento (Priority: P1)
@@ -265,6 +270,10 @@ concluir.
   nível abaixo de 50 (R3), incluindo o valor limite (nível exatamente 50,
   que deve ser aceito).
 - Tentativa de downgrade de plano (R2) — deve ser rejeitada.
+- Tentativa de upgrade em uma matrícula já cancelada (status "Ativa a
+  encerrar", `EndDate` definido mas ainda no futuro) — deve ser rejeitada
+  com mensagem clara, mesmo que a matrícula ainda conte como ativa para
+  outros fins (R1, MRR) até o fim do ciclo (FR-008).
 - Cadastro de Treinador com e-mail já usado por outro Treinador — deve ser
   rejeitado.
 - Cadastro de Treinador com e-mail em formato inválido (ex.: sem "@", sem
@@ -332,7 +341,12 @@ concluir.
   de nível inferior a 50 no plano Elite dos 4 (R3).
 - **FR-008**: O sistema MUST permitir solicitar o upgrade da matrícula ativa
   de um Pokémon para um plano de valor mensal superior, a qualquer momento do
-  ciclo mensal corrente.
+  ciclo mensal corrente, desde que a matrícula não tenha um cancelamento já
+  agendado (FR-012). Uma matrícula com `EndDate` definido — mesmo que ainda
+  esteja no estado "Ativa a encerrar" (FR-020), portanto tecnicamente ativa
+  — MUST rejeitar tentativas de upgrade, com uma mensagem distinta da usada
+  para matrícula já encerrada (Session 2026-07-20 (3): bug encontrado em
+  teste manual — o sistema permitia upgrade em uma matrícula já cancelada).
 - **FR-009**: Ao processar um upgrade, o sistema MUST calcular o valor da
   primeira cobrança do novo plano como: (custo do novo plano proporcional aos
   dias restantes do ciclo) menos (crédito do plano antigo proporcional aos

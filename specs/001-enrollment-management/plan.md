@@ -284,3 +284,28 @@ garantindo que a API sempre serialize com `Z` e o frontend converta
 corretamente. Validado visualmente contra a API e o banco reais via
 Playwright: a mesma matrícula que antes mostrava "14:40" passou a mostrar
 "11:40" após o fix, sem nenhuma mudança no dado armazenado.
+
+## Nota de revisão pós-implementação (2026-07-20, parte 3 — teste manual)
+
+Testando manualmente o fluxo de upgrade, o usuário encontrou mais um bug
+real: `LoadUpgradeContextAsync` (usado por preview e confirm de upgrade)
+só verifica `!enrollment.IsActive` — mas uma matrícula cancelada (FR-012)
+continua com `IsActive == true` até o fim do ciclo pago vigente, por
+design (o Pokémon mantém acesso até lá). Isso deixa uma janela em que a
+matrícula está cancelada (status "Ativa a encerrar") mas ainda aceita
+upgrade, o que não faz sentido de negócio. Verificado via `curl` direto
+contra a API (não só o frontend): uma matrícula com `EndDate` já no passado
+(encerrada) já rejeitava upgrade corretamente (400, "Esta matrícula não
+está ativa."); uma matrícula cancelada via `POST /cancel` (status
+"EndingSoon") aceitava upgrade normalmente (200, valor calculado) —
+confirmando o bug isoladamente do frontend. Fix (FR-008): rejeitar upgrade
+sempre que `enrollment.EndDate.HasValue`, com uma mensagem distinta
+("Esta matrícula já foi cancelada e não pode receber upgrade.") da usada
+para matrícula já encerrada.
+
+Discutido também, mas **não implementado nesta rodada**: um endpoint de
+"descancelar" (reverter `EndDate` para `null` enquanto ainda no estado
+"Ativa a encerrar"), que resolveria de forma mais direta o efeito colateral
+de R1 bloquear novas matrículas para o Pokémon até o cancelamento se
+consolidar. Registrado em "Melhorias futuras" do README em vez de
+implementado agora, para não expandir o escopo desta correção pontual.
