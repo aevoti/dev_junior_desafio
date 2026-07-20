@@ -119,6 +119,15 @@ public class EnrollmentService
             throw new DomainValidationException("Esta matrícula não está ativa.");
         }
 
+        // FR-008: uma matrícula cancelada (FR-012) continua IsActive == true
+        // até o fim do ciclo pago ("Ativa a encerrar"), mas não deve mais
+        // aceitar upgrade — bug encontrado em teste manual (Session
+        // 2026-07-20 (3)).
+        if (enrollment.EndDate.HasValue)
+        {
+            throw new DomainValidationException("Esta matrícula já foi cancelada e não pode receber upgrade.");
+        }
+
         var newPlan = await _db.TrainingPlans.FirstOrDefaultAsync(p => p.Id == newTrainingPlanId, ct)
             ?? throw new DomainValidationException("Plano de treinamento não encontrado.", 404);
 
