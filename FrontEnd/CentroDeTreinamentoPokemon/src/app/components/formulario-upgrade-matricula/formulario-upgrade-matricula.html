@@ -1,0 +1,71 @@
+<h2>Upgrade de matrícula</h2>
+
+@if (carregando()) {
+  <p>Carregando...</p>
+} @else if (!matricula()) {
+  <p class="erro">{{ erro() }}</p>
+  <a routerLink="/">Voltar pra listagem</a>
+} @else {
+  <p>
+    Pokémon: <strong>{{ matricula()!.pokemonNome }}</strong> — Treinador:
+    <strong>{{ matricula()!.treinadorNome }}</strong>
+  </p>
+  <p>
+    Plano atual: <strong>{{ matricula()!.planoNome }}</strong> ({{
+      matricula()!.planoValorMensal | currency: 'BRL'
+    }}/mês) — Status: <strong>{{ matricula()!.status }}</strong>
+  </p>
+
+  @if (sucesso()) {
+    <p class="sucesso">Upgrade confirmado com sucesso!</p>
+    <a routerLink="/">Voltar pra listagem</a>
+  } @else if (matricula()!.status !== 'Ativa') {
+    <p class="erro">Só é possível fazer upgrade de uma matrícula Ativa.</p>
+    <a routerLink="/">Voltar pra listagem</a>
+  } @else {
+    @if (planosDisponiveis().length === 0) {
+      <p>Não há planos com valor maior que o atual disponíveis para upgrade.</p>
+    } @else {
+      <mat-form-field appearance="outline">
+        <mat-label>Novo plano</mat-label>
+        <mat-select [formControl]="novoPlanoId">
+          @for (plano of planosDisponiveis(); track plano.id) {
+            <mat-option [value]="plano.id">
+              {{ plano.nome }} ({{ plano.valorMensal | currency: 'BRL' }}/mês)
+            </mat-option>
+          }
+        </mat-select>
+        @if (novoPlanoId.hasError('required') && novoPlanoId.touched) {
+          <mat-error>Selecione um plano.</mat-error>
+        }
+      </mat-form-field>
+
+      @if (bloqueadoPorNivel()) {
+        <p class="erro">O plano Elite dos 4 exige Pokémon de nível 50 ou superior.</p>
+      }
+
+      @if (erro()) {
+        <p class="erro">{{ erro() }}</p>
+      }
+
+      @if (!simulacao()) {
+        <button
+          mat-flat-button
+          type="button"
+          [disabled]="simulando() || bloqueadoPorNivel()"
+          (click)="simular()"
+        >
+          {{ simulando() ? 'Simulando...' : 'Simular upgrade' }}
+        </button>
+      } @else {
+        <p>
+          Primeira cobrança no novo plano:
+          <strong>{{ simulacao()!.primeiraCobranca | currency: 'BRL' }}</strong>
+        </p>
+        <button mat-flat-button type="button" [disabled]="confirmando()" (click)="confirmar()">
+          {{ confirmando() ? 'Confirmando...' : 'Confirmar upgrade' }}
+        </button>
+      }
+    }
+  }
+}

@@ -1,0 +1,49 @@
+<form [formGroup]="form" (ngSubmit)="enviar()">
+  <mat-form-field appearance="outline">
+    <mat-label>Nome</mat-label>
+    <input matInput formControlName="nome" />
+    @if (form.controls.nome.hasError('required')) {
+      <mat-error>Nome é obrigatório.</mat-error>
+    }
+    @if (form.controls.nome.hasError('maxlength')) {
+      <mat-error>Nome deve ter no máximo 100 caracteres.</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>E-mail</mat-label>
+    <input matInput type="email" formControlName="email" />
+    @if (form.controls.email.hasError('required')) {
+      <mat-error>E-mail é obrigatório.</mat-error>
+    }
+    @if (form.controls.email.hasError('email')) {
+      <mat-error>E-mail inválido.</mat-error>
+    }
+    @if (form.controls.email.hasError('maxlength')) {
+      <mat-error>E-mail deve ter no máximo 150 caracteres.</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Cidade de origem</mat-label>
+    <input matInput formControlName="cidadeDeOrigem" />
+    @if (form.controls.cidadeDeOrigem.hasError('required')) {
+      <mat-error>Cidade de origem é obrigatória.</mat-error>
+    }
+    @if (form.controls.cidadeDeOrigem.hasError('maxlength')) {
+      <mat-error>Cidade deve ter no máximo 100 caracteres.</mat-error>
+    }
+  </mat-form-field>
+
+  <button mat-flat-button type="submit" [disabled]="carregando()">
+    {{ carregando() ? 'Salvando...' : 'Cadastrar' }}
+  </button>
+
+  @if (erro()) {
+    <p class="erro">{{ erro() }}</p>
+  }
+
+  @if (sucesso()) {
+    <p class="sucesso">Treinador cadastrado com sucesso!</p>
+  }
+</form>

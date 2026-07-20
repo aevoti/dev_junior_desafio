@@ -1,0 +1,58 @@
+<h2>Nova matrícula</h2>
+
+<form [formGroup]="form" (ngSubmit)="enviar()">
+  <mat-form-field appearance="outline">
+    <mat-label>Treinador</mat-label>
+    <mat-select formControlName="treinadorId">
+      @for (treinador of treinadores(); track treinador.id) {
+        <mat-option [value]="treinador.id">{{ treinador.nome }}</mat-option>
+      }
+    </mat-select>
+    @if (form.controls.treinadorId.hasError('required')) {
+      <mat-error>Treinador é obrigatório.</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Pokémon</mat-label>
+    <mat-select formControlName="pokemonId" [disabled]="!form.controls.treinadorId.value">
+      @for (pokemon of pokemonsDisponiveis(); track pokemon.id) {
+        <mat-option [value]="pokemon.id">{{ pokemon.nome }} (nível {{ pokemon.nivel }})</mat-option>
+      }
+    </mat-select>
+    @if (form.controls.pokemonId.hasError('required')) {
+      <mat-error>Pokémon é obrigatório.</mat-error>
+    }
+    @if (form.controls.treinadorId.value && pokemonsDisponiveis().length === 0) {
+      <mat-hint>Esse treinador não tem pokémon disponível pra matrícula.</mat-hint>
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Plano</mat-label>
+    <mat-select formControlName="planoId">
+      @for (plano of planos(); track plano.id) {
+        <mat-option [value]="plano.id">{{ plano.nome }} (R$ {{ plano.valorMensal }}/mês)</mat-option>
+      }
+    </mat-select>
+    @if (form.controls.planoId.hasError('required')) {
+      <mat-error>Plano é obrigatório.</mat-error>
+    }
+  </mat-form-field>
+
+  @if (form.hasError('nivelMinimoElite') && (form.controls.pokemonId.touched || form.controls.planoId.touched)) {
+    <p class="erro">O plano Elite dos 4 exige Pokémon de nível 50 ou superior.</p>
+  }
+
+  @if (erro()) {
+    <p class="erro">{{ erro() }}</p>
+  }
+
+  @if (sucesso()) {
+    <p class="sucesso">Matrícula criada com sucesso!</p>
+  }
+
+  <button mat-flat-button type="submit" [disabled]="carregando()">
+    {{ carregando() ? 'Salvando...' : 'Matricular' }}
+  </button>
+</form>

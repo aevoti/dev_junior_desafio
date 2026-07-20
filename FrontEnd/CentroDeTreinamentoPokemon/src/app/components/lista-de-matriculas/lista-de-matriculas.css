@@ -1,0 +1,42 @@
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.filtro-busca {
+  min-width: 320px;
+  flex: 1 1 320px;
+}
+
+.filtro-status {
+  min-width: 160px;
+}
+
+table {
+  width: 100%;
+}
+
+.status {
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  background: #eee;
+  font-size: 0.85rem;
+}
+
+.status-ativa {
+  background: #d7f2df;
+  color: #1b873f;
+}
+
+.status-cancelada {
+  background: #fbe0de;
+  color: #b3261e;
+}
+
+.status-concluida {
+  background: #e4e4e4;
+  color: #444;
+}

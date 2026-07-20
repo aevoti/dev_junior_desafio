@@ -1,0 +1,61 @@
+<form [formGroup]="form" (ngSubmit)="enviar()">
+  <mat-form-field appearance="outline">
+    <mat-label>Nome</mat-label>
+    <input matInput formControlName="nome" />
+    @if (form.controls.nome.hasError('required')) {
+      <mat-error>Nome é obrigatório.</mat-error>
+    }
+    @if (form.controls.nome.hasError('maxlength')) {
+      <mat-error>Nome deve ter no máximo 100 caracteres.</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Tipo</mat-label>
+    <input matInput formControlName="tipo" />
+    @if (form.controls.tipo.hasError('required')) {
+      <mat-error>Tipo é obrigatório.</mat-error>
+    }
+    @if (form.controls.nome.hasError('maxlength')) {
+      <mat-error>Tipo deve ter no máximo 50 caracteres.</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Nível</mat-label>
+    <input matInput type="number" formControlName="nivel" />
+    @if (form.controls.nivel.hasError('required')) {
+      <mat-error>Nível é obrigatório.</mat-error>
+    }
+    @if (form.controls.nivel.hasError('min')) {
+      <mat-error>Nível deve ser maior que zero.</mat-error>
+    }
+    @if (form.controls.nivel.hasError('max')) {
+      <mat-error>Nível deve ser menor que 100.</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Treinador</mat-label>
+    <mat-select formControlName="treinadorId">
+      @for (treinador of treinadores(); track treinador.id) {
+        <mat-option [value]="treinador.id">{{ treinador.nome }}</mat-option>
+      }
+    </mat-select>
+    @if (form.controls.treinadorId.hasError('required')) {
+      <mat-error>Treinador é obrigatório.</mat-error>
+    }
+  </mat-form-field>
+
+  @if (erro()) {
+    <p class="erro">{{ erro() }}</p>
+  }
+
+  @if (sucesso()) {
+    <p class="sucesso">Pokémon cadastrado com sucesso!</p>
+  }
+
+  <button mat-flat-button type="submit" [disabled]="carregando()">
+    {{ carregando() ? 'Salvando...' : 'Cadastrar' }}
+  </button>
+</form>

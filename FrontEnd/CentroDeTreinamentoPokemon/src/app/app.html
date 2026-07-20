@@ -1,0 +1,13 @@
+<mat-toolbar class="nav">
+  <span class="nav-titulo">Centro de Treinamento Pokémon</span>
+  <nav class="nav-links">
+    <a routerLink="/" routerLinkActive="ativo" [routerLinkActiveOptions]="{ exact: true }">Matrículas</a>
+    <a routerLink="/matriculas/nova" routerLinkActive="ativo">Nova matrícula</a>
+    <a routerLink="/treinadores/novo" routerLinkActive="ativo">Novo treinador</a>
+    <a routerLink="/pokemons/novo" routerLinkActive="ativo">Novo pokémon</a>
+  </nav>
+</mat-toolbar>
+
+<main class="conteudo">
+  <router-outlet />
+</main>
