@@ -2,18 +2,20 @@ import { CurrencyPipe } from '@angular/common';
 import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { forkJoin, finalize } from 'rxjs';
-import { Matricula, PlanoTreinamento, Pokemon, StatusMatricula } from '../../../../core/models/api.models';
+import { Matricula, PlanoTreinamento, Pokemon, StatusMatricula, Treinador } from '../../../../core/models/api.models';
 import { obterMensagemErro } from '../../../../core/services/api-error';
 import { MatriculaService } from '../../../../core/services/matricula.service';
 import { PlanoService } from '../../../../core/services/plano.service';
 import { PokemonService } from '../../../../core/services/pokemon.service';
+import { TreinadorService } from '../../../../core/services/treinador.service';
 import { MatriculasList } from '../../components/matriculas-list/matriculas-list';
 import { NovaMatriculaForm } from '../../components/nova-matricula-form/nova-matricula-form';
 import { UpgradeMatricula } from '../../components/upgrade-matricula/upgrade-matricula';
+import { TransferirPokemon } from '../../components/transferir-pokemon/transferir-pokemon';
 
 @Component({
   selector: 'app-matriculas-page',
-  imports: [ReactiveFormsModule, CurrencyPipe, MatriculasList, NovaMatriculaForm, UpgradeMatricula],
+  imports: [ReactiveFormsModule, CurrencyPipe, MatriculasList, NovaMatriculaForm, UpgradeMatricula, TransferirPokemon],
   templateUrl: './matriculas-page.html',
   styleUrl: './matriculas-page.scss'
 })
@@ -22,14 +24,17 @@ export class MatriculasPage implements OnInit {
   private readonly matriculaService = inject(MatriculaService);
   private readonly pokemonService = inject(PokemonService);
   private readonly planoService = inject(PlanoService);
+  private readonly treinadorService = inject(TreinadorService);
   private readonly cdr = inject(ChangeDetectorRef);
 
   matriculas: Matricula[] = [];
   pokemons: Pokemon[] = [];
   planos: PlanoTreinamento[] = [];
+  treinadores: Treinador[] = [];
   carregando = false;
   mostrarNova = false;
   matriculaUpgrade: Matricula | null = null;
+  pokemonTransferencia: Pokemon | null = null;
   sucesso = '';
   erro = '';
   readonly filtros = this.fb.nonNullable.group({ busca: '', status: '' as StatusMatricula | '' });
@@ -49,9 +54,10 @@ export class MatriculasPage implements OnInit {
     forkJoin({
       matriculas: this.matriculaService.listar(),
       pokemons: this.pokemonService.listar(),
-      planos: this.planoService.listar()
+      planos: this.planoService.listar(),
+      treinadores: this.treinadorService.listar()
     }).pipe(finalize(() => { this.carregando = false; this.cdr.markForCheck(); })).subscribe({
-      next: dados => { this.matriculas = dados.matriculas; this.pokemons = dados.pokemons; this.planos = dados.planos; this.cdr.markForCheck(); },
+      next: dados => { this.matriculas = dados.matriculas; this.pokemons = dados.pokemons; this.planos = dados.planos; this.treinadores = dados.treinadores; this.cdr.markForCheck(); },
       error: error => this.mostrarErro(obterMensagemErro(error))
     });
   }
@@ -80,6 +86,22 @@ export class MatriculasPage implements OnInit {
     this.sucesso = 'Upgrade realizado com sucesso.';
     this.erro = '';
     this.carregarMatriculasAplicadas();
+  }
+
+  abrirTransferencia(pokemonId: number): void {
+    this.pokemonTransferencia = this.pokemons.find(pokemon => pokemon.id === pokemonId) ?? null;
+  }
+
+  transferenciaConcluida(): void {
+    this.pokemonTransferencia = null;
+    this.sucesso = 'Pokémon transferido com sucesso.';
+    this.erro = '';
+    this.carregarTudoAuxiliar();
+  }
+
+  erroTransferencia(message: string): void {
+    this.pokemonTransferencia = null;
+    this.mostrarErro(message);
   }
 
   mostrarErro(message: string): void { this.erro = message; this.sucesso = ''; }

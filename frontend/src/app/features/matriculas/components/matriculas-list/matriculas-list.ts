@@ -13,6 +13,7 @@ export class MatriculasList {
   @Input({ required: true }) matriculas: Matricula[] = [];
   @Input({ required: true }) pokemons: Pokemon[] = [];
   @Output() upgrade = new EventEmitter<Matricula>();
+  @Output() transferir = new EventEmitter<number>();
 
   rotuloStatus(status: Matricula['status']): string {
     return status === 'Concluida' ? 'Concluída' : status;

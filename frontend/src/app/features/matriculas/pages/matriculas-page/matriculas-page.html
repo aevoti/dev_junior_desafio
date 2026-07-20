@@ -39,9 +39,10 @@
 
   <section class="card list-card">
     <div class="section-title"><div><p class="eyebrow">Visão geral</p><h2>Matrículas</h2></div><span>{{ matriculas.length }} registro(s)</span></div>
-    @if (carregando) { <div class="loading" role="status">Carregando matrículas...</div> } @else { <app-matriculas-list [matriculas]="matriculas" [pokemons]="pokemons" (upgrade)="matriculaUpgrade = $event" /> }
+    @if (carregando) { <div class="loading" role="status">Carregando matrículas...</div> } @else { <app-matriculas-list [matriculas]="matriculas" [pokemons]="pokemons" (upgrade)="matriculaUpgrade = $event" (transferir)="abrirTransferencia($event)" /> }
   </section>
 </main>
 
 @if (mostrarNova) { <app-nova-matricula-form [pokemons]="pokemons" [planos]="planos" (fechar)="mostrarNova = false" (criada)="matriculaCriada()" (erro)="mostrarErro($event)" /> }
 @if (matriculaUpgrade) { <app-upgrade-matricula [matricula]="matriculaUpgrade" [planos]="planos" (fechar)="matriculaUpgrade = null" (concluido)="upgradeConcluido()" (erro)="mostrarErro($event)" /> }
+@if (pokemonTransferencia) { <app-transferir-pokemon [pokemon]="pokemonTransferencia" [treinadores]="treinadores" (fechar)="pokemonTransferencia = null" (transferido)="transferenciaConcluida()" (erro)="erroTransferencia($event)" /> }

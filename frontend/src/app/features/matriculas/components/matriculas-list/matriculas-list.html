@@ -20,9 +20,10 @@
             <td data-label="Valor mensal">{{ matricula.valorMensal | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</td>
             <td data-label="Início">{{ matricula.dataInicio | date:'dd/MM/yyyy':'':'pt-BR' }}</td>
             <td data-label="Ação">
-              @if (matricula.status === 'Ativa') {
-                <button type="button" class="secondary small" (click)="upgrade.emit(matricula)">Upgrade</button>
-              } @else { <span class="muted">—</span> }
+              <div class="row-actions">
+                <button type="button" class="ghost small" (click)="transferir.emit(matricula.pokemonId)">Transferir</button>
+                @if (matricula.status === 'Ativa') { <button type="button" class="secondary small" (click)="upgrade.emit(matricula)">Upgrade</button> }
+              </div>
             </td>
           </tr>
         }

@@ -1,0 +1,20 @@
+@use '../dialog';
+.subtitle { margin: .3rem 0 0; color: var(--muted); font-size: .88rem; }
+.pokemon-summary { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 1rem; margin-top: 1.2rem; padding: 1rem; border: 1px solid #dce5ef; border-radius: 13px; background: #f8fafc; }
+.pokemon-summary h3 { margin: 0 0 .55rem; color: var(--pokemon-blue); }
+dl { display: grid; gap: .32rem; margin: 0; }
+dl div { display: flex; justify-content: space-between; gap: 1rem; }
+dt { color: var(--muted); font-size: .8rem; }
+dd { margin: 0; font-size: .82rem; font-weight: 750; text-align: right; }
+form { display: grid; min-width: 0; gap: .5rem; margin-top: 1rem; }
+label { font-weight: 700; }
+select { width: 100%; max-width: 100%; min-width: 0; padding: .78rem; border: 1px solid #c9d3df; border-radius: 9px; background: white; }
+form > small { color: var(--muted); font-size: .75rem; }
+footer { display: flex; justify-content: flex-end; gap: .7rem; margin-top: .85rem; }
+
+@media (max-width: 520px) {
+  .pokemon-summary { grid-template-columns: 1fr; justify-items: center; }
+  .pokemon-summary > div { width: 100%; }
+  footer { display: grid; grid-template-columns: 1fr; }
+  footer button[type='submit'] { grid-row: 1; }
+}

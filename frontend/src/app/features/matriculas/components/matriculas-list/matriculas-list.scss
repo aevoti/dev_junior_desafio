@@ -21,6 +21,7 @@ tbody tr:hover { background: #f8fafc; }
 .empty { text-align: center; padding: 3rem 1rem; color: var(--muted); }
 .small { padding: .45rem .75rem; }
 .muted { color: #8a99a8; }
+.row-actions { display: flex; align-items: center; gap: .45rem; white-space: nowrap; }
 
 @media (max-width: 650px) {
   .table-wrap { overflow: visible; }
@@ -37,4 +38,5 @@ tbody tr:hover { background: #f8fafc; }
   .pokemon-copy { flex: 1; align-content: center; }
   .pokemon-copy strong, .cell-text { max-width: 190px; }
   .plan-cell { white-space: normal; }
+  .row-actions { justify-content: flex-end; flex-wrap: wrap; }
 }

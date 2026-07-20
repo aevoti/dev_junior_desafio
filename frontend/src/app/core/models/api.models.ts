@@ -14,6 +14,10 @@ export interface Pokemon {
   treinadorNome: string;
 }
 
+export interface TransferirPokemonRequest {
+  novoTreinadorId: number;
+}
+
 export interface PlanoTreinamento {
   id: number;
   nome: string;
