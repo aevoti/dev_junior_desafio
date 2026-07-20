@@ -1,7 +1,7 @@
 <h2 class="h5 mb-3">Matrículas</h2>
 
-@if (errorMessage) {
-  <div class="alert alert-danger" role="alert">{{ errorMessage }}</div>
+@if (errorMessage()) {
+  <div class="alert alert-danger" role="alert">{{ errorMessage() }}</div>
 }
 
 <div class="row g-2 mb-3">
@@ -23,11 +23,11 @@
   </div>
 </div>
 
-@if (!loading && enrollments.length === 0) {
+@if (!loading() && enrollments().length === 0) {
   <p class="text-muted">Nenhum resultado encontrado.</p>
 }
 
-@if (enrollments.length > 0) {
+@if (enrollments().length > 0) {
   <table class="table table-striped align-middle">
     <thead>
       <tr>
@@ -40,7 +40,7 @@
       </tr>
     </thead>
     <tbody>
-      @for (enrollment of enrollments; track enrollment.id) {
+      @for (enrollment of enrollments(); track enrollment.id) {
         <tr>
           <td>{{ enrollment.pokemonName }}</td>
           <td>{{ enrollment.trainerName }}</td>

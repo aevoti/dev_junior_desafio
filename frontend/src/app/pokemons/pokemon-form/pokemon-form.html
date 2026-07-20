@@ -1,8 +1,8 @@
 <form [formGroup]="form" (ngSubmit)="submit()" class="mb-4">
   <h2 class="h5">Cadastrar Pokémon</h2>
 
-  @if (errorMessage) {
-    <div class="alert alert-danger" role="alert">{{ errorMessage }}</div>
+  @if (errorMessage()) {
+    <div class="alert alert-danger" role="alert">{{ errorMessage() }}</div>
   }
 
   <div class="mb-2">
@@ -56,12 +56,12 @@
       [class.is-invalid]="form.controls.trainerId.invalid && form.controls.trainerId.touched"
     >
       <option [value]="null" disabled>Selecione um Treinador</option>
-      @for (trainer of trainers; track trainer.id) {
+      @for (trainer of trainers(); track trainer.id) {
         <option [value]="trainer.id">{{ trainer.name }}</option>
       }
     </select>
     <div class="invalid-feedback">Selecione um Treinador.</div>
   </div>
 
-  <button type="submit" class="btn btn-primary" [disabled]="submitting">Cadastrar</button>
+  <button type="submit" class="btn btn-primary" [disabled]="submitting()">Cadastrar</button>
 </form>

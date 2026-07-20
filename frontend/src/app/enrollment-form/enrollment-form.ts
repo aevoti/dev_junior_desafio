@@ -25,10 +25,13 @@ export class EnrollmentForm implements OnInit {
 
   readonly created = output<Enrollment>();
 
-  pokemons: Pokemon[] = [];
-  trainingPlans: TrainingPlan[] = [];
-  errorMessage: string | null = null;
-  submitting = false;
+  // signal(), não campos soltos — em change detection zoneless, mutações de
+  // campo dentro de .subscribe() não disparam re-render sozinhas (ver
+  // app.config.ts e enrollments-list.ts).
+  readonly pokemons = signal<Pokemon[]>([]);
+  readonly trainingPlans = signal<TrainingPlan[]>([]);
+  readonly errorMessage = signal<string | null>(null);
+  readonly submitting = signal(false);
 
   readonly form = this.fb.nonNullable.group({
     pokemonId: [null as number | null, Validators.required],
@@ -40,8 +43,8 @@ export class EnrollmentForm implements OnInit {
 
   /** Validação de R3 (FR-018) no cliente, antes mesmo de submeter ao backend. */
   readonly eliteDosQuatroWarning = computed(() => {
-    const pokemon = this.pokemons.find((p) => p.id === this.selectedPokemonId());
-    const plan = this.trainingPlans.find((p) => p.id === this.selectedTrainingPlanId());
+    const pokemon = this.pokemons().find((p) => p.id === this.selectedPokemonId());
+    const plan = this.trainingPlans().find((p) => p.id === this.selectedTrainingPlanId());
 
     if (!pokemon || !plan || plan.name !== ELITE_DOS_QUATRO_PLAN_NAME) {
       return null;
@@ -53,8 +56,8 @@ export class EnrollmentForm implements OnInit {
   });
 
   ngOnInit(): void {
-    this.pokemonApi.list().subscribe((pokemons) => (this.pokemons = pokemons));
-    this.trainingPlanApi.list().subscribe((plans) => (this.trainingPlans = plans));
+    this.pokemonApi.list().subscribe((pokemons) => this.pokemons.set(pokemons));
+    this.trainingPlanApi.list().subscribe((plans) => this.trainingPlans.set(plans));
 
     this.form.controls.pokemonId.valueChanges.subscribe((id) => this.selectedPokemonId.set(id));
     this.form.controls.trainingPlanId.valueChanges.subscribe((id) => this.selectedTrainingPlanId.set(id));
@@ -66,22 +69,22 @@ export class EnrollmentForm implements OnInit {
       return;
     }
 
-    this.errorMessage = null;
-    this.submitting = true;
+    this.errorMessage.set(null);
+    this.submitting.set(true);
 
     const value = this.form.getRawValue();
     this.enrollmentApi
       .create({ pokemonId: value.pokemonId!, trainingPlanId: value.trainingPlanId! })
       .subscribe({
         next: (enrollment) => {
-          this.submitting = false;
+          this.submitting.set(false);
           this.form.reset();
           this.created.emit(enrollment);
         },
         // R1 (matrícula duplicada) e R3 (nível mínimo) chegam aqui como mensagem amigável já em português.
         error: (err: Error) => {
-          this.submitting = false;
-          this.errorMessage = err.message;
+          this.submitting.set(false);
+          this.errorMessage.set(err.message);
         },
       });
   }

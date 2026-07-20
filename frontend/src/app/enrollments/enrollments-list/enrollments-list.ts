@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { debounceTime, startWith, switchMap } from 'rxjs';
@@ -19,9 +19,13 @@ export class EnrollmentsList implements OnInit {
   readonly searchControl = new FormControl('', { nonNullable: true });
   readonly statusControl = new FormControl<EnrollmentStatus | ''>('', { nonNullable: true });
 
-  enrollments: Enrollment[] = [];
-  loading = false;
-  errorMessage: string | null = null;
+  // signal(), não campos soltos: em change detection zoneless (ver
+  // app.config.ts), só signals/eventos DOM já rastreados pelo Angular
+  // disparam re-render sozinhos — um campo mutado dentro de .subscribe()
+  // ficava "invisível" até o usuário clicar em algo na tela.
+  readonly enrollments = signal<Enrollment[]>([]);
+  readonly loading = signal(false);
+  readonly errorMessage = signal<string | null>(null);
 
   ngOnInit(): void {
     this.searchControl.valueChanges
@@ -46,21 +50,21 @@ export class EnrollmentsList implements OnInit {
       return;
     }
 
-    this.errorMessage = null;
+    this.errorMessage.set(null);
     this.enrollmentApi.cancel(enrollment.id).subscribe({
       next: () => this.fetch(this.searchControl.value, this.statusControl.value).subscribe(),
-      error: (err: Error) => (this.errorMessage = err.message),
+      error: (err: Error) => this.errorMessage.set(err.message),
     });
   }
 
   private fetch(search: string, status: EnrollmentStatus | '') {
-    this.loading = true;
+    this.loading.set(true);
     return this.enrollmentApi.list(search || undefined, status || undefined).pipe(
       // Atualiza a lista assim que a resposta chega; erros já viram alerta amigável via interceptor.
       // (mantido simples: sem tratamento de erro dedicado nesta tela de listagem)
       switchMap((enrollments) => {
-        this.enrollments = enrollments;
-        this.loading = false;
+        this.enrollments.set(enrollments);
+        this.loading.set(false);
         return [enrollments];
       })
     );

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, output } from '@angular/core';
+import { Component, OnInit, inject, output, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { POKEMON_TYPES, Pokemon } from '../../shared/models/pokemon.model';
@@ -20,9 +20,10 @@ export class PokemonForm implements OnInit {
   readonly created = output<Pokemon>();
   readonly pokemonTypes = POKEMON_TYPES;
 
-  trainers: Trainer[] = [];
-  errorMessage: string | null = null;
-  submitting = false;
+  // signal(), não campos soltos — ver enrollments-list.ts/app.config.ts.
+  readonly trainers = signal<Trainer[]>([]);
+  readonly errorMessage = signal<string | null>(null);
+  readonly submitting = signal(false);
 
   readonly form = this.fb.nonNullable.group({
     name: ['', Validators.required],
@@ -33,7 +34,7 @@ export class PokemonForm implements OnInit {
   });
 
   ngOnInit(): void {
-    this.trainerApi.list().subscribe((trainers) => (this.trainers = trainers));
+    this.trainerApi.list().subscribe((trainers) => this.trainers.set(trainers));
   }
 
   submit(): void {
@@ -42,21 +43,21 @@ export class PokemonForm implements OnInit {
       return;
     }
 
-    this.errorMessage = null;
-    this.submitting = true;
+    this.errorMessage.set(null);
+    this.submitting.set(true);
 
     const value = this.form.getRawValue();
     this.pokemonApi
       .create({ name: value.name, type: value.type, level: value.level, trainerId: value.trainerId! })
       .subscribe({
         next: (pokemon) => {
-          this.submitting = false;
+          this.submitting.set(false);
           this.form.reset({ level: 1 });
           this.created.emit(pokemon);
         },
         error: (err: Error) => {
-          this.submitting = false;
-          this.errorMessage = err.message;
+          this.submitting.set(false);
+          this.errorMessage.set(err.message);
         },
       });
   }

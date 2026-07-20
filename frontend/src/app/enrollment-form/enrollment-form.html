@@ -1,8 +1,8 @@
 <form [formGroup]="form" (ngSubmit)="submit()" class="mb-4">
   <h2 class="h5">Nova Matrícula</h2>
 
-  @if (errorMessage) {
-    <div class="alert alert-danger" role="alert">{{ errorMessage }}</div>
+  @if (errorMessage()) {
+    <div class="alert alert-danger" role="alert">{{ errorMessage() }}</div>
   }
 
   <div class="mb-2">
@@ -14,7 +14,7 @@
       [class.is-invalid]="form.controls.pokemonId.invalid && form.controls.pokemonId.touched"
     >
       <option [value]="null" disabled>Selecione um Pokémon</option>
-      @for (pokemon of pokemons; track pokemon.id) {
+      @for (pokemon of pokemons(); track pokemon.id) {
         <option [value]="pokemon.id">{{ pokemon.name }} (nível {{ pokemon.level }})</option>
       }
     </select>
@@ -30,7 +30,7 @@
       [class.is-invalid]="form.controls.trainingPlanId.invalid && form.controls.trainingPlanId.touched"
     >
       <option [value]="null" disabled>Selecione um plano</option>
-      @for (plan of trainingPlans; track plan.id) {
+      @for (plan of trainingPlans(); track plan.id) {
         <option [value]="plan.id">{{ plan.name }} — R$ {{ plan.monthlyPrice.toFixed(2) }}</option>
       }
     </select>
@@ -41,7 +41,7 @@
     <div class="alert alert-warning" role="alert">{{ warning }}</div>
   }
 
-  <button type="submit" class="btn btn-primary" [disabled]="submitting || !!eliteDosQuatroWarning()">
+  <button type="submit" class="btn btn-primary" [disabled]="submitting() || !!eliteDosQuatroWarning()">
     Matricular
   </button>
 </form>
