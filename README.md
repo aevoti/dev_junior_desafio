@@ -1,5 +1,7 @@
 # Centro de Treinamento Pokémon — Alto Nível
 
+![alt text](image.png) //Foto geral do projeto FrontEnd.
+
 Aplicação desenvolvida como parte do desafio técnico para a vaga de Desenvolvedor(a) Júnior.
 
 O sistema permite gerenciar Treinadores, Pokémon e Matrículas em planos mensais de treinamento, incluindo cancelamento de matrícula, upgrade proporcional entre planos e transferência de Pokémon entre treinadores.
