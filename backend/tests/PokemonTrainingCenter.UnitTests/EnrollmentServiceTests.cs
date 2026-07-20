@@ -198,6 +198,56 @@ public class EnrollmentServiceTests
     }
 
     [Fact]
+    public async Task PreviewUpgradeAsync_RejectsCancelledEnrollment_EvenWhileStillActive()
+    {
+        // FR-008: bug encontrado em teste manual (Session 2026-07-20 (3)) —
+        // uma matrícula cancelada (FR-012) continua IsActive == true até o
+        // fim do ciclo pago ("Ativa a encerrar"), mas não deve mais aceitar upgrade.
+        var (db, sut, trainer, ginasioLocal, _) = await ArrangeAsync();
+        var pokemon = new Pokemon { Name = "Squirtle", Type = PokemonType.Water, Level = 10, TrainerId = trainer.Id };
+        db.Pokemons.Add(pokemon);
+        await db.SaveChangesAsync();
+
+        var enrollment = await sut.CreateEnrollmentAsync(pokemon.Id, ginasioLocal.Id);
+        var cancelled = await sut.CancelEnrollmentAsync(enrollment.Id);
+        Assert.True(cancelled.IsActive); // ainda "Ativa a encerrar", não "Encerrada"
+
+        var ex = await Assert.ThrowsAsync<DomainValidationException>(
+            () => sut.PreviewUpgradeAsync(enrollment.Id, ligaRegionalFrom(db).Id));
+
+        Assert.Equal("Esta matrícula já foi cancelada e não pode receber upgrade.", ex.Message);
+    }
+
+    [Fact]
+    public async Task PreviewUpgradeAsync_RejectsAlreadyEndedEnrollment()
+    {
+        // Verificado também via curl direto contra a API real (Session
+        // 2026-07-20 (3)): já funcionava antes deste fix, mas sem teste dedicado.
+        var (db, sut, trainer, ginasioLocal, _) = await ArrangeAsync();
+        var pokemon = new Pokemon { Name = "Squirtle", Type = PokemonType.Water, Level = 10, TrainerId = trainer.Id };
+        db.Pokemons.Add(pokemon);
+        await db.SaveChangesAsync();
+
+        var enrollment = await sut.CreateEnrollmentAsync(pokemon.Id, ginasioLocal.Id);
+        var tracked = await db.Enrollments.FirstAsync(e => e.Id == enrollment.Id);
+        tracked.EndDate = DateTime.UtcNow.AddDays(-1);
+        await db.SaveChangesAsync();
+
+        var ex = await Assert.ThrowsAsync<DomainValidationException>(
+            () => sut.PreviewUpgradeAsync(enrollment.Id, ligaRegionalFrom(db).Id));
+
+        Assert.Equal("Esta matrícula não está ativa.", ex.Message);
+    }
+
+    private static TrainingPlan ligaRegionalFrom(AppDbContext db)
+    {
+        var plan = new TrainingPlan { Name = "Liga Regional", MonthlyPrice = 120.00m, Description = "..." };
+        db.TrainingPlans.Add(plan);
+        db.SaveChanges();
+        return plan;
+    }
+
+    [Fact]
     public async Task ConfirmUpgradeAsync_ClosesOldEnrollment_AndCreatesNewActiveOne()
     {
         var (db, sut, trainer, ginasioLocal, eliteDosQuatro) = await ArrangeAsync();
