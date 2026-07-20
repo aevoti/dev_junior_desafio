@@ -1,0 +1,15 @@
+<div class="avatar-block">
+  <div class="avatar" [style.width.px]="tamanho" [style.height.px]="tamanho">
+    @if (visual?.imagem; as imagem) {
+      <img [src]="imagem" [alt]="'Imagem de ' + nome" [width]="tamanho" [height]="tamanho" loading="lazy" />
+    } @else {
+      <span class="pokeball" role="img" [attr.aria-label]="'Avatar padrão de ' + nome"></span>
+    }
+    @if (carregando) { <span class="loading-dot" aria-hidden="true"></span> }
+  </div>
+  @if (visual?.tipos?.length) {
+    <div class="types" aria-label="Tipos do Pokémon">
+      @for (tipo of visual!.tipos; track tipo) { <span [class]="classeTipo(tipo)"><span class="type-label">Tipo:</span> {{ traduzirTipo(tipo) }}</span> }
+    </div>
+  }
+</div>

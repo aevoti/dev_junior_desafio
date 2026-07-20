@@ -1,0 +1,33 @@
+@if (matriculas.length === 0) {
+  <div class="empty">Nenhuma matrícula encontrada.</div>
+} @else {
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Pokémon</th><th>Treinador</th><th>Plano</th><th>Status</th><th>Valor mensal</th><th>Início</th><th>Ação</th></tr></thead>
+      <tbody>
+        @for (matricula of matriculas; track matricula.id) {
+          <tr>
+            <td class="pokemon-cell" data-label="Pokémon">
+              <app-pokemon-avatar [nome]="matricula.pokemonNome" [tamanho]="64" />
+              <div class="pokemon-copy">
+                <strong [title]="matricula.pokemonNome">{{ matricula.pokemonNome }}</strong>
+                @if (nivelPokemon(matricula.pokemonId); as nivel) { <span class="level" [class]="'level ' + classeNivel(nivel)">Lv. {{ nivel }}</span> }
+              </div>
+            </td>
+            <td data-label="Treinador"><span class="cell-text" [title]="matricula.treinadorNome">{{ matricula.treinadorNome }}</span></td>
+            <td class="plan-cell" data-label="Plano">{{ matricula.planoNome }}</td>
+            <td data-label="Status"><span class="status" [class]="'status ' + matricula.status.toLowerCase()">{{ rotuloStatus(matricula.status) }}</span></td>
+            <td data-label="Valor mensal">{{ matricula.valorMensal | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</td>
+            <td data-label="Início">{{ matricula.dataInicio | date:'dd/MM/yyyy':'':'pt-BR' }}</td>
+            <td data-label="Ação">
+              <div class="row-actions">
+                <button type="button" class="ghost small" (click)="transferir.emit(matricula.pokemonId)">Transferir</button>
+                @if (matricula.status === 'Ativa') { <button type="button" class="secondary small" (click)="upgrade.emit(matricula)">Upgrade</button> }
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

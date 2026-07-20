@@ -1,0 +1,50 @@
+<div class="overlay" (click)="fechar.emit()">
+  <section class="dialog" role="dialog" aria-modal="true" aria-labelledby="nova-title" (click)="$event.stopPropagation()">
+    <header><div><p class="eyebrow">Centro de treinamento</p><h2 id="nova-title">Nova matrícula</h2><p class="subtitle">Escolha o Pokémon e o plano ideal para iniciar o treinamento.</p></div><button type="button" class="close" aria-label="Fechar" (click)="fechar.emit()">×</button></header>
+    <form [formGroup]="form" (ngSubmit)="enviar()">
+      <label for="pokemon">Pokémon</label>
+      <select id="pokemon" formControlName="pokemonId">
+        <option [ngValue]="0">Selecione</option>
+        @for (pokemon of pokemonsOrdenados; track pokemon.id) { <option [ngValue]="pokemon.id">{{ pokemon.nome }} — Nv. {{ pokemon.nivel }} — {{ pokemon.treinadorNome }}</option> }
+      </select>
+      @if (form.controls.pokemonId.touched && form.controls.pokemonId.invalid) { <small class="field-error">Selecione um Pokémon.</small> }
+
+      @if (pokemonSelecionado; as pokemon) {
+        <section class="selection-card pokemon-details" aria-label="Detalhes do Pokémon selecionado">
+          <app-pokemon-avatar [nome]="pokemon.nome" [tamanho]="70" />
+          <div><p class="card-kicker">Pokémon selecionado</p><h3>{{ pokemon.nome }}</h3><dl><div><dt>Tipo</dt><dd>{{ pokemon.tipo }}</dd></div><div><dt>Nível</dt><dd>{{ pokemon.nivel }}</dd></div><div><dt>Treinador</dt><dd>{{ pokemon.treinadorNome }}</dd></div></dl></div>
+        </section>
+      }
+
+      <label for="plano">Plano</label>
+      <select id="plano" formControlName="planoTreinamentoId">
+        <option [ngValue]="0">Selecione</option>
+        @for (plano of planos; track plano.id) { <option [ngValue]="plano.id">{{ plano.nome }} — {{ plano.valorMensal | currency:'BRL' }} — Nv. mín. {{ plano.nivelMinimo }}</option> }
+      </select>
+      @if (form.controls.planoTreinamentoId.touched && form.controls.planoTreinamentoId.invalid) { <small class="field-error">Selecione um plano.</small> }
+      @if (nivelInsuficiente) { <div class="warning" role="alert">Este Pokémon não possui o nível mínimo exigido para o plano.</div> }
+
+      @if (planoSelecionado; as plano) {
+        <section class="selection-card plan-details" aria-label="Detalhes do plano selecionado">
+          <div class="plan-heading"><div><p class="card-kicker">Plano selecionado</p><h3>{{ plano.nome }}</h3></div><strong>{{ plano.valorMensal | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}<small>/mês</small></strong></div>
+          <p>{{ plano.descricao }}</p><span>Nível mínimo {{ plano.nivelMinimo }}</span>
+        </section>
+      }
+
+      <label for="dataInicio">Data de início</label>
+      <input id="dataInicio" type="date" formControlName="dataInicio" />
+      @if (form.controls.dataInicio.touched && form.controls.dataInicio.invalid) { <small class="field-error">Informe a data de início.</small> }
+
+      @if (pokemonSelecionado; as pokemon) {
+        @if (planoSelecionado; as plano) {
+          <section class="enrollment-summary" aria-labelledby="resumo-title">
+            <h3 id="resumo-title">Resumo da matrícula</h3>
+            <dl><div><dt>Pokémon</dt><dd>{{ pokemon.nome }}</dd></div><div><dt>Treinador</dt><dd>{{ pokemon.treinadorNome }}</dd></div><div><dt>Plano</dt><dd>{{ plano.nome }}</dd></div><div><dt>Valor mensal</dt><dd>{{ plano.valorMensal | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</dd></div><div><dt>Início</dt><dd>{{ dataInicioSelecionada | date:'dd/MM/yyyy' }}</dd></div></dl>
+          </section>
+        }
+      }
+
+      <footer><button type="button" class="ghost" (click)="fechar.emit()" [disabled]="enviando">Cancelar</button><button type="submit" [disabled]="form.invalid || nivelInsuficiente || enviando">{{ enviando ? 'Confirmando...' : 'Confirmar matrícula' }}</button></footer>
+    </form>
+  </section>
+</div>

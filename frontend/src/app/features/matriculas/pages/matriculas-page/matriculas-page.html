@@ -1,0 +1,48 @@
+<header class="hero">
+  <div class="container hero-content">
+    <div class="hero-mark" aria-hidden="true"><span></span></div>
+    <div><p class="eyebrow">Painel do treinador</p><h1>Centro de Treinamento Alto Nível</h1><p>Gestão de matrículas e evolução de Pokémon</p></div>
+    <span class="hero-badge">Temporada 2026</span>
+  </div>
+</header>
+<main class="container">
+  @if (sucesso) {
+    <div class="alert success" role="status" aria-live="polite">
+      <span class="feedback-icon success-icon" aria-hidden="true">✓</span>
+      <div class="feedback-copy"><strong>Tudo certo!</strong><span>{{ sucesso }}</span></div>
+      <button aria-label="Fechar mensagem" (click)="sucesso = ''">×</button>
+    </div>
+  }
+  @if (erro) {
+    <div class="alert error" role="alert" aria-live="assertive">
+      <span class="feedback-icon error-icon" aria-hidden="true"><i></i></span>
+      <div class="feedback-copy"><strong>Ops! A ação falhou</strong><span>{{ erro }}</span></div>
+      <button aria-label="Fechar mensagem" (click)="erro = ''">×</button>
+    </div>
+  }
+
+  <section class="summary" aria-label="Resumo da listagem atual">
+    <article class="summary-card active"><span class="summary-icon">A</span><div><strong>{{ matriculasAtivas }}</strong><span>Matrículas ativas</span></div></article>
+    <article class="summary-card cancelled"><span class="summary-icon">C</span><div><strong>{{ matriculasCanceladas }}</strong><span>Canceladas</span></div></article>
+    <article class="summary-card completed"><span class="summary-icon">✓</span><div><strong>{{ matriculasConcluidas }}</strong><span>Concluídas</span></div></article>
+    <article class="summary-card revenue"><span class="summary-icon">R$</span><div><strong>{{ receitaMensalAtiva | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</strong><span>Receita ativa nesta lista</span></div></article>
+  </section>
+
+  <section class="card controls">
+    <form [formGroup]="filtros" (ngSubmit)="aplicarFiltros()">
+      <div><label for="busca">Buscar por Pokémon ou treinador</label><input id="busca" type="search" formControlName="busca" placeholder="Ex.: Pikachu ou Ash" /></div>
+      <div><label for="status">Status</label><select id="status" formControlName="status"><option value="">Todos</option><option value="Ativa">Ativa</option><option value="Cancelada">Cancelada</option><option value="Concluida">Concluída</option></select></div>
+      <div class="actions"><button type="submit" [disabled]="carregando">Aplicar</button><button type="button" class="ghost" (click)="limparFiltros()" [disabled]="carregando">Limpar filtros</button></div>
+    </form>
+    <button type="button" class="new" (click)="mostrarNova = true"><span aria-hidden="true">＋</span> Nova matrícula</button>
+  </section>
+
+  <section class="card list-card">
+    <div class="section-title"><div><p class="eyebrow">Visão geral</p><h2>Matrículas</h2></div><span>{{ matriculas.length }} registro(s)</span></div>
+    @if (carregando) { <div class="loading" role="status">Carregando matrículas...</div> } @else { <app-matriculas-list [matriculas]="matriculas" [pokemons]="pokemons" (upgrade)="matriculaUpgrade = $event" (transferir)="abrirTransferencia($event)" /> }
+  </section>
+</main>
+
+@if (mostrarNova) { <app-nova-matricula-form [pokemons]="pokemons" [planos]="planos" (fechar)="mostrarNova = false" (criada)="matriculaCriada()" (erro)="mostrarErro($event)" /> }
+@if (matriculaUpgrade) { <app-upgrade-matricula [matricula]="matriculaUpgrade" [planos]="planos" (fechar)="matriculaUpgrade = null" (concluido)="upgradeConcluido()" (erro)="mostrarErro($event)" /> }
+@if (pokemonTransferencia) { <app-transferir-pokemon [pokemon]="pokemonTransferencia" [treinadores]="treinadores" (fechar)="pokemonTransferencia = null" (transferido)="transferenciaConcluida()" (erro)="erroTransferencia($event)" /> }

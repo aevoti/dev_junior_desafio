@@ -1,0 +1,131 @@
+import { CurrencyPipe } from '@angular/common';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { forkJoin, finalize } from 'rxjs';
+import { Matricula, PlanoTreinamento, Pokemon, StatusMatricula, Treinador } from '../../../../core/models/api.models';
+import { obterMensagemErro } from '../../../../core/services/api-error';
+import { MatriculaService } from '../../../../core/services/matricula.service';
+import { PlanoService } from '../../../../core/services/plano.service';
+import { PokemonService } from '../../../../core/services/pokemon.service';
+import { TreinadorService } from '../../../../core/services/treinador.service';
+import { MatriculasList } from '../../components/matriculas-list/matriculas-list';
+import { NovaMatriculaForm } from '../../components/nova-matricula-form/nova-matricula-form';
+import { UpgradeMatricula } from '../../components/upgrade-matricula/upgrade-matricula';
+import { TransferirPokemon } from '../../components/transferir-pokemon/transferir-pokemon';
+
+@Component({
+  selector: 'app-matriculas-page',
+  imports: [ReactiveFormsModule, CurrencyPipe, MatriculasList, NovaMatriculaForm, UpgradeMatricula, TransferirPokemon],
+  templateUrl: './matriculas-page.html',
+  styleUrl: './matriculas-page.scss'
+})
+export class MatriculasPage implements OnInit {
+  private readonly fb = inject(FormBuilder);
+  private readonly matriculaService = inject(MatriculaService);
+  private readonly pokemonService = inject(PokemonService);
+  private readonly planoService = inject(PlanoService);
+  private readonly treinadorService = inject(TreinadorService);
+  private readonly cdr = inject(ChangeDetectorRef);
+
+  matriculas: Matricula[] = [];
+  pokemons: Pokemon[] = [];
+  planos: PlanoTreinamento[] = [];
+  treinadores: Treinador[] = [];
+  carregando = false;
+  mostrarNova = false;
+  matriculaUpgrade: Matricula | null = null;
+  pokemonTransferencia: Pokemon | null = null;
+  sucesso = '';
+  erro = '';
+  readonly filtros = this.fb.nonNullable.group({ busca: '', status: '' as StatusMatricula | '' });
+  private filtrosAplicados: { busca: string; status: StatusMatricula | '' } = { busca: '', status: '' };
+
+  get matriculasAtivas(): number { return this.matriculas.filter(item => item.status === 'Ativa').length; }
+  get matriculasCanceladas(): number { return this.matriculas.filter(item => item.status === 'Cancelada').length; }
+  get matriculasConcluidas(): number { return this.matriculas.filter(item => item.status === 'Concluida').length; }
+  get receitaMensalAtiva(): number {
+    return this.matriculas
+      .filter(item => item.status === 'Ativa')
+      .reduce((total, item) => total + item.valorMensal, 0);
+  }
+
+  ngOnInit(): void {
+    this.carregando = true;
+    forkJoin({
+      matriculas: this.matriculaService.listar(),
+      pokemons: this.pokemonService.listar(),
+      planos: this.planoService.listar(),
+      treinadores: this.treinadorService.listar()
+    }).pipe(finalize(() => { this.carregando = false; this.cdr.markForCheck(); })).subscribe({
+      next: dados => { this.matriculas = dados.matriculas; this.pokemons = dados.pokemons; this.planos = dados.planos; this.treinadores = dados.treinadores; this.cdr.markForCheck(); },
+      error: error => this.mostrarErro(obterMensagemErro(error))
+    });
+  }
+
+  aplicarFiltros(): void {
+    const { busca, status } = this.filtros.getRawValue();
+    this.filtrosAplicados = { busca: busca.trim(), status };
+    this.carregarMatriculasAplicadas();
+  }
+
+  limparFiltros(): void {
+    this.filtros.reset({ busca: '', status: '' });
+    this.filtrosAplicados = { busca: '', status: '' };
+    this.carregarMatriculasAplicadas();
+  }
+
+  matriculaCriada(): void {
+    this.mostrarNova = false;
+    this.sucesso = 'Matrícula criada com sucesso.';
+    this.erro = '';
+    this.carregarTudoAuxiliar();
+  }
+
+  upgradeConcluido(): void {
+    this.matriculaUpgrade = null;
+    this.sucesso = 'Upgrade realizado com sucesso.';
+    this.erro = '';
+    this.carregarMatriculasAplicadas();
+  }
+
+  abrirTransferencia(pokemonId: number): void {
+    this.pokemonTransferencia = this.pokemons.find(pokemon => pokemon.id === pokemonId) ?? null;
+  }
+
+  transferenciaConcluida(): void {
+    this.pokemonTransferencia = null;
+    this.sucesso = 'Pokémon transferido com sucesso.';
+    this.erro = '';
+    this.carregarTudoAuxiliar();
+  }
+
+  erroTransferencia(message: string): void {
+    this.pokemonTransferencia = null;
+    this.mostrarErro(message);
+  }
+
+  mostrarErro(message: string): void { this.erro = message; this.sucesso = ''; }
+
+  private carregarMatriculas(busca = '', status: StatusMatricula | '' = ''): void {
+    this.carregando = true;
+    this.matriculaService.listar(busca, status).pipe(finalize(() => { this.carregando = false; this.cdr.markForCheck(); })).subscribe({
+      next: matriculas => { this.matriculas = matriculas; this.cdr.markForCheck(); },
+      error: error => this.mostrarErro(obterMensagemErro(error))
+    });
+  }
+
+  private carregarMatriculasAplicadas(): void {
+    this.carregarMatriculas(this.filtrosAplicados.busca, this.filtrosAplicados.status);
+  }
+
+  private carregarTudoAuxiliar(): void {
+    this.carregando = true;
+    forkJoin({
+      matriculas: this.matriculaService.listar(this.filtrosAplicados.busca, this.filtrosAplicados.status),
+      pokemons: this.pokemonService.listar()
+    }).pipe(finalize(() => { this.carregando = false; this.cdr.markForCheck(); })).subscribe({
+      next: dados => { this.matriculas = dados.matriculas; this.pokemons = dados.pokemons; this.cdr.markForCheck(); },
+      error: error => this.mostrarErro(obterMensagemErro(error))
+    });
+  }
+}

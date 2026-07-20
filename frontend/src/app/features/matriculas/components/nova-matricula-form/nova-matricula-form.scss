@@ -1,0 +1,31 @@
+@use '../dialog';
+.subtitle { margin: .3rem 0 0; color: var(--muted); font-size: .88rem; }
+form { display: grid; min-width: 0; gap: .48rem; }
+label { margin-top: .65rem; font-weight: 700; }
+select, input { display: block; width: 100%; max-width: 100%; min-width: 0; padding: .78rem; overflow: hidden; border: 1px solid #c9d3df; border-radius: 9px; background: white; text-overflow: ellipsis; }
+.selection-card { min-width: 0; margin-top: .3rem; padding: .85rem; border: 1px solid #dce5ef; border-radius: 12px; background: #f8fafc; }
+.pokemon-details { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: .9rem; }
+.selection-card h3 { margin: .1rem 0 .5rem; color: var(--pokemon-blue); }
+.card-kicker { margin: 0; color: var(--pokemon-red); font-size: .68rem; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
+.selection-card dl, .enrollment-summary dl { display: grid; gap: .3rem; margin: 0; }
+.selection-card dl div, .enrollment-summary dl div { display: flex; justify-content: space-between; gap: .8rem; }
+dt { color: var(--muted); font-size: .8rem; }
+dd { margin: 0; font-size: .82rem; font-weight: 700; text-align: right; }
+.plan-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
+.plan-heading > strong { color: var(--pokemon-blue); font-size: 1.05rem; white-space: nowrap; }
+.plan-heading > strong small { display: block; color: var(--muted); font-size: .65rem; font-weight: 600; text-align: right; }
+.plan-details > p { margin: 0 0 .55rem; color: #526277; font-size: .82rem; }
+.plan-details > span { display: inline-flex; padding: .2rem .5rem; border-radius: 999px; color: #4a3973; background: #eee6fa; font-size: .7rem; font-weight: 750; }
+.enrollment-summary { margin-top: .55rem; padding: .9rem; border-left: 4px solid var(--pokemon-yellow); border-radius: 10px; background: #fff9df; }
+.enrollment-summary h3 { margin: 0 0 .65rem; color: #574500; font-size: .9rem; }
+footer { display: flex; justify-content: flex-end; gap: .7rem; margin-top: 1.1rem; }
+.warning { padding: .7rem; border-radius: 8px; color: #8a4b0f; background: #fff4d6; }
+.field-error { color: #b42318; }
+
+@media (max-width: 520px) {
+  .pokemon-details { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+  .pokemon-details > div { width: 100%; }
+  .plan-heading { align-items: center; }
+  footer { display: grid; grid-template-columns: 1fr; }
+  footer button[type='submit'] { grid-row: 1; }
+}

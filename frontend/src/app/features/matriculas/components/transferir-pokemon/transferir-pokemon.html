@@ -1,0 +1,20 @@
+<div class="overlay" (click)="fechar.emit()">
+  <section class="dialog" role="dialog" aria-modal="true" aria-labelledby="transfer-title" (click)="$event.stopPropagation()">
+    <header><div><p class="eyebrow">Mudança de treinador</p><h2 id="transfer-title">Transferir Pokémon</h2><p class="subtitle">A matrícula e todo o histórico permanecem com o Pokémon.</p></div><button type="button" class="close" aria-label="Fechar" (click)="fechar.emit()">×</button></header>
+
+    <section class="pokemon-summary" aria-label="Pokémon selecionado">
+      <app-pokemon-avatar [nome]="pokemon.nome" [tamanho]="76" />
+      <div><h3>{{ pokemon.nome }}</h3><dl><div><dt>Treinador atual</dt><dd>{{ pokemon.treinadorNome }}</dd></div><div><dt>Nível</dt><dd>{{ pokemon.nivel }}</dd></div><div><dt>Tipo</dt><dd>{{ pokemon.tipo }}</dd></div></dl></div>
+    </section>
+
+    <form [formGroup]="form" (ngSubmit)="confirmar()">
+      <label for="novoTreinador">Novo treinador</label>
+      <select id="novoTreinador" formControlName="novoTreinadorId">
+        <option [ngValue]="0">Selecione</option>
+        @for (treinador of treinadoresDisponiveis; track treinador.id) { <option [ngValue]="treinador.id">{{ treinador.nome }} — {{ treinador.cidadeOrigem }}</option> }
+      </select>
+      <small>O treinador atual não aparece entre as opções disponíveis.</small>
+      <footer><button type="button" class="ghost" (click)="fechar.emit()" [disabled]="processando">Cancelar</button><button type="submit" [disabled]="form.invalid || processando">{{ processando ? 'Transferindo...' : 'Confirmar transferência' }}</button></footer>
+    </form>
+  </section>
+</div>
