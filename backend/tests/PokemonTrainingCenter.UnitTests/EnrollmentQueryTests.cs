@@ -102,7 +102,7 @@ public class EnrollmentQueryTests
         );
         await db.SaveChangesAsync();
 
-        var active = db.Enrollments.Include(e => e.Pokemon).Where(e => e.EndDate == null || e.EndDate.Value.Date >= DateTime.UtcNow.Date).ToList();
+        var active = db.Enrollments.Include(e => e.Pokemon).Where(e => e.EndDate == null || e.EndDate.Value >= DateTime.UtcNow).ToList();
 
         Assert.Single(active);
         Assert.Equal("Bulbasaur", active[0].Pokemon!.Name);

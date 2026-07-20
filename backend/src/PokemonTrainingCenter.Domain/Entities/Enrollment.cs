@@ -22,14 +22,12 @@ public class Enrollment
     public decimal MonthlyPrice { get; set; }
 
     /// <summary>
-    /// True when EndDate is absent or today/future (FR-020, R1). Compared by
-    /// date (not by instant) because the spec's clarification explicitly
-    /// defines this granularity. Known limitation: if an enrollment is
-    /// closed by an upgrade/transfer and another operation happens on the
-    /// same calendar day, the old enrollment still shows as "active" until
-    /// the day rolls over — the filtered unique index (EndDate IS NULL)
-    /// still guarantees that two *open* enrollments (no end date) can never
-    /// coexist.
+    /// True when EndDate is absent or is a future/current instant (FR-020,
+    /// R1). Compared by exact instant, not by date: cancellation
+    /// (CancelEnrollmentAsync) stores the end of the UTC calendar day so the
+    /// Pokémon keeps access through that whole day, while upgrade/transfer
+    /// store the exact operation instant so the closed enrollment stops
+    /// counting as active immediately, even on the same calendar day.
     /// </summary>
-    public bool IsActive => EndDate is null || EndDate.Value.Date >= DateTime.UtcNow.Date;
+    public bool IsActive => EndDate is null || EndDate.Value >= DateTime.UtcNow;
 }

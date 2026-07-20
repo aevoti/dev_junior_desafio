@@ -52,9 +52,9 @@ public class EnrollmentService
 
     private async Task EnsureNoActiveEnrollmentAsync(int pokemonId, CancellationToken ct)
     {
-        var today = DateTime.UtcNow.Date;
+        var now = DateTime.UtcNow;
         var hasActive = await _db.Enrollments.AnyAsync(
-            e => e.PokemonId == pokemonId && (e.EndDate == null || e.EndDate.Value.Date >= today), ct);
+            e => e.PokemonId == pokemonId && (e.EndDate == null || e.EndDate.Value >= now), ct);
 
         if (hasActive)
         {
@@ -146,7 +146,9 @@ public class EnrollmentService
         }
 
         var (_, cycleEnd) = BillingCycleCalculator.GetCurrentCycle(enrollment.StartDate, DateTime.UtcNow);
-        enrollment.EndDate = cycleEnd;
+        // FR-012/FR-020: grava o fim do dia (UTC), não o instante exato do
+        // ciclo, para o Pokémon manter acesso durante todo esse dia.
+        enrollment.EndDate = cycleEnd.Date.AddDays(1).AddTicks(-1);
 
         await _db.SaveChangesAsync(ct);
         return enrollment;
@@ -164,28 +166,21 @@ public class EnrollmentService
         var pokemon = await _db.Pokemons.FirstOrDefaultAsync(p => p.Id == pokemonId, ct)
             ?? throw new DomainValidationException("Pokémon não encontrado.", 404);
 
-        var newTrainerExists = await _db.Trainers.AnyAsync(t => t.Id == newTrainerId, ct);
-        if (!newTrainerExists)
-        {
-            throw new DomainValidationException("Treinador de destino não encontrado.", 404);
-        }
+        var newTrainer = await _db.Trainers.FirstOrDefaultAsync(t => t.Id == newTrainerId, ct)
+            ?? throw new DomainValidationException("Treinador de destino não encontrado.", 404);
 
         if (pokemon.TrainerId == newTrainerId)
         {
             throw new DomainValidationException("O Pokémon já pertence a este Treinador.");
         }
 
-        var today = DateTime.UtcNow.Date;
-        // OrderByDescending(StartDate) é essencial aqui: no mesmo dia em que um
-        // upgrade/transferência anterior encerrou uma matrícula (EndDate = hoje),
-        // essa matrícula antiga ainda satisfaz a checagem de "ativa" por data
-        // (FR-020) junto com a matrícula nova que a substituiu — sem essa
-        // ordenação, a query poderia pegar a matrícula ERRADA (já superada) e
-        // tentar reabri-la, violando o índice único (bug encontrado via teste
-        // manual ponta a ponta, corrigido aqui).
+        var now = DateTime.UtcNow;
+        // FR-020: comparação por instante exato (não por data) — uma
+        // matrícula encerrada por upgrade/transferência anterior no mesmo
+        // dia já tem EndDate no passado em relação a "now", então não é mais
+        // ambígua com a matrícula que a substituiu.
         var activeEnrollment = await _db.Enrollments
-            .Where(e => e.PokemonId == pokemonId && (e.EndDate == null || e.EndDate.Value.Date >= today))
-            .OrderByDescending(e => e.StartDate)
+            .Where(e => e.PokemonId == pokemonId && (e.EndDate == null || e.EndDate.Value >= now))
             .FirstOrDefaultAsync(ct);
 
         Enrollment? closedEnrollment = null;
@@ -209,6 +204,7 @@ public class EnrollmentService
         }
 
         pokemon.TrainerId = newTrainerId;
+        pokemon.Trainer = newTrainer;
         await _db.SaveChangesAsync(ct);
 
         return (pokemon, closedEnrollment, newEnrollment);

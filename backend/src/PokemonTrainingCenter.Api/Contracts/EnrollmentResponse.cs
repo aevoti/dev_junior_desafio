@@ -19,7 +19,7 @@ public record EnrollmentResponse(
             return "Active";
         }
 
-        return enrollment.EndDate.Value.Date >= DateTime.UtcNow.Date ? "EndingSoon" : "Ended";
+        return enrollment.EndDate.Value >= DateTime.UtcNow ? "EndingSoon" : "Ended";
     }
 
     public static EnrollmentResponse From(Enrollment enrollment) => new(

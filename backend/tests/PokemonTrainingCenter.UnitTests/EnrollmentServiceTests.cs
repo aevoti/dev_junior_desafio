@@ -52,9 +52,11 @@ public class EnrollmentServiceTests
     }
 
     [Fact]
-    public async Task CreateEnrollmentAsync_RejectsNewEnrollment_WhenExistingEnrollmentEndDateIsToday()
+    public async Task CreateEnrollmentAsync_RejectsNewEnrollment_WhenExistingEnrollmentEndsLaterToday()
     {
-        // Edge case (spec.md Edge Cases): EndDate == hoje ainda conta como ativa.
+        // Edge case (spec.md Edge Cases): matrícula cancelada com término hoje
+        // ainda conta como ativa até o fim do dia (FR-012/FR-020) — igual ao
+        // que CancelEnrollmentAsync grava (fim do dia UTC, não o começo).
         var (db, sut, trainer, plan, _) = await ArrangeAsync();
         var pokemon = new Pokemon { Name = "Pikachu", Type = PokemonType.Electric, Level = 25, TrainerId = trainer.Id };
         db.Pokemons.Add(pokemon);
@@ -65,7 +67,7 @@ public class EnrollmentServiceTests
             PokemonId = pokemon.Id,
             TrainingPlanId = plan.Id,
             StartDate = DateTime.UtcNow.AddDays(-30),
-            EndDate = DateTime.UtcNow.Date,
+            EndDate = DateTime.UtcNow.Date.AddDays(1).AddTicks(-1),
             MonthlyPrice = plan.MonthlyPrice
         });
         await db.SaveChangesAsync();
@@ -210,6 +212,8 @@ public class EnrollmentServiceTests
         Assert.Equal(original.Id, closed.Id);
         Assert.NotNull(closed.EndDate);
         Assert.Equal(DateTime.UtcNow.Date, closed.EndDate!.Value.Date);
+        // FR-020: upgrade encerra a matrícula anterior no instante exato, não só na virada do dia.
+        Assert.False(closed.IsActive);
 
         Assert.NotEqual(closed.Id, created.Id);
         Assert.Null(created.EndDate);
@@ -285,6 +289,8 @@ public class EnrollmentServiceTests
         Assert.NotNull(closed);
         Assert.Equal(original.Id, closed!.Id);
         Assert.Equal(DateTime.UtcNow.Date, closed.EndDate!.Value.Date);
+        // FR-020: transferência encerra a matrícula anterior no instante exato, não só na virada do dia.
+        Assert.False(closed.IsActive);
 
         Assert.NotNull(created);
         Assert.Null(created!.EndDate);
@@ -313,12 +319,14 @@ public class EnrollmentServiceTests
     public async Task TransferPokemonAsync_PicksTheCurrentEnrollment_EvenWhenAnOlderOneWasClosedTheSameDay()
     {
         // Regressão: encontrado via teste manual ponta a ponta contra o banco
-        // real. Se um upgrade acontece e, no mesmo dia, o Pokémon é
-        // transferido, a matrícula ANTIGA (encerrada pelo upgrade) ainda
-        // satisfaz a checagem de "ativa" por data (FR-020) junto com a NOVA
-        // — sem ordenar por StartDate, a transferência podia pegar a
-        // matrícula errada (já superada) e violar o índice único ao tentar
-        // reabri-la.
+        // real, num momento em que a checagem de "ativa" comparava só a
+        // data (FR-020). Se um upgrade acontecia e, no mesmo dia, o Pokémon
+        // era transferido, a matrícula ANTIGA (encerrada pelo upgrade) ainda
+        // satisfazia essa checagem junto com a NOVA, e a transferência podia
+        // pegar a matrícula errada (já superada), violando o índice único
+        // ao tentar reabri-la. A comparação por instante exato (FR-020,
+        // 2026-07-20) elimina a ambiguidade na origem: a matrícula antiga já
+        // não satisfaz mais "ativa" assim que o upgrade é confirmado.
         var (db, sut, trainerA, ginasioLocal, _) = await ArrangeAsync();
         var trainerB = new Trainer { Name = "Misty", Email = "misty2@example.com", City = "Cerulean City" };
         db.Trainers.Add(trainerB);
