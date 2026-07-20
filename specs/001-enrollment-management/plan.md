@@ -240,6 +240,35 @@ sem alterar a arquitetura descrita acima:
 Nenhuma dessas correções introduz dependência nova nem contradiz o
 Constitution Check original — Gate PASS mantido.
 
+## Nota de revisão pós-implementação (2026-07-20, parte 2 — teste manual)
+
+Testando a aplicação real (não só a verificação automatizada da parte 1),
+o usuário encontrou mais 2 problemas:
+
+- **Fix do `<select>` incompleto**: a correção de change detection zoneless
+  (ver acima) só foi aplicada em `enrollments-list`, `enrollment-form`,
+  `pokemon-form` e `trainer-form` — os componentes `enrollment-upgrade` e
+  `pokemon-transfer` continuavam com o estado assíncrono (`trainingPlans`,
+  `pokemons`, `trainers`) em campos soltos, sofrendo do mesmo sintoma.
+  Corrigido migrando esses dois componentes para `signal()` também, mesma
+  técnica já aprovada — sem impacto em spec.md.
+- **Transferência de Pokémon apaga o Treinador histórico das matrículas
+  (bug real, novo)**: `EnrollmentListItemResponse`/`EnrollmentResponse`
+  derivavam `trainerName` navegando `Enrollment → Pokemon → Trainer`, ou
+  seja, o dono **atual** do Pokémon — não quem era dono quando aquela
+  matrícula específica foi criada. Como `Pokemon.TrainerId` muda na
+  transferência (R5), toda matrícula (ativa ou já encerrada) do mesmo
+  Pokémon passava a exibir o novo Treinador, apagando o histórico de quem
+  era dono durante cada período. Fix (FR-027, data-model.md): novo campo
+  `Enrollment.TrainerId` (FK para `Trainer`), preenchido no momento da
+  criação de cada matrícula e nunca reescrito depois — snapshot histórico,
+  análogo ao já existente `Enrollment.MonthlyPrice` (snapshot de preço).
+  `EnrollmentListItemResponse`/busca (FR-016) passam a ler esse campo em
+  vez de navegar por `Pokemon.Trainer`. Requer uma migration EF Core com
+  backfill dos dados existentes (a partir do `Pokemon.TrainerId` atual,
+  única informação disponível para as matrículas já criadas antes deste
+  fix — ver `research.md`/limitação conhecida se aplicável).
+
 **Achado durante a verificação ponta a ponta (não estava na lista original)**:
 ao validar T074 (exibição de datas) contra a API e o banco reais, a coluna
 "Início" mostrou o valor UTC cru (ex.: 14:40) em vez da hora local de

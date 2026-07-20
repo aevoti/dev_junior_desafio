@@ -167,6 +167,11 @@ Response `200 OK`: array de objetos no formato:
   "status": "Active"
 }
 ```
+(`trainerName` é o Treinador associado à matrícula — dono do Pokémon no
+momento em que ela foi criada (FR-027, `Enrollment.TrainerId`) —, não
+necessariamente o dono atual do Pokémon: se o Pokémon já foi transferido
+depois, `trainerName` continua mostrando o Treinador de origem para essa
+matrícula, mesmo que `GET /api/pokemons` já mostre o novo dono.)
 
 ### `POST /api/enrollments/{id}/upgrade/preview`
 

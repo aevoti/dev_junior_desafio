@@ -292,6 +292,52 @@ instruções do usuário).
 
 ---
 
+## Phase 10: Correções do Teste Manual (2026-07-20, parte 2)
+
+**Purpose**: apontamentos encontrados pelo usuário ao testar a aplicação
+real após a Fase 9. Ver `plan.md` ("parte 2") para o diagnóstico.
+
+- [X] T076 [P] Migrar `enrollment-upgrade` e `pokemon-transfer` para
+  `signal()` (mesmo fix de T065/T066, aplicado só parcialmente antes) em
+  `frontend/src/app/enrollment-upgrade/enrollment-upgrade.ts` e
+  `frontend/src/app/pokemons/pokemon-transfer/pokemon-transfer.ts` —
+  corrige o `<select>` de plano/Pokémon/Treinador nessas 2 telas
+
+### Snapshot do Treinador na matrícula (FR-027)
+
+- [ ] T077 Adicionar `TrainerId` (FK → `Trainer`) a `Enrollment`
+  (`backend/src/PokemonTrainingCenter.Domain/Entities/Enrollment.cs`) —
+  snapshot do dono do Pokémon no momento da criação da matrícula
+- [ ] T078 Configurar a FK e o backfill em
+  `backend/src/PokemonTrainingCenter.Domain/Persistence/AppDbContext.cs` e
+  gerar a migration EF Core (`dotnet ef migrations add
+  AddEnrollmentTrainerSnapshot`), com um passo de dados que preenche
+  `TrainerId` das matrículas existentes a partir do `Pokemon.TrainerId`
+  atual (única informação disponível para dados pré-existentes) (depende
+  de T077)
+- [ ] T079 Preencher `TrainerId` nos 3 pontos de criação de `Enrollment` em
+  `backend/src/PokemonTrainingCenter.Domain/Services/EnrollmentService.cs`:
+  `CreateEnrollmentAsync` (dono atual do Pokémon),
+  `ConfirmUpgradeAsync` (mesmo `TrainerId` da matrícula anterior), e a nova
+  matrícula em `TransferPokemonAsync` (o novo Treinador de destino — a
+  matrícula fechada NÃO tem seu `TrainerId` alterado) (depende de T077)
+- [ ] T080 Atualizar `EnrollmentListItemResponse` e a busca por nome de
+  Treinador (FR-016) em
+  `backend/src/PokemonTrainingCenter.Api/Controllers/EnrollmentsController.cs`
+  para ler `Enrollment.Trainer.Name` em vez de `Enrollment.Pokemon.Trainer.Name`
+  (depende de T077, T079)
+- [ ] T081 Adicionar teste de regressão: criar matrícula, transferir o
+  Pokémon para outro Treinador, confirmar que a matrícula original
+  continua exibindo o Treinador de origem (não o novo) em
+  `backend/tests/PokemonTrainingCenter.UnitTests/EnrollmentServiceTests.cs`
+  ou `EnrollmentQueryTests.cs` (depende de T079, T080)
+
+**Checkpoint**: `<select>` funcionando em todas as telas; histórico de
+Treinador preservado em matrículas após transferência; `dotnet test` e
+verificação manual revalidados.
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies

@@ -22,6 +22,11 @@
 - Q: O formulário de cadastro de Treinador deve aceitar e-mails sem TLD (ex.: "nome@dominio")? → A: Não — exigir um domínio com TLD de pelo menos 2 caracteres (ex.: "nome@dominio.com").
 - Q: A nova listagem de Pokémons deve exibir o nome do Treinador dono? Se sim, a API deve devolver esse dado pronto (denormalizado) ou o frontend deve cruzar com a listagem de Treinadores? → A: Denormalizado na resposta da API (`trainerName` em `PokemonResponse`), mesmo padrão já usado em `EnrollmentListItemResponse`.
 
+### Session 2026-07-20 (2) — teste manual pós-correção
+
+- Q: Ao transferir um Pokémon (R5), a matrícula deve continuar mostrando o Treinador que era dono do Pokémon durante aquele período, ou o dono atual? → A: O Treinador histórico (quem era dono no momento da criação da matrícula) — a transferência não deve reescrever o Treinador de matrículas já existentes, ativas ou encerradas.
+- Q: Esse histórico deve ser um snapshot por FK (`Enrollment.TrainerId` apontando para o `Trainer`) ou apenas um nome de texto copiado? → A: FK (`Enrollment.TrainerId`), consistente com o restante do modelo (Treinador nunca é editado/removido nesta feature, então a FK é tão estável quanto uma string, e preserva a possibilidade de navegar para os outros dados do Treinador).
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Matricular Pokémon em Plano de Treinamento (Priority: P1)
@@ -276,6 +281,11 @@ concluir.
   transferência, mesmo que essa data caia no meio do ciclo mensal pago, e uma
   nova matrícula equivalente deve ser criada automaticamente sob o Treinador
   de destino, cobrada integralmente a partir dessa data (R5).
+- Transferência de um Pokémon com matrículas históricas (ativas ou já
+  encerradas): essas matrículas MUST continuar exibindo o Treinador que era
+  dono do Pokémon no momento em que cada uma foi criada, nunca o Treinador
+  atual do Pokémon — a transferência não reescreve o Treinador associado a
+  nenhuma matrícula pré-existente (R5, FR-027).
 - Matrícula cancelada com data de término marcada para hoje deve continuar
   ativa até o fim desse dia (calendário UTC) — o corte para "encerrada"
   acontece apenas na virada do dia (FR-012, FR-020).
@@ -360,7 +370,10 @@ concluir.
   cobrança), sem exigir nenhuma ação manual do Treinador de destino.
 - **FR-016**: O sistema MUST permitir listar matrículas com busca textual por
   nome do Pokémon ou do Treinador, de forma case-insensitive e
-  accent-insensitive (ex.: buscar "agua" MUST encontrar "Água").
+  accent-insensitive (ex.: buscar "agua" MUST encontrar "Água"). O Treinador
+  buscado é o associado à matrícula (FR-027) — o dono no momento em que ela
+  foi criada —, não necessariamente o dono atual do Pokémon, caso ele já
+  tenha sido transferido.
 - **FR-017**: O sistema MUST permitir filtrar a listagem de matrículas por
   estado derivado do instante de término (ver FR-020): Ativa (sem data de
   término), Ativa "a encerrar" (instante de término igual ou posterior ao
@@ -413,6 +426,12 @@ concluir.
 - **FR-026**: O sistema MUST permitir listar todos os Pokémons cadastrados,
   exibindo nome, tipo, nível e o nome do Treinador dono, sem exigir filtro
   ou busca.
+- **FR-027**: O sistema MUST preservar, para cada matrícula, o Treinador que
+  era dono do Pokémon no momento da criação dessa matrícula, exibindo esse
+  Treinador histórico na listagem e na busca (FR-016), mesmo que o Pokémon
+  seja transferido para outro Treinador posteriormente (R5). A transferência
+  de um Pokémon MUST NUNCA alterar o Treinador associado a matrículas já
+  existentes, ativas ou encerradas.
 
 ### Key Entities
 
@@ -469,6 +488,10 @@ concluir.
   Pokémons cadastrados em telas dedicadas, e é levado automaticamente à
   listagem correspondente (com confirmação de sucesso) ao concluir qualquer
   formulário de cadastro, sem passos manuais adicionais de navegação.
+- **SC-010**: 100% das matrículas (ativas ou encerradas) continuam exibindo
+  o nome do Treinador que era dono do Pokémon no momento em que cada uma foi
+  criada, mesmo após uma ou mais transferências posteriores do mesmo
+  Pokémon para outros Treinadores.
 
 ## Assumptions
 

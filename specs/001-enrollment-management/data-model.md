@@ -61,20 +61,25 @@ existe uma exceção entre os três planos.
 | `Id` | `int` (PK, identity) | — |
 | `PokemonId` | `int` (FK → `Pokemon.Id`) | Obrigatório |
 | `TrainingPlanId` | `int` (FK → `TrainingPlan.Id`) | Obrigatório |
+| `TrainerId` | `int` (FK → `Trainer.Id`) | Obrigatório; snapshot do dono do Pokémon no momento da criação da matrícula — permanece inalterado mesmo que o Pokémon seja transferido depois (diferente de `Pokemon.TrainerId`, que sempre reflete o dono atual). Ver FR-027, Session 2026-07-20 (2). |
 | `StartDate` | `datetime2` | Obrigatório; definida pelo sistema no momento da criação (FR-005) — não editável via API |
-| `EndDate` | `datetime2`, nullable | Ausente ou `>= hoje` ⇒ ativa; `< hoje` ⇒ encerrada (FR-020) |
+| `EndDate` | `datetime2`, nullable | Ausente ou instante `>= agora` ⇒ ativa; instante `< agora` ⇒ encerrada (FR-020) |
 | `MonthlyPrice` | `decimal(10,2)` | Snapshot do `TrainingPlan.MonthlyPrice` no momento da criação da matrícula (planos são fixos, mas o snapshot evita qualquer acoplamento a mudanças futuras de preço) |
 
 **Relacionamentos**: `Pokemon` 1 — N `Enrollment`; `TrainingPlan` 1 — N
-`Enrollment`.
+`Enrollment`; `Trainer` 1 — N `Enrollment` (snapshot histórico do dono no
+momento da criação — distinto da relação `Trainer` 1 — N `Pokemon`, que
+reflete o dono atual).
 
-**Estado derivado** (não persistido, calculado em cada leitura — FR-020):
+**Estado derivado** (não persistido, calculado em cada leitura pelo
+instante exato — FR-020; ver Session 2026-07-20 (1) para a distinção entre
+cancelamento e upgrade/transferência):
 
 | Condição sobre `EndDate` | Estado exibido |
 |---|---|
 | `NULL` | Ativa |
-| `>= hoje` | Ativa "a encerrar" |
-| `< hoje` | Encerrada |
+| instante `>= agora` | Ativa "a encerrar" |
+| instante `< agora` | Encerrada |
 
 **Índices e constraints**:
 - `INDEX IX_Enrollment_PokemonId ON Enrollment(PokemonId)`.
@@ -87,11 +92,13 @@ existe uma exceção entre os três planos.
 linha em vez de "reabrir" uma matrícula encerrada):
 
 ```text
-[criação]         → Enrollment(EndDate = NULL)                         [FR-005]
-Ativa → Cancelada  → EndDate = fim do ciclo pago vigente                [FR-012]
-Ativa → Upgrade    → EndDate = data do upgrade  + nova Enrollment       [FR-010]
-Ativa → Transferida → EndDate = data da transferência + nova Enrollment
-                       (sob o novo Trainer, mesmo TrainingPlanId)       [FR-015]
+[criação]         → Enrollment(EndDate = NULL, TrainerId = dono atual do Pokémon)          [FR-005]
+Ativa → Cancelada  → EndDate = fim do dia (UTC) do ciclo pago vigente, TrainerId inalterado [FR-012]
+Ativa → Upgrade    → EndDate = instante do upgrade + nova Enrollment
+                       (TrainerId igual ao da matrícula anterior)                          [FR-010]
+Ativa → Transferida → EndDate = instante da transferência (TrainerId da matrícula fechada
+                       permanece o Treinador de origem) + nova Enrollment sob o novo
+                       Trainer (TrainerId = novo Treinador), mesmo TrainingPlanId           [FR-015]
 ```
 
 ## PokemonType (enum, não é tabela)
