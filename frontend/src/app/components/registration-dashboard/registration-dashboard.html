@@ -1,0 +1,94 @@
+<div style="font-family: Arial, sans-serif; padding: 20px;">
+  
+  <div style="display: flex; gap: 40px; flex-wrap: wrap; margin-top: 20px;">
+    
+    <!-- Formulário de Matrícula -->
+    <div style="flex: 1; min-width: 300px;">
+      <app-registration-form (registered)="loadRegistrations()"></app-registration-form>
+    </div>
+
+    <!-- Tabela de Listagem -->
+    <div style="flex: 2; min-width: 500px; border: 1px solid #ccc; padding: 20px; border-radius: 8px; font-family: Arial, sans-serif;">
+      <h3>Matrículas Ativas</h3>
+
+      <div style="display: flex; gap: 10px; margin-bottom: 20px; background-color: #f5f5f5; padding: 15px; border-radius: 6px;">
+        <div style="flex: 2;">
+          <label style="display:block; font-size: 12px; font-weight: bold; margin-bottom: 3px;">Buscar Pokémon ou Treinador:</label>
+          <input type="text" [(ngModel)]="filterText" (input)="loadRegistrations()" placeholder="Digite o nome..." style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+        </div>
+        
+        <div style="flex: 1;">
+          <label style="display:block; font-size: 12px; font-weight: bold; margin-bottom: 3px;">Status:</label>
+          <select [(ngModel)]="filterStatus" (change)="loadRegistrations()" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+            <option value="">Todos</option>
+            <option value="Ativa">Ativa</option>
+            <option value="Cancelada">Cancelada</option>
+            <option value="Concluida">Concluida</option>
+          </select>
+        </div>
+      </div>
+
+      <table style="width: 100%; border-collapse: collapse; margin-top: 15px; text-align: left;">
+        <thead>
+          <tr style="border-bottom: 2px solid #00aa0b; background-color: #f9f9f9;">
+            <th style="padding: 10px;">Pokémon</th>
+            <th style="padding: 10px;">Treinador</th>
+            <th style="padding: 10px;">Plano</th>
+            <th style="padding: 10px;">Status</th>
+            <th style="padding: 10px;">Mensalidade</th>
+            <th style="padding: 10px;">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+        @for (reg of registrationList; track reg.id) {
+          <tr style="border-bottom: 1px solid #ddd;">
+            <td style="padding: 10px;">{{ reg.pokemon_name }}</td>
+            <td style="padding: 10px;">{{ reg.trainer_name }}</td>
+            <td style="padding: 10px;">{{ reg.training_plan }}</td>
+            <td style="padding: 10px;">
+              <span [style.color]="reg.status === 'Ativa' ? 'green' : 'red'" style="font-weight: bold;">
+                {{ reg.status }}
+              </span>
+            </td>
+            <td style="padding: 10px; font-weight: bold; color: #333;">
+              {{ reg.monthly_value ? (reg.monthly_value | currency:'BRL':'symbol':'1.2-2') : '---' }}
+            </td>
+            <td style="padding: 10px; display: flex; gap: 8px;">
+              @if (reg.status === 'Ativa') {
+                
+                @if (reg.training_plan !== 'Elite dos 4') {
+                  <button 
+                    (click)="upgradeRegistration(reg.id, reg.training_plan)"
+                    style="padding: 5px 10px; background-color: #064c9c; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                    Subir Plano
+                  </button>
+                }
+
+                <button 
+                  (click)="cancelRegistration(reg.id)"
+                  style="padding: 5px 10px; background-color: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                  Cancelar
+                </button>
+              } @else {
+                <span style="color: #999; font-style: italic;">---</span>
+              }
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="4" style="padding: 20px; color: #666; font-style: italic; text-align: center;">
+              Nenhuma matrícula encontrada.
+            </td>
+          </tr>
+        }
+      </tbody>
+      </table>
+    </div>
+
+    <!-- Formulário de Atualizar Treinador -->
+    <div style="flex: 3; min-width: 300px;">
+      <app-replace-trainer-form (transferComplete)="loadRegistrations()"></app-replace-trainer-form>
+    </div>
+
+  </div>
+</div>

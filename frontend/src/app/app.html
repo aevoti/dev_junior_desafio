@@ -1,0 +1,24 @@
+<div style="font-family: Arial, sans-serif; max-width: 900px; margin: 0 auto; padding: 20px;">
+  
+  <header style="text-align: center; margin-bottom: 30px;">
+    <h1 style="color: #ff0000;">Centro Pokémon — Painel de Controle</h1>
+  </header>
+
+  <nav style="display: flex; border-bottom: 2px solid #ccc; margin-bottom: 20px;">
+    <a routerLink="/cadastros" 
+       routerLinkActive="active-tab"
+       style="padding: 10px 20px; text-decoration: none; color: #333; font-weight: bold; border: 1px solid transparent; margin-bottom: -2px; cursor: pointer;">
+       Área de Cadastros (Treinador/Pokémon)
+    </a>
+    <a routerLink="/matriculas" 
+       routerLinkActive="active-tab"
+       style="padding: 10px 20px; text-decoration: none; color: #333; font-weight: bold; border: 1px solid transparent; margin-bottom: -2px; cursor: pointer;">
+       Matrículas & Upgrades
+    </a>
+  </nav>
+
+  <main>
+    <router-outlet></router-outlet>
+  </main>
+
+</div>

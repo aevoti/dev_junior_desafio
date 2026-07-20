@@ -1,0 +1,39 @@
+<div style="border: 1px solid #ccc; padding: 20px; border-radius: 8px; font-family: Arial, sans-serif; background-color: #fff; max-width: 400px; margin: 20px auto;">
+  <h3 style="margin-top: 0; color: #6f42c1;">Transferência de Treinador</h3>
+
+  <form (ngSubmit)="onSubmit()">
+    <!-- Combo de Seleção de Pokémon -->
+    <div style="margin-bottom: 15px;">
+      <label style="display:block; font-weight: bold; margin-bottom: 5px;">Selecione o Pokémon:</label>
+      <select [(ngModel)]="selectedPokemonId" name="pokemon" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+        <option [ngValue]="null" disabled>Selecione um Pokémon</option>
+        @for (poke of pokemonList; track poke.id) {
+          <option [ngValue]="poke.id">{{ poke.name }}</option>
+        }
+      </select>
+    </div>
+
+    <!-- Combo de Seleção do Novo Treinador -->
+    <div style="margin-bottom: 15px;">
+      <label style="display:block; font-weight: bold; margin-bottom: 5px;">Selecione o Novo Treinador:</label>
+      <select [(ngModel)]="selectedTrainerId" name="trainer" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+        <option [ngValue]="null" disabled>Selecione o novo treinador</option>
+        @for (trainer of trainerList; track trainer.id) {
+          <option [ngValue]="trainer.id">{{ trainer.name }}</option>
+        }
+      </select>
+    </div>
+
+    <!-- Botão de Envio -->
+    <button type="submit" style="width: 100%; padding: 10px; background-color: #6f42c1; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
+      Confirmar Transferência
+    </button>
+  </form>
+
+  <!-- Mensagens de Feedback -->
+  @if (message) {
+    <div [style.color]="isError ? 'red' : 'green'" style="margin-top: 15px; font-weight: bold; font-size: 14px; text-align: center;">
+      {{ message }}
+    </div>
+  }
+</div>

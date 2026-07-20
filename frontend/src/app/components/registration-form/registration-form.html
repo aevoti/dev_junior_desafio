@@ -1,0 +1,38 @@
+<div style="max-width: 400px; margin: 20px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; font-family: Arial, sans-serif;">
+  <h3>Nova Matrícula</h3>
+
+  <form (ngSubmit)="onSubmit()">
+    <div style="margin-bottom: 15px;">
+      <label style="display: block; font-weight: bold; margin-bottom: 5px;">Pokémon:</label>
+      <select [(ngModel)]="registration.pokemonId" name="pokemonId" required style="width: 100%; padding: 8px;">
+        <option [ngValue]="null" disabled selected>Selecione um Pokémon...</option>
+        <option *ngFor="let p of pokemonsList" [ngValue]="p.id">
+          {{ p.name }}
+        </option>
+      </select>
+    </div>
+
+    <div style="margin-bottom: 15px;">
+      <label style="display: block; font-weight: bold; margin-bottom: 5px;">Plano de Treinamento:</label>
+      <select [(ngModel)]="registration.trainingPlan" name="trainingPlan" required style="width: 100%; padding: 8px; box-sizing: border-box;">
+        <option value="" disabled selected>Selecione um plano...</option>
+        <option value="Ginasio Local">Ginásio Local (R$ 50,00)</option>
+        <option value="Liga Regional">Liga Regional (R$ 120,00)</option>
+        <option value="Elite dos 4">Elite dos 4 (R$ 300,00)</option>
+      </select>
+    </div>
+
+    <div>
+      <label style="font-weight: bold;">Data de Início (Para Testes):</label>
+      <input type="date" [(ngModel)]="registration.initDate" name="initDate">
+    </div>
+    
+    <button type="submit" style="width: 100%; padding: 10px; background-color: #ff009d; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">
+      Efetuar Matrícula
+    </button>
+  </form>
+
+  <div *ngIf="message" [style.color]="isError ? 'red' : 'green'" style="margin-top: 15px; font-weight: bold; text-align: center;">
+    {{ message }}
+  </div>
+</div>
