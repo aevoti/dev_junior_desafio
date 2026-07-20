@@ -1,0 +1,95 @@
+.app-card {
+    background: var(--app-surface);
+    border: 1px solid var(--app-border);
+    border-radius: var(--app-radius-lg);
+    box-shadow: var(--app-shadow-sm);
+    overflow: hidden;
+}
+
+.app-card-header {
+    min-height: 66px;
+    padding: 18px 22px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+
+    border-bottom: 1px solid var(--app-border);
+}
+
+.app-card-header h2 {
+    margin: 0;
+    color: var(--app-text);
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.app-card-body {
+    padding: 22px;
+}
+
+.stat-card {
+    height: 100%;
+    padding: 22px;
+
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    background: var(--app-surface);
+    border: 1px solid var(--app-border);
+    border-radius: var(--app-radius-lg);
+    box-shadow: var(--app-shadow-sm);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--app-shadow-md);
+}
+
+.stat-card-icon {
+    width: 52px;
+    height: 52px;
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: var(--app-radius-lg);
+    font-size: 23px;
+}
+
+.stat-card-icon.trainer {
+    color: var(--app-trainer);
+    background: var(--app-trainer-light);
+}
+
+.stat-card-icon.pokemon {
+    color: var(--app-pokemon);
+    background: var(--app-pokemon-light);
+}
+
+.stat-card-icon.primary {
+    color: var(--app-primary);
+    background: var(--app-primary-light);
+}
+
+.stat-card h3 {
+    margin: 0;
+    color: var(--app-text);
+    font-size: 26px;
+    font-weight: 800;
+}
+
+.stat-card p {
+    margin: 3px 0 0;
+    color: var(--app-muted);
+    font-size: 13px;
+    font-weight: 600;
+}

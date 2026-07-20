@@ -1,124 +1,507 @@
-# Desafio Técnico — Desenvolvedor(a) Junior
+# Centro de Treinamento Pokémon — Alto Nível
 
-## Centro de Treinamento Pokémon "Alto Nível"
+![alt text](image.png) //Foto geral do projeto FrontEnd.
 
-Olá candidato(a),![alt text](https://static.wikia.nocookie.net/pokemongo/images/c/cd/Sticker_Funwari_Charmander.png/revision/latest?cb=20200817175607)
+Aplicação desenvolvida como parte do desafio técnico para a vaga de Desenvolvedor(a) Júnior.
 
-Primeiramente, parabéns por ter chegado até aqui! Essa tem sido uma Jornada Seletiva de altíssimo nível, mas o seu cadastro se destacou e não temos dúvidas de que você pode ser a pessoa certa para compor o nosso time.<br><br>
-Abaixo, você encontrará todos as informações necessárias para realizar a sua Etapa de Task.<br>
+O sistema permite gerenciar Treinadores, Pokémon e Matrículas em planos mensais de treinamento, incluindo cancelamento de matrícula, upgrade proporcional entre planos e transferência de Pokémon entre treinadores.
 
-Este desafio simula um problema real, com uma temática mais divertida.
+O enunciado original do desafio encontra-se em **DESAFIO.md**.
 
+## Sumário
 
-O **Centro de Treinamento Alto Nível** é um serviço por assinatura onde Treinadores matriculam seus Pokémon em planos de treinamento mensais. Sua missão é construir o sistema de gestão dessas matrículas.
-
----
-
-## 🎯 O que você vai construir
-
-Uma aplicação com três partes:
-
-1. **API REST em .NET** — gestão de Treinadores, Pokémon e Matrículas em planos
-2. **Banco de dados SQL Server** — modelagem e uma consulta específica
-3. **Frontend em Angular** — telas de listagem e cadastro
-
----
-
-## 📋 Regras de negócio
-
-### Entidades
-
-- **Treinador**: nome, e-mail (único), cidade de origem.
-- **Pokémon**: nome, tipo (ex.: Fogo, Água, Planta...), nível (1 a 100) e o Treinador dono.
-- **Matrícula**: vincula um Pokémon a um **Plano de Treinamento**, com data de início, status (Ativa, Cancelada, Concluída) e valor mensal.
-
-### Planos de Treinamento
-
-| Plano | Valor mensal | Descrição |
-|---|---|---|
-| Ginásio Local | R$ 50,00 | Treinos básicos |
-| Liga Regional | R$ 120,00 | Treinos intermediários + batalhas simuladas |
-| Elite dos 4 | R$ 300,00 | Preparação completa para a Liga |
-
-### Regras obrigatórias
-
-**R1 — Matrícula única ativa:** um Pokémon **não pode** ter duas matrículas ativas ao mesmo tempo. A API deve rejeitar a tentativa com uma mensagem de erro clara, e o frontend deve exibir esse erro de forma amigável ao usuário.
-
-**R2 — Upgrade com cálculo proporcional (pro-rata):** um Treinador pode fazer upgrade da matrícula de um Pokémon para um plano superior a qualquer momento do ciclo mensal. Quando isso acontece:
-
-- A matrícula atual é encerrada e uma nova é criada no plano superior, iniciando na data do upgrade.
-- O valor da **primeira cobrança do novo plano** deve ser proporcional aos dias restantes do ciclo, descontando o valor já pago não utilizado do plano antigo.
-- **Exemplo:** um Pokémon está no plano Ginásio Local (R$ 50) e faz upgrade para Liga Regional (R$ 120) no dia 16 de um ciclo de 30 dias. Restam 15 dias. Crédito do plano antigo: R$ 50 × (15/30) = R$ 25. Custo do novo plano nos dias restantes: R$ 120 × (15/30) = R$ 60. **Primeira cobrança: R$ 60 − R$ 25 = R$ 35.**
-- A API deve expor um endpoint de upgrade que retorna o valor calculado dessa primeira cobrança.
-- Downgrade (plano inferior) **não é permitido** — a API deve rejeitar.
-
-**R3 — Nível mínimo para a Elite dos 4:** apenas Pokémon de nível **50 ou superior** podem ser matriculados (ou receber upgrade) no plano Elite dos 4.
-
-**R4 — Matrículas canceladas devem ser tratadas adequadamente nos cálculos e relatórios.**
-
-**R5 — Se um Pokémon for transferido para outro Treinador, suas matrículas devem se comportar de forma coerente.**
-
-> 💡 Se alguma regra parecer incompleta ou ambígua, você pode nos perguntar **ou** tomar uma decisão e documentá-la no README. As duas atitudes são bem-vindas — o que avaliamos é como você lida com isso.
+- [Tecnologias Utilizadas](#tecnologias-utilizadas)
+- [Estrutura do Projeto](#estrutura-do-projeto)
+- [Funcionalidades](#funcionalidades)
+- [Regras de Negócio Implementadas](#regras-de-negócio-implementadas)
+- [Banco de Dados](#banco-de-dados)
+- [Como Executar o Banco de Dados](#como-executar-o-banco-de-dados)
+- [Como Executar o Backend](#como-executar-o-backend)
+- [Como Executar o Frontend](#como-executar-o-frontend)
+- [Fluxo para Testes](#fluxo-para-testes)
+- [Tratamento de Erros](#tratamento-de-erros)
+- [Decisões Técnicas](#decisões-técnicas)
+- [Melhorias Futuras](#melhorias-futuras)
+- [Uso de Inteligência Artificial](#uso-de-inteligência-artificial)
 
 ---
 
-## 🗄️ Parte SQL Server
+# Tecnologias Utilizadas
 
-Além da modelagem das tabelas (entregue o script de criação `schema.sql`), escreva **em SQL puro** (arquivo `consulta-mrr.sql`, sem ORM) a seguinte consulta:
+## Backend
 
-> **Receita Mensal Recorrente (MRR) do Centro, agrupada por plano**, considerando apenas matrículas ativas, com uma linha de total geral ao final.
+- .NET 8
+- ASP.NET Core Web API
+- Entity Framework Core 8
+- SQL Server
+- Swagger / OpenAPI
 
----
+## Frontend
 
-## 🖥️ Parte Angular
+- Angular
+- TypeScript
+- HTML5
+- CSS3
 
-Telas mínimas:
+## Banco de Dados
 
-1. **Listagem de matrículas** com busca por nome do Pokémon ou do Treinador e filtro por status.
-2. **Formulário de nova matrícula** com validações (campos obrigatórios, nível mínimo para Elite dos 4).
-3. **Fluxo de upgrade**: ao solicitar upgrade, exibir o valor da primeira cobrança retornado pela API antes de confirmar.
-4. **Tratamento de erros da API** de forma amigável (ex.: tentativa de matrícula duplicada — R1).
-
-Não avaliamos beleza visual. Avaliamos organização de componentes, validações e experiência básica de uso.
-
----
-
-## 🤖 Uso de Inteligência Artificial
-
-**O uso de IA (Copilot, ChatGPT, Claude etc.) é permitido e incentivado** — faz parte do nosso dia a dia. Pedimos apenas transparência: descreva no README como você usou (o que pediu, o que aproveitou, o que precisou corrigir ou reescrever).
-
-Importante: haverá uma **sessão de conversa técnica** sobre a sua entrega, onde pediremos que você explique trechos do código e faça pequenas modificações ao vivo. Entregar código que você não compreende não vai te ajudar nessa etapa. 🙂
+- SQL Server
+- SQL puro para criação das tabelas e consulta de MRR
 
 ---
 
-## 📦 Entrega
+# Estrutura do Projeto
 
-- O Envio deve ser feito por PullRequest com o nome completo do Candidato.
-- Prazo: **5 dias corridos** a partir do recebimento. Estimamos algo entre 4 e 8 horas de trabalho — não é esperado que você use os 5 dias inteiros.
-- O projeto deve rodar localmente com instruções claras no README.
-
-### README obrigatório, contendo:
-
-1. Instruções de execução (backend, frontend e scripts de banco).
-2. Decisões técnicas e premissas assumidas (especialmente sobre R4 e R5).
-3. O que você faria diferente ou melhoraria com mais tempo.
-4. Como utilizou IA durante o desenvolvimento.
+```text
+CentroTreinamentoPokemon/
+│
+├── backend/
+│
+├── frontend/
+│
+├── database/
+│   ├── schema.sql
+│   ├── dados-teste.sql
+│   └── consulta-mrr.sql
+│
+├── DESAFIO.md
+└── README.md
+```
 
 ---
 
-## ✅ O que avaliamos
+# Funcionalidades
 
-- Corretude das regras de negócio, incluindo casos de borda (R1, R2, R3).
-- Modelagem do banco e a consulta SQL solicitada.
-- Organização do código no backend e no frontend.
-- Clareza na comunicação: README, premissas documentadas, perguntas feitas.
-- Na conversa técnica: compreensão do próprio código e raciocínio ao modificá-lo.
+O sistema possui as seguintes funcionalidades:
 
+- Cadastro de Treinadores.
+- Cadastro de Pokémon.
+- Cadastro de Matrículas.
+- Listagem de Matrículas.
+- Busca por nome do Pokémon.
+- Busca por nome do Treinador.
+- Filtro por status da matrícula.
+- Cancelamento de matrícula.
+- Simulação de upgrade entre planos.
+- Confirmação de upgrade.
+- Transferência de Pokémon entre treinadores.
+- Tratamento global de erros da API.
 
-Quaisquer dúvidas técnicas em relação à Task, não deixe de entrar em contato com o e-mail: carlos.pedroni@aevo.com.br!
+---
 
-O nosso Time de Pessoas e Cultura se encontra também à disposição para quaisquer outras questões que achar relevante. Basta nos contatar no e-mail: rh@aevo.com.br!
+# Regras de Negócio Implementadas
 
-Estes canais de comunicação estarão sempre abertos para você, não hesite em nos contatar caso tenha dúvidas.
+## R1 — Matrícula única ativa
 
-Boa sorte! 🧡 ![alt text](https://static.wikia.nocookie.net/pokemongo/images/a/af/Sticker_Funwari_Bulbasaur_bye.png/revision/latest?cb=20200825201636)
+Um Pokémon pode possuir apenas uma matrícula ativa.
+
+Antes da criação de uma nova matrícula, a API verifica se já existe uma matrícula ativa para o Pokémon.
+
+Caso exista, a operação é bloqueada e uma mensagem amigável é retornada ao frontend.
+
+---
+
+## R2 — Upgrade com cálculo proporcional
+
+Foi implementado um fluxo composto por dois endpoints:
+
+- Simulação do upgrade;
+- Confirmação do upgrade.
+
+Na simulação, nenhuma alteração é realizada no banco de dados.
+
+Na confirmação:
+
+- a matrícula atual é concluída;
+- uma nova matrícula é criada;
+- o histórico da matrícula anterior é preservado.
+
+O cálculo da primeira cobrança considera um ciclo mensal de 30 dias.
+
+A primeira cobrança é calculada pela seguinte fórmula:
+
+```
+Primeira cobrança =
+Valor proporcional do novo plano
+-
+Crédito proporcional do plano atual
+```
+
+Também foram implementadas as seguintes validações:
+
+- não é permitido upgrade para o mesmo plano;
+- downgrade não é permitido;
+- apenas matrículas ativas podem receber upgrade.
+
+---
+
+## R3 — Plano Elite dos 4
+
+Somente Pokémon com nível igual ou superior a 50 podem:
+
+- ser matriculados no plano Elite dos 4;
+- realizar upgrade para o plano Elite dos 4.
+
+---
+
+## R4 — Matrículas Canceladas
+
+Foi adotada a premissa de que matrículas canceladas permanecem armazenadas para manter o histórico do sistema.
+
+Ao cancelar uma matrícula:
+
+- o status é alterado para Cancelada;
+- a data de encerramento é registrada.
+
+A consulta de Receita Mensal Recorrente (MRR) considera apenas matrículas com status Ativa.
+
+---
+
+## R5 — Transferência de Pokémon
+
+Foi adotada a premissa de que as matrículas pertencem ao Pokémon e não diretamente ao Treinador.
+
+Ao transferir um Pokémon:
+
+- o treinador responsável é alterado;
+- as matrículas existentes permanecem;
+- histórico, valores e planos são preservados.
+
+Não é permitido transferir um Pokémon para o treinador que já é seu proprietário.
+
+---
+
+# Banco de Dados
+
+O banco de dados utilizado na aplicação é o **SQL Server**.
+
+Na pasta **database** encontram-se os scripts necessários para criação da estrutura do banco e para execução da consulta de Receita Mensal Recorrente (MRR).
+
+## Arquivos disponíveis
+
+### schema.sql
+
+Responsável pela criação de toda a estrutura do banco de dados, incluindo:
+
+- Banco de dados;
+- Tabelas;
+- Relacionamentos;
+- Chaves primárias;
+- Chaves estrangeiras;
+- Restrições.
+
+### dados-teste.sql
+
+Script opcional contendo dados de exemplo para facilitar os testes da aplicação.
+
+Caso preferir, todos os dados também podem ser cadastrados diretamente através da API ou da interface da aplicação.
+
+### consulta-mrr.sql
+
+Consulta SQL responsável pelo cálculo da Receita Mensal Recorrente (MRR), agrupando os valores por plano de treinamento e apresentando também uma linha com o total geral.
+
+A consulta considera apenas matrículas com status **Ativa**.
+
+---
+
+# Como Executar o Banco de Dados
+
+## Pré-requisitos
+
+É necessário possuir uma instância do **SQL Server** instalada.
+
+O projeto foi desenvolvido utilizando a instância:
+
+```text
+localhost\SQLEXPRESS
+```
+
+Os scripts encontram-se na pasta:
+
+```text
+database/
+```
+
+## 1. Criar o banco de dados
+
+Abra o SQL Server Management Studio (SSMS), Azure Data Studio ou outra ferramenta compatível e conecte-se à instância:
+
+```text
+localhost\SQLEXPRESS
+```
+
+Em seguida execute o arquivo:
+
+```text
+database/schema.sql
+```
+
+Esse script criará toda a estrutura necessária para funcionamento da aplicação.
+
+## 2. Inserir dados para teste
+
+Opcionalmente execute o arquivo:
+
+```text
+database/dados-teste.sql
+```
+
+Esse script insere registros para facilitar a validação das funcionalidades da aplicação.
+
+## 3. Configurar a conexão
+
+A API utiliza a seguinte configuração localizada em:
+
+```text
+backend/CentroTreinamentoPokemon.Api/appsettings.json
+```
+
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost\\SQLEXPRESS;Database=CentroTreinamentoPokemon;Trusted_Connection=True;TrustServerCertificate=True;"
+  }
+}
+```
+
+Caso sua instância do SQL Server possua outro nome, basta alterar o valor do campo **Server**.
+
+## 4. Executar a consulta MRR
+
+Após possuir matrículas cadastradas, execute:
+
+```text
+database/consulta-mrr.sql
+```
+
+A consulta retornará:
+
+- Receita Mensal Recorrente agrupada por plano;
+- Apenas matrículas com status **Ativa**;
+- Linha contendo o total geral.
+
+---
+
+# Como Executar o Backend
+
+Abra um terminal na pasta do backend.
+
+```bash
+cd backend
+```
+
+Restaure as dependências do projeto.
+
+```bash
+dotnet restore
+```
+
+Compile a solução.
+
+```bash
+dotnet build
+```
+
+Execute a API.
+
+```bash
+dotnet run
+```
+
+Após iniciar a aplicação, o terminal exibirá os endereços utilizados.
+
+A documentação Swagger poderá ser acessada em um endereço semelhante a:
+
+```text
+https://localhost:xxxx/swagger
+```
+
+A porta poderá variar conforme a configuração local.
+
+---
+
+# Como Executar o Frontend
+
+Abra um terminal na pasta do frontend.
+
+```bash
+cd frontend/frontend
+```
+
+Instale as dependências.
+
+```bash
+npm install
+```
+
+Execute a aplicação.
+
+```bash
+npm start
+```
+
+ou
+
+```bash
+ng serve
+```
+
+Após iniciar, a aplicação estará disponível em:
+
+```text
+http://localhost:4200
+```
+
+O frontend consome a API desenvolvida no backend, portanto ambos devem estar em execução.
+
+---
+
+# Fluxo para Testes
+
+## Cadastro
+
+1. Cadastre um treinador.
+2. Cadastre um Pokémon.
+3. Cadastre uma matrícula.
+
+## Validação da Regra R1
+
+Tente cadastrar uma segunda matrícula ativa para o mesmo Pokémon.
+
+Resultado esperado:
+
+- A operação deve ser bloqueada.
+- A API retorna uma mensagem informando que o Pokémon já possui uma matrícula ativa.
+
+## Validação da Regra R2
+
+1. Simule um upgrade.
+2. Verifique o valor da primeira cobrança.
+3. Confirme o upgrade.
+
+Resultado esperado:
+
+- Matrícula anterior concluída.
+- Nova matrícula criada.
+- Valor proporcional calculado corretamente.
+
+## Validação da Regra R3
+
+Tente matricular um Pokémon com nível inferior a 50 no plano Elite dos 4.
+
+Resultado esperado:
+
+A operação deverá ser rejeitada.
+
+## Validação da Regra R4
+
+Cancele uma matrícula.
+
+Execute novamente o arquivo:
+
+```text
+database/consulta-mrr.sql
+```
+
+Resultado esperado:
+
+A matrícula cancelada não deverá compor o cálculo da Receita Mensal Recorrente.
+
+## Validação da Regra R5
+
+Transfira um Pokémon para outro treinador.
+
+Resultado esperado:
+
+- O treinador será alterado.
+- As matrículas permanecerão vinculadas ao Pokémon.
+- O histórico será preservado.
+
+---
+
+# Tratamento de Erros
+
+A aplicação possui um middleware global responsável pelo tratamento das exceções.
+
+As regras de negócio retornam:
+
+```text
+HTTP 400 - Bad Request
+```
+
+Exemplo:
+
+```json
+{
+  "mensagem": "O Pokémon já possui uma matrícula ativa."
+}
+```
+
+Erros inesperados retornam:
+
+```text
+HTTP 500 - Internal Server Error
+```
+
+com uma mensagem genérica, evitando a exposição de detalhes internos da aplicação.
+
+---
+
+# Decisões Técnicas
+
+Durante o desenvolvimento foram adotadas as seguintes decisões:
+
+- Arquitetura em camadas (Domain, Application, Infrastructure, API e DataTransfer);
+- Separação das responsabilidades entre as camadas;
+- Regras de negócio implementadas nas entidades de domínio;
+- Utilização do padrão Repository para acesso aos dados;
+- Utilização do padrão Unit of Work para persistência;
+- Middleware para tratamento global de exceções;
+- Entity Framework Core para acesso ao banco de dados;
+- SQL puro para implementação da consulta de Receita Mensal Recorrente (MRR);
+- Preservação do histórico das matrículas durante cancelamentos e upgrades.
+
+---
+
+# Melhorias Futuras
+
+Caso houvesse mais tempo para evolução do projeto, poderiam ser implementadas as seguintes melhorias:
+
+- Testes unitários;
+- Testes de integração;
+- Paginação das listagens;
+- Autenticação e autorização;
+- Logs estruturados;
+- Containerização utilizando Docker;
+- Pipeline de Integração Contínua (CI/CD);
+- Melhorias na interface do usuário;
+- Validações adicionais no frontend;
+- Documentação mais detalhada da API.
+
+---
+
+# Uso de Inteligência Artificial
+
+Durante o desenvolvimento foi utilizada a ferramenta **ChatGPT** como apoio ao processo de desenvolvimento.
+
+A Inteligência Artificial foi utilizada para:
+
+- esclarecer dúvidas relacionadas ao .NET, Angular e Entity Framework Core;
+- revisar a arquitetura e organização das camadas da aplicação;
+- discutir regras de negócio e cenários de validação;
+- auxiliar na implementação e revisão do cálculo proporcional de upgrade;
+- auxiliar na interpretação de mensagens de erro durante o desenvolvimento;
+- revisar trechos de código, sugerindo melhorias e boas práticas;
+- auxiliar na elaboração desta documentação.
+
+Todas as sugestões fornecidas foram analisadas, adaptadas à estrutura do projeto e testadas antes de serem incorporadas.
+
+A utilização da Inteligência Artificial ocorreu apenas como ferramenta de apoio ao desenvolvimento, permanecendo sob minha responsabilidade o entendimento das soluções implementadas e as decisões técnicas adotadas.
+
+---
+
+# Autora
+
+**Ana Rita Lopes de Almeida Bastos**
+
+Desenvolvedora Full Stack .NET

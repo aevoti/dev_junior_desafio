@@ -1,0 +1,40 @@
+@import "bootstrap/dist/css/bootstrap.min.css";
+@import "bootstrap-icons/font/bootstrap-icons.css";
+
+@import "./app/shared/styles/variables";
+@import "./app/shared/styles/typography";
+@import "./app/shared/styles/buttons";
+@import "./app/shared/styles/cards";
+@import "./app/shared/styles/forms";
+@import "./app/shared/styles/tables";
+@import "./app/shared/styles/badges";
+@import "./app/shared/styles/utilities";
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    min-height: 100%;
+}
+
+body {
+    margin: 0;
+
+    color: #1f2937;
+    background: #f3f4f6;
+
+    font-family:
+        Inter,
+        Arial,
+        Helvetica,
+        sans-serif;
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}

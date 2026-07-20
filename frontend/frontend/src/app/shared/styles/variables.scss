@@ -1,0 +1,49 @@
+:root {
+
+    --app-content-width: 1500px;
+    --app-content-padding: 32px;
+    /* Fundos */
+    --app-background: #F3F4F6;
+    --app-surface: #FFFFFF;
+
+    /* Textos */
+    --app-text: #1F2937;
+    --app-muted: #6B7280;
+    --app-text-light: #9CA3AF;
+
+    /* Ação principal — Pokébola */
+    --app-primary: #EF4444;
+    --app-primary-dark: #DC2626;
+    --app-primary-light: #FEE2E2;
+
+    /* Treinadores */
+    --app-trainer: #3B82F6;
+    --app-trainer-dark: #2563EB;
+    --app-trainer-light: #DBEAFE;
+
+    /* Pokémon e evolução */
+    --app-pokemon: #10B981;
+    --app-pokemon-dark: #059669;
+    --app-pokemon-light: #D1FAE5;
+
+    /* Estados */
+    --app-warning: #F59E0B;
+    --app-warning-light: #FEF3C7;
+
+    --app-danger: #DC2626;
+    --app-danger-light: #FEE2E2;
+
+    /* Estrutura */
+    --app-border: #E5E7EB;
+    --app-border-strong: #D1D5DB;
+
+    /* Raios */
+    --app-radius-sm: 8px;
+    --app-radius-md: 12px;
+    --app-radius-lg: 16px;
+    --app-radius-xl: 20px;
+
+    /* Sombras */
+    --app-shadow-sm: 0 4px 14px rgba(15, 23, 42, 0.06);
+    --app-shadow-md: 0 10px 30px rgba(15, 23, 42, 0.10);
+}
