@@ -296,6 +296,30 @@ public class EnrollmentServiceTests
         Assert.Null(created!.EndDate);
         Assert.Equal(ginasioLocal.Id, created.TrainingPlanId);
         Assert.Equal(ginasioLocal.MonthlyPrice, created.MonthlyPrice); // cobrança integral, sem pro-rata
+
+        // FR-027: a matrícula fechada preserva o Treinador de origem (histórico);
+        // só a matrícula nova pertence ao Treinador de destino.
+        Assert.Equal(trainerA.Id, closed.TrainerId);
+        Assert.Equal(trainerB.Id, created.TrainerId);
+    }
+
+    [Fact]
+    public async Task TransferPokemonAsync_DoesNotRewriteTrainerId_OfPastEnrollments()
+    {
+        // FR-027: transferir o Pokémon não deve reescrever o Treinador
+        // histórico de nenhuma matrícula já existente, ativa ou encerrada.
+        var (db, sut, trainerA, ginasioLocal, _) = await ArrangeAsync();
+        var trainerB = new Trainer { Name = "Misty", Email = "misty3@example.com", City = "Cerulean City" };
+        db.Trainers.Add(trainerB);
+        var pokemon = new Pokemon { Name = "Psyduck", Type = PokemonType.Water, Level = 20, TrainerId = trainerA.Id };
+        db.Pokemons.Add(pokemon);
+        await db.SaveChangesAsync();
+
+        var original = await sut.CreateEnrollmentAsync(pokemon.Id, ginasioLocal.Id);
+        await sut.TransferPokemonAsync(pokemon.Id, trainerB.Id);
+
+        var reloaded = await db.Enrollments.AsNoTracking().FirstAsync(e => e.Id == original.Id);
+        Assert.Equal(trainerA.Id, reloaded.TrainerId);
     }
 
     [Fact]
