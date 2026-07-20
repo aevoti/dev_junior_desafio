@@ -203,7 +203,7 @@ pós-implementação") para o diagnóstico técnico completo de cada item.
 
 ### Backend
 
-- [ ] T059 [P] Corrigir a granularidade do status derivado para instante
+- [X] T059 [P] Corrigir a granularidade do status derivado para instante
   exato (FR-020) em `Enrollment.IsActive`
   (`backend/src/PokemonTrainingCenter.Domain/Entities/Enrollment.cs`),
   `EnrollmentResponse.ResolveStatus`
@@ -213,66 +213,66 @@ pós-implementação") para o diagnóstico técnico completo de cada item.
   (`EnsureNoActiveEnrollmentAsync`, `TransferPokemonAsync`) — trocar
   `EndDate.Value.Date >= DateTime.UtcNow.Date` por `EndDate >=
   DateTime.UtcNow`
-- [ ] T060 [US4] Atualizar `CancelEnrollmentAsync` (FR-012) para gravar
+- [X] T060 [US4] Atualizar `CancelEnrollmentAsync` (FR-012) para gravar
   `EndDate` como o fim do dia (UTC) do ciclo pago vigente, não o instante
   exato do ciclo, em
   `backend/src/PokemonTrainingCenter.Domain/Services/EnrollmentService.cs`
   (depende de T059)
-- [ ] T061 [P] Simplificar/remover o workaround `OrderByDescending(StartDate)`
+- [X] T061 [P] Simplificar/remover o workaround `OrderByDescending(StartDate)`
   e seu comentário em `TransferPokemonAsync`
   (`backend/src/PokemonTrainingCenter.Domain/Services/EnrollmentService.cs`)
   — a ambiguidade que o motivava deixa de existir após T059 (depende de T059)
-- [ ] T062 [P] Adicionar `TrainerName` denormalizado a `PokemonResponse`
+- [X] T062 [P] Adicionar `TrainerName` denormalizado a `PokemonResponse`
   (contracts/api.md, Session 2026-07-20) em
   `backend/src/PokemonTrainingCenter.Api/Contracts/PokemonResponse.cs` e no
   `PokemonsController` (`GET`/`POST`)
-- [ ] T063 [P] Adicionar validação de formato de e-mail (FR-024) no backend
+- [X] T063 [P] Adicionar validação de formato de e-mail (FR-024) no backend
   — rejeitar e-mail sem TLD de 2+ caracteres — em
   `backend/src/PokemonTrainingCenter.Api/Controllers/TrainersController.cs`
   (defesa em profundidade; a validação client-side de T068 pode ser
   contornada)
-- [ ] T064 [P] [US5] Corrigir `database/consulta-mrr.sql` para usar
+- [X] T064 [P] [US5] Corrigir `database/consulta-mrr.sql` para usar
   `GETUTCDATE()` (em vez de `GETDATE()`) e comparação por instante,
   consistente com T059 — corrige contagem duplicada de receita no dia de um
   upgrade/transferência
 
 ### Frontend
 
-- [ ] T065 [P] Declarar `provideZonelessChangeDetection()` explicitamente em
+- [X] T065 [P] Declarar `provideZonelessChangeDetection()` explicitamente em
   `frontend/src/app/app.config.ts`
-- [ ] T066 [US3] Migrar o estado de `enrollments-list` (`enrollments`,
+- [X] T066 [US3] Migrar o estado de `enrollments-list` (`enrollments`,
   `loading`) para `signal()` em
   `frontend/src/app/enrollments/enrollments-list/enrollments-list.ts` —
   corrige a listagem não aparecer até interação (depende de T065)
-- [ ] T067 [P] Criar um validador de e-mail customizado (exige TLD de 2+
+- [X] T067 [P] Criar um validador de e-mail customizado (exige TLD de 2+
   caracteres — FR-024) e usá-lo em `trainer-form` em
   `frontend/src/app/trainers/trainer-form/trainer-form.ts`
-- [ ] T068 [US6] Criar o componente de listagem de Treinadores (sem filtro —
+- [X] T068 [US6] Criar o componente de listagem de Treinadores (sem filtro —
   FR-025) em `frontend/src/app/trainers/trainers-list/trainers-list.ts`
   (depende de T065)
-- [ ] T069 [US6] Criar o componente de listagem de Pokémons (sem filtro,
+- [X] T069 [US6] Criar o componente de listagem de Pokémons (sem filtro,
   exibindo `trainerName` — FR-026) em
   `frontend/src/app/pokemons/pokemons-list/pokemons-list.ts` (depende de
   T062, T065)
-- [ ] T070 [US6] Atualizar `frontend/src/app/app.routes.ts` com as rotas das
+- [X] T070 [US6] Atualizar `frontend/src/app/app.routes.ts` com as rotas das
   2 novas listagens (`/treinadores`, `/pokemons`) e mover as rotas de
   formulário para caminhos filhos (`/treinadores/novo`, `/pokemons/novo`
   já existem — sem mudança de path, só de origem de navegação)
-- [ ] T071 [US6] Trocar `output()` por navegação via `Router` para a
+- [X] T071 [US6] Trocar `output()` por navegação via `Router` para a
   listagem correspondente ao concluir com sucesso (FR-023), com mensagem de
   confirmação exibida na listagem via router state, nos 3 formulários:
   `frontend/src/app/enrollment-form/enrollment-form.ts`,
   `frontend/src/app/trainers/trainer-form/trainer-form.ts`,
   `frontend/src/app/pokemons/pokemon-form/pokemon-form.ts` (depende de
   T068, T069)
-- [ ] T072 [US6] Exibir o alerta de sucesso vindo do router state nas 3
+- [X] T072 [US6] Exibir o alerta de sucesso vindo do router state nas 3
   listagens (`enrollments-list`, `trainers-list`, `pokemons-list`) (depende
   de T071)
-- [ ] T073 [US6] Reorganizar o menu superior em `frontend/src/app/app.html`
+- [X] T073 [US6] Reorganizar o menu superior em `frontend/src/app/app.html`
   para linkar as 3 listagens (Matrículas, Treinadores, Pokémons); cada
   listagem ganha um botão "+ Novo" que leva ao formulário correspondente
   (depende de T068, T069)
-- [ ] T074 [P] Exibir `startDate`/`endDate` convertidos para o fuso horário
+- [X] T074 [P] Exibir `startDate`/`endDate` convertidos para o fuso horário
   local do navegador (não UTC cru) na listagem de matrículas — nenhuma tela
   hoje exibe essas datas — em
   `frontend/src/app/enrollments/enrollments-list/enrollments-list.html`
