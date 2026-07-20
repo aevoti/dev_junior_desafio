@@ -36,8 +36,8 @@ public class PokemonsController : ControllerBase
             return BadRequest(new { message = "Tipo de Pokémon inválido." });
         }
 
-        var trainerExists = await _db.Trainers.AnyAsync(t => t.Id == request.TrainerId);
-        if (!trainerExists)
+        var trainer = await _db.Trainers.FirstOrDefaultAsync(t => t.Id == request.TrainerId);
+        if (trainer is null)
         {
             return NotFound(new { message = "Treinador não encontrado." });
         }
@@ -47,7 +47,8 @@ public class PokemonsController : ControllerBase
             Name = request.Name,
             Type = type,
             Level = request.Level,
-            TrainerId = request.TrainerId
+            TrainerId = request.TrainerId,
+            Trainer = trainer
         };
 
         _db.Pokemons.Add(pokemon);
@@ -61,6 +62,7 @@ public class PokemonsController : ControllerBase
     public async Task<ActionResult<IEnumerable<PokemonResponse>>> GetAll()
     {
         var pokemons = await _db.Pokemons
+            .Include(p => p.Trainer)
             .OrderBy(p => p.Name)
             .ToListAsync();
 
@@ -76,5 +78,5 @@ public class PokemonsController : ControllerBase
     }
 
     private static PokemonResponse ToResponse(Pokemon pokemon) =>
-        new(pokemon.Id, pokemon.Name, pokemon.Type.ToString(), pokemon.Level, pokemon.TrainerId);
+        new(pokemon.Id, pokemon.Name, pokemon.Type.ToString(), pokemon.Level, pokemon.TrainerId, pokemon.Trainer!.Name);
 }
