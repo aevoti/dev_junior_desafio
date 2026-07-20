@@ -1,0 +1,128 @@
+.stat-card-link {
+    color: inherit;
+    text-decoration: none;
+}
+
+.stat-card-link:hover {
+    color: inherit;
+}
+
+.stat-card-icon.warning {
+    color: #d97706;
+    background: #fef3c7;
+}
+
+.app-card-header small {
+    display: block;
+    margin-top: 3px;
+    color: var(--app-muted);
+    font-size: 12px;
+}
+
+.quick-access-card {
+    height: 100%;
+}
+
+.quick-access-card .app-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.quick-access-item {
+    padding: 14px;
+
+    display: flex;
+    align-items: center;
+    gap: 13px;
+
+    color: var(--app-text);
+    background: var(--app-background);
+
+    border: 1px solid transparent;
+    border-radius: var(--app-radius-md);
+
+    text-decoration: none;
+
+    transition:
+        border-color 0.2s ease,
+        background-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.quick-access-item:hover {
+    color: var(--app-text);
+    background: var(--app-surface);
+    transform: translateX(3px);
+}
+
+.quick-access-item>div {
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 12px;
+    font-size: 18px;
+}
+
+.quick-access-item span {
+    display: flex;
+    flex-direction: column;
+}
+
+.quick-access-item strong {
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.quick-access-item small {
+    margin-top: 2px;
+    color: var(--app-muted);
+    font-size: 12px;
+}
+
+.quick-access-item.trainer>div {
+    color: var(--app-trainer);
+    background: var(--app-trainer-light);
+}
+
+.quick-access-item.trainer:hover {
+    border-color: #bfdbfe;
+}
+
+.quick-access-item.pokemon>div {
+    color: var(--app-pokemon);
+    background: var(--app-pokemon-light);
+}
+
+.quick-access-item.pokemon:hover {
+    border-color: #a7f3d0;
+}
+
+.quick-access-item.primary>div {
+    color: var(--app-primary);
+    background: var(--app-primary-light);
+}
+
+.quick-access-item.primary:hover {
+    border-color: #fecaca;
+}
+
+.quick-access-item.warning>div {
+    color: #d97706;
+    background: #fef3c7;
+}
+
+.quick-access-item.warning:hover {
+    border-color: #fde68a;
+}
+
+@media (max-width: 768px) {
+    .page-header {
+        align-items: stretch;
+    }
+}
