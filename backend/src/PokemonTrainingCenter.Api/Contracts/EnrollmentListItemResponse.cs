@@ -15,7 +15,9 @@ public record EnrollmentListItemResponse(
     public static EnrollmentListItemResponse From(Enrollment enrollment) => new(
         enrollment.Id,
         enrollment.Pokemon!.Name,
-        enrollment.Pokemon!.Trainer!.Name,
+        // FR-027: Treinador associado à matrícula (snapshot no momento da
+        // criação), não o dono atual do Pokémon — ver Enrollment.TrainerId.
+        enrollment.Trainer!.Name,
         enrollment.TrainingPlan!.Name,
         enrollment.StartDate,
         enrollment.EndDate,

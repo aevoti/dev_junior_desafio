@@ -39,6 +39,8 @@ public class EnrollmentService
         {
             PokemonId = pokemon.Id,
             TrainingPlanId = plan.Id,
+            // FR-027: snapshot do dono atual do Pokémon — nunca reescrito depois.
+            TrainerId = pokemon.TrainerId,
             StartDate = DateTime.UtcNow,
             EndDate = null,
             MonthlyPrice = plan.MonthlyPrice
@@ -93,6 +95,8 @@ public class EnrollmentService
         {
             PokemonId = enrollment.PokemonId,
             TrainingPlanId = newPlan.Id,
+            // FR-027: dono não muda em um upgrade — mesmo TrainerId da matrícula anterior.
+            TrainerId = enrollment.TrainerId,
             StartDate = upgradeDate,
             EndDate = null,
             MonthlyPrice = newPlan.MonthlyPrice
@@ -196,6 +200,10 @@ public class EnrollmentService
             {
                 PokemonId = pokemon.Id,
                 TrainingPlanId = activeEnrollment.TrainingPlanId,
+                // FR-027: a matrícula NOVA passa a pertencer ao Treinador de
+                // destino; a matrícula FECHADA (activeEnrollment) mantém seu
+                // TrainerId original — nunca é reescrito aqui.
+                TrainerId = newTrainerId,
                 StartDate = transferDate,
                 EndDate = null,
                 MonthlyPrice = activeEnrollment.MonthlyPrice

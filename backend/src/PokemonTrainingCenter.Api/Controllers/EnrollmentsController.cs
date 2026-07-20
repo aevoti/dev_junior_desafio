@@ -26,7 +26,8 @@ public class EnrollmentsController : ControllerBase
         [FromQuery] string? search, [FromQuery] string? status)
     {
         var enrollments = await _db.Enrollments
-            .Include(e => e.Pokemon!).ThenInclude(p => p.Trainer)
+            .Include(e => e.Pokemon!)
+            .Include(e => e.Trainer)
             .Include(e => e.TrainingPlan)
             .OrderByDescending(e => e.StartDate)
             .ToListAsync();
@@ -36,9 +37,11 @@ public class EnrollmentsController : ControllerBase
         if (!string.IsNullOrWhiteSpace(search))
         {
             var normalizedSearch = NormalizeForSearch(search);
+            // FR-016/FR-027: busca pelo Treinador associado à matrícula
+            // (snapshot no momento da criação), não o dono atual do Pokémon.
             filtered = filtered.Where(e =>
                 NormalizeForSearch(e.Pokemon!.Name).Contains(normalizedSearch) ||
-                NormalizeForSearch(e.Pokemon!.Trainer!.Name).Contains(normalizedSearch));
+                NormalizeForSearch(e.Trainer!.Name).Contains(normalizedSearch));
         }
 
         if (!string.IsNullOrWhiteSpace(status))
