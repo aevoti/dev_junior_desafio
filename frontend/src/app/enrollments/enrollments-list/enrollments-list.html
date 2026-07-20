@@ -1,4 +1,11 @@
-<h2 class="h5 mb-3">Matrículas</h2>
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2 class="h5 mb-0">Matrículas</h2>
+  <a routerLink="/matriculas/nova" class="btn btn-primary btn-sm">+ Novo</a>
+</div>
+
+@if (successMessage()) {
+  <div class="alert alert-success" role="alert">{{ successMessage() }}</div>
+}
 
 @if (errorMessage()) {
   <div class="alert alert-danger" role="alert">{{ errorMessage() }}</div>
@@ -35,6 +42,8 @@
         <th>Treinador</th>
         <th>Plano</th>
         <th>Valor mensal</th>
+        <th>Início</th>
+        <th>Término</th>
         <th>Status</th>
         <th></th>
       </tr>
@@ -46,6 +55,8 @@
           <td>{{ enrollment.trainerName }}</td>
           <td>{{ enrollment.trainingPlanName }}</td>
           <td>R$ {{ enrollment.monthlyPrice.toFixed(2) }}</td>
+          <td>{{ enrollment.startDate | date: 'dd/MM/yyyy HH:mm' }}</td>
+          <td>{{ enrollment.endDate ? (enrollment.endDate | date: 'dd/MM/yyyy HH:mm') : '—' }}</td>
           <td>
             <span
               class="badge"

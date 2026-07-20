@@ -1,7 +1,8 @@
-import { Component, OnInit, inject, output, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 
-import { POKEMON_TYPES, Pokemon } from '../../shared/models/pokemon.model';
+import { POKEMON_TYPES } from '../../shared/models/pokemon.model';
 import { Trainer } from '../../shared/models/trainer.model';
 import { PokemonApiService } from '../../shared/services/pokemon-api.service';
 import { TrainerApiService } from '../../shared/services/trainer-api.service';
@@ -16,8 +17,8 @@ export class PokemonForm implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly pokemonApi = inject(PokemonApiService);
   private readonly trainerApi = inject(TrainerApiService);
+  private readonly router = inject(Router);
 
-  readonly created = output<Pokemon>();
   readonly pokemonTypes = POKEMON_TYPES;
 
   // signal(), não campos soltos — ver enrollments-list.ts/app.config.ts.
@@ -50,10 +51,10 @@ export class PokemonForm implements OnInit {
     this.pokemonApi
       .create({ name: value.name, type: value.type, level: value.level, trainerId: value.trainerId! })
       .subscribe({
-        next: (pokemon) => {
+        // FR-023: confirmação de sucesso + redirecionamento para a listagem.
+        next: () => {
           this.submitting.set(false);
-          this.form.reset({ level: 1 });
-          this.created.emit(pokemon);
+          this.router.navigate(['/pokemons'], { state: { successMessage: 'Pokémon cadastrado com sucesso.' } });
         },
         error: (err: Error) => {
           this.submitting.set(false);

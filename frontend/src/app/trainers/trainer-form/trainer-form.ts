@@ -1,7 +1,7 @@
-import { Component, inject, output, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 
-import { Trainer } from '../../shared/models/trainer.model';
 import { TrainerApiService } from '../../shared/services/trainer-api.service';
 import { emailWithTldValidator } from '../../shared/validators/email-with-tld.validator';
 
@@ -14,8 +14,7 @@ import { emailWithTldValidator } from '../../shared/validators/email-with-tld.va
 export class TrainerForm {
   private readonly fb = inject(FormBuilder);
   private readonly trainerApi = inject(TrainerApiService);
-
-  readonly created = output<Trainer>();
+  private readonly router = inject(Router);
 
   // signal(), não campos soltos — ver enrollments-list.ts/app.config.ts.
   readonly errorMessage = signal<string | null>(null);
@@ -37,10 +36,10 @@ export class TrainerForm {
     this.submitting.set(true);
 
     this.trainerApi.create(this.form.getRawValue()).subscribe({
-      next: (trainer) => {
+      // FR-023: confirmação de sucesso + redirecionamento para a listagem.
+      next: () => {
         this.submitting.set(false);
-        this.form.reset();
-        this.created.emit(trainer);
+        this.router.navigate(['/treinadores'], { state: { successMessage: 'Treinador cadastrado com sucesso.' } });
       },
       error: (err: Error) => {
         this.submitting.set(false);

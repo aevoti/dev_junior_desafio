@@ -1,6 +1,7 @@
+import { DatePipe } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { debounceTime, startWith, switchMap } from 'rxjs';
 
 import { Enrollment, ENROLLMENT_STATUS_LABELS, EnrollmentStatus } from '../../shared/models/enrollment.model';
@@ -8,12 +9,13 @@ import { EnrollmentApiService } from '../../shared/services/enrollment-api.servi
 
 @Component({
   selector: 'app-enrollments-list',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, DatePipe],
   templateUrl: './enrollments-list.html',
   styleUrl: './enrollments-list.css',
 })
 export class EnrollmentsList implements OnInit {
   private readonly enrollmentApi = inject(EnrollmentApiService);
+  private readonly router = inject(Router);
 
   readonly statusLabels = ENROLLMENT_STATUS_LABELS;
   readonly searchControl = new FormControl('', { nonNullable: true });
@@ -26,6 +28,10 @@ export class EnrollmentsList implements OnInit {
   readonly enrollments = signal<Enrollment[]>([]);
   readonly loading = signal(false);
   readonly errorMessage = signal<string | null>(null);
+  // FR-023: mensagem de sucesso vinda do redirecionamento pós-cadastro (router state).
+  readonly successMessage = signal<string | null>(
+    (this.router.getCurrentNavigation()?.extras.state as { successMessage?: string } | undefined)?.successMessage ?? null
+  );
 
   ngOnInit(): void {
     this.searchControl.valueChanges

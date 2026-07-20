@@ -1,7 +1,7 @@
-import { Component, OnInit, computed, inject, output, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 
-import { Enrollment } from '../shared/models/enrollment.model';
 import { Pokemon } from '../shared/models/pokemon.model';
 import { TrainingPlan } from '../shared/models/training-plan.model';
 import { EnrollmentApiService } from '../shared/services/enrollment-api.service';
@@ -22,8 +22,7 @@ export class EnrollmentForm implements OnInit {
   private readonly enrollmentApi = inject(EnrollmentApiService);
   private readonly pokemonApi = inject(PokemonApiService);
   private readonly trainingPlanApi = inject(TrainingPlanApiService);
-
-  readonly created = output<Enrollment>();
+  private readonly router = inject(Router);
 
   // signal(), não campos soltos — em change detection zoneless, mutações de
   // campo dentro de .subscribe() não disparam re-render sozinhas (ver
@@ -76,10 +75,10 @@ export class EnrollmentForm implements OnInit {
     this.enrollmentApi
       .create({ pokemonId: value.pokemonId!, trainingPlanId: value.trainingPlanId! })
       .subscribe({
-        next: (enrollment) => {
+        // FR-023: confirmação de sucesso + redirecionamento para a listagem.
+        next: () => {
           this.submitting.set(false);
-          this.form.reset();
-          this.created.emit(enrollment);
+          this.router.navigate(['/matriculas'], { state: { successMessage: 'Matrícula criada com sucesso.' } });
         },
         // R1 (matrícula duplicada) e R3 (nível mínimo) chegam aqui como mensagem amigável já em português.
         error: (err: Error) => {
