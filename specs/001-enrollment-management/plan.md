@@ -156,9 +156,10 @@ frontend/
         │   ├── pokemon-form/       # Cadastro de Pokémon (US1)
         │   ├── pokemon-transfer/   # Transferência de Pokémon (US4)
         │   └── pokemons-list/      # Listagem de Pokémons, sem filtro (US6)
-        ├── enrollments/            # Listagem + busca + filtro por status (US3)
-        ├── enrollment-form/        # Nova matrícula (US1)
-        ├── enrollment-upgrade/     # Fluxo de upgrade com preview do valor pro-rata (US2)
+        ├── enrollments/
+        │   ├── enrollment-form/     # Nova matrícula (US1)
+        │   ├── enrollment-upgrade/  # Fluxo de upgrade com preview do valor pro-rata (US2)
+        │   └── enrollments-list/    # Listagem + busca + filtro por status (US3)
         ├── shared/
         │   ├── models/             # Interfaces TS espelhando os DTOs da API
         │   └── services/           # TrainerApiService, PokemonApiService, EnrollmentApiService
@@ -309,3 +310,15 @@ Discutido também, mas **não implementado nesta rodada**: um endpoint de
 de R1 bloquear novas matrículas para o Pokémon até o cancelamento se
 consolidar. Registrado em "Melhorias futuras" do README em vez de
 implementado agora, para não expandir o escopo desta correção pontual.
+
+## Nota de revisão pós-implementação (2026-07-20, parte 4 — reorganização de pastas)
+
+`enrollment-form/` e `enrollment-upgrade/` viviam soltos em
+`frontend/src/app/`, como irmãos de `enrollments/` (que continha só
+`enrollments-list/`) — inconsistente com `trainers/` e `pokemons/`, que já
+agrupam form + listagem (+ transferência, no caso de Pokémon) sob uma única
+pasta por domínio. Reorganizado para o mesmo padrão: os três componentes de
+matrícula (form, upgrade, listagem) agora vivem sob `enrollments/`. Mudança
+puramente estrutural (sem impacto em rotas ou comportamento) — alinhada com
+o critério de "organização de componentes" citado no `DESAFIO.md` (o
+enunciado não avalia beleza visual, mas avalia isso explicitamente).
