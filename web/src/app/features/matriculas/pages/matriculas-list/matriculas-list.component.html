@@ -49,23 +49,33 @@
           <td>{{ matricula.valorMensal | currency: 'BRL' }}</td>
           <td>{{ matricula.dataInicio | date: 'dd/MM/yyyy' }}</td>
           <td>
-            <div class="row-actions" *ngIf="matricula.status === 'Ativa'">
-              <button
-                class="btn btn-secondary btn-sm"
-                type="button"
-                [disabled]="!planosSuperiores(matricula).length"
-                [title]="!planosSuperiores(matricula).length ? 'Já está no plano mais alto' : ''"
-                (click)="abrirUpgrade(matricula)"
-              >
-                Upgrade
-              </button>
+            <div class="row-actions">
+              <ng-container *ngIf="matricula.status === 'Ativa'">
+                <button
+                  class="btn btn-secondary btn-sm"
+                  type="button"
+                  [disabled]="!planosSuperiores(matricula).length"
+                  [title]="!planosSuperiores(matricula).length ? 'Já está no plano mais alto' : ''"
+                  (click)="abrirUpgrade(matricula)"
+                >
+                  Upgrade
+                </button>
+                <button
+                  class="btn btn-ghost btn-sm"
+                  type="button"
+                  [disabled]="cancelandoId === matricula.id"
+                  (click)="cancelar(matricula)"
+                >
+                  {{ cancelandoId === matricula.id ? 'Cancelando...' : 'Cancelar' }}
+                </button>
+              </ng-container>
               <button
                 class="btn btn-ghost btn-sm"
                 type="button"
-                [disabled]="cancelandoId === matricula.id"
-                (click)="cancelar(matricula)"
+                [disabled]="!treinadorAtualId(matricula)"
+                (click)="abrirTransferencia(matricula)"
               >
-                {{ cancelandoId === matricula.id ? 'Cancelando...' : 'Cancelar' }}
+                Transferir
               </button>
             </div>
           </td>
@@ -82,5 +92,14 @@
     [planosDisponiveis]="planosSuperiores(matricula)"
     (fechado)="matriculaEmUpgrade = null"
     (confirmado)="onUpgradeConfirmado()"
+  />
+
+  <app-transferir-modal
+    *ngIf="matriculaEmTransferencia as matricula"
+    [pokemonId]="matricula.pokemonId"
+    [pokemonNome]="matricula.pokemonNome"
+    [treinadorAtualId]="treinadorAtualId(matricula)!"
+    (fechado)="matriculaEmTransferencia = null"
+    (confirmado)="onTransferenciaConfirmada()"
   />
 </section>

@@ -61,6 +61,8 @@ web/src/app/
 ### Opção rápida: `setup.sh`
 
 ```bash
+# Dar permissão de execução ao script
+chmod +x setup.sh
 bash setup.sh
 ```
 
@@ -71,11 +73,13 @@ Pré-requisitos: Docker Desktop com virtualização habilitada.
 ### Passo a passo manual
 
 **1. Banco + API (Docker):**
+
 ```bash
 docker compose up -d --build sqlserver api
 ```
 
 **2. Aplicar schema e seed:**
+
 ```bash
 docker exec -i pkm-sqlserver /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "YourStrong!Passw0rd" -C < db/schema.sql
 docker exec -i pkm-sqlserver /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "YourStrong!Passw0rd" -C < db/seed.sql
@@ -84,14 +88,17 @@ docker exec -i pkm-sqlserver /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P
 API disponível em `http://localhost:5000` (Swagger em `/swagger`).
 
 **3. Frontend:**
+
 ```bash
 cd web
 npm install
 npm start
 ```
+
 Acesse `http://localhost:4200`. `environment.ts` já aponta para `http://localhost:5000/api`.
 
 **4. Rodar a API fora do Docker** (alternativa ao passo 1, se preferir `dotnet run` local com um SQL Server já disponível em `localhost:1433`):
+
 ```bash
 cd api
 dotnet restore && dotnet build
@@ -99,6 +106,7 @@ dotnet run --project src/PokemonTrainingCenter.Api
 ```
 
 **5. Testes de unidade:**
+
 ```bash
 cd api
 dotnet test
@@ -149,11 +157,9 @@ Documentação interativa completa em `http://localhost:5000/swagger`. Resumo:
 
 - Telas dedicadas no Angular para criar Treinador e Pokémon (hoje só existem os endpoints na API — `POST /treinadores` e `POST /pokemons` — sem UI, já que o enunciado só pedia as telas de matrícula).
 - Uma tela/confirmação para a transferência de Pokémon (R5) — hoje só testável via API/Swagger.
-- Testes de integração da API (`WebApplicationFactory` contra um SQL Server real ou in-memory) e testes de componente no Angular (Karma/Jasmine ou migração pra Vitest). Hoje só existem os 15 testes de unidade do `MatriculaService`.
-- Um pipeline de CI (GitHub/GitLab Actions) rodando `dotnet test`, `ng build` e o **build de produção do Docker** a cada push. Esse último item não é hipotético: o build de produção do `web/` (nginx) só foi validado manualmente numa revisão posterior, e só aí apareceram dois bugs reais (API inacessível por falta de proxy no nginx, e rotas do Angular quebrando em acesso direto) — um CI teria pego isso automaticamente, sem depender de alguém lembrar de testar aquele caminho.
-- Healthcheck no `sqlserver` do `docker-compose.yml` (com `depends_on: condition: service_healthy`), em vez do polling manual que o `setup.sh` faz hoje — mais robusto que só esperar o container "iniciar".
+- Testes de integração da API (`WebApplicationFactory`) Hoje só existem os 15 testes de unidade do `MatriculaService`.
+- Um pipeline de CI (GitHub/GitLab Actions) rodando `dotnet test`, `ng build` e o **build de produção do Docker** a cada push.
 - Paginação na listagem de matrículas.
-- Modelar ciclos de cobrança recorrentes de verdade (hoje o pro-rata assume um único ciclo fixo de 30 dias a partir do início da matrícula; não há lógica de renovação mensal automática).
 - EF Core Migrations em vez de `schema.sql` aplicado manualmente (mantive SQL puro porque é item explícito do desafio).
 - Autenticação/autorização (a API está aberta; fora de escopo pro desafio, mas seria o próximo passo em um sistema real).
 
