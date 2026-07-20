@@ -68,7 +68,7 @@
             </span>
           </td>
           <td class="text-nowrap">
-            @if (enrollment.status !== 'Ended') {
+            @if (enrollment.status === 'Active') {
               <a [routerLink]="['/matriculas', enrollment.id, 'upgrade']" class="btn btn-sm btn-outline-primary me-1">
                 Upgrade
               </a>
