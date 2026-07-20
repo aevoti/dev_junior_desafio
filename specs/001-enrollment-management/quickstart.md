@@ -94,6 +94,10 @@ em `spec.md`.
    no SQL Server contra os dados criados nos passos acima. Confirme que a
    soma por plano considera apenas matrículas ativas e que existe uma linha
    de Total Geral, mesmo que algum plano não tenha nenhuma matrícula ativa.
+   > Se for rodar via `sqlcmd` manualmente (fora do EF Core, que já configura
+   > isso automaticamente), inclua `SET QUOTED_IDENTIFIER ON;` antes de
+   > qualquer `INSERT`/`DELETE` na tabela `Enrollments` — é exigido pelo
+   > índice único filtrado (`UX_Enrollment_PokemonId_Open`).
 
 Se todos os 9 cenários passarem, a feature está pronta para revisão de
 código antes da entrega.

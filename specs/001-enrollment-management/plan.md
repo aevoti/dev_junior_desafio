@@ -134,10 +134,14 @@ backend/
 │   ├── PokemonTrainingCenter.Domain/
 │   │   ├── Entities/          # Trainer, Pokemon, TrainingPlan, Enrollment
 │   │   ├── Enums/             # PokemonType (18 valores fixos)
+│   │   ├── Exceptions/        # DomainValidationException (mensagem + status code)
+│   │   ├── Persistence/       # AppDbContext (movido de Infrastructure — ver nota abaixo)
 │   │   └── Services/          # EnrollmentService (R1-R5), BillingCycleCalculator (R2)
 │   └── PokemonTrainingCenter.Infrastructure/
-│       ├── Persistence/       # AppDbContext, EF Core configurations
-│       └── Migrations/        # EF Core migrations (origem do database/schema.sql)
+│       └── Migrations/        # EF Core migrations (origem do database/schema.sql);
+│                               # MigrationsAssembly configurado explicitamente no
+│                               # Program.cs para apontar aqui, já que o AppDbContext
+│                               # mora no assembly do Domain
 └── tests/
     ├── PokemonTrainingCenter.UnitTests/     # R1-R5 e BillingCycleCalculator (obrigatório)
     └── PokemonTrainingCenter.IntegrationTests/ # Testes de API ponta a ponta (se o tempo permitir)
@@ -160,6 +164,18 @@ database/
 ├── schema.sql             # Exportado de `dotnet ef migrations script`
 └── consulta-mrr.sql       # SQL puro, sem ORM
 ```
+
+**Nota de implementação (correção de arquitetura)**: o desenho original
+colocava `AppDbContext` em `Infrastructure`, mas isso criaria uma referência
+circular assim que `EnrollmentService` (em `Domain`) precisasse consultar o
+banco — `Infrastructure` já referencia `Domain` para usar as entidades. O
+`AppDbContext` foi movido para `Domain/Persistence/`, que passou a
+referenciar `Microsoft.EntityFrameworkCore` e `Microsoft.EntityFrameworkCore.Relational`
+diretamente (pacotes agnósticos de provedor — não acoplam o Domain ao SQL
+Server especificamente). As Migrations continuam fisicamente em
+`Infrastructure/Migrations` (que mantém o pacote `Microsoft.EntityFrameworkCore.SqlServer`),
+com o assembly de destino configurado explicitamente via
+`MigrationsAssembly("PokemonTrainingCenter.Infrastructure")` no `Program.cs`.
 
 **Structure Decision**: Web application de dois projetos (`backend/`,
 `frontend/`) mais `database/` para os scripts SQL — exatamente o layout que

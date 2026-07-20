@@ -1,0 +1,45 @@
+<form [formGroup]="form" (ngSubmit)="submit()" class="mb-4">
+  <h2 class="h5">Cadastrar Treinador</h2>
+
+  @if (errorMessage) {
+    <div class="alert alert-danger" role="alert">{{ errorMessage }}</div>
+  }
+
+  <div class="mb-2">
+    <label for="trainer-name" class="form-label">Nome</label>
+    <input
+      id="trainer-name"
+      type="text"
+      class="form-control"
+      formControlName="name"
+      [class.is-invalid]="form.controls.name.invalid && form.controls.name.touched"
+    />
+    <div class="invalid-feedback">O nome é obrigatório.</div>
+  </div>
+
+  <div class="mb-2">
+    <label for="trainer-email" class="form-label">E-mail</label>
+    <input
+      id="trainer-email"
+      type="email"
+      class="form-control"
+      formControlName="email"
+      [class.is-invalid]="form.controls.email.invalid && form.controls.email.touched"
+    />
+    <div class="invalid-feedback">Informe um e-mail válido.</div>
+  </div>
+
+  <div class="mb-3">
+    <label for="trainer-city" class="form-label">Cidade de origem</label>
+    <input
+      id="trainer-city"
+      type="text"
+      class="form-control"
+      formControlName="city"
+      [class.is-invalid]="form.controls.city.invalid && form.controls.city.touched"
+    />
+    <div class="invalid-feedback">A cidade é obrigatória.</div>
+  </div>
+
+  <button type="submit" class="btn btn-primary" [disabled]="submitting">Cadastrar</button>
+</form>

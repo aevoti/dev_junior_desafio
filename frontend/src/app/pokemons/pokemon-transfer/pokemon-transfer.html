@@ -1,0 +1,52 @@
+<form [formGroup]="form" (ngSubmit)="submit()" class="mb-4">
+  <h2 class="h5">Transferir Pokémon</h2>
+
+  @if (errorMessage) {
+    <div class="alert alert-danger" role="alert">{{ errorMessage }}</div>
+  }
+
+  @if (result) {
+    <div class="alert alert-success" role="alert">
+      Pokémon transferido com sucesso.
+      @if (result.newEnrollmentId) {
+        Uma nova matrícula (nº {{ result.newEnrollmentId }}) foi criada automaticamente para o novo Treinador.
+      } @else {
+        Este Pokémon não tinha matrícula ativa — nenhuma matrícula foi criada.
+      }
+    </div>
+  }
+
+  <div class="mb-2">
+    <label for="transfer-pokemon" class="form-label">Pokémon</label>
+    <select
+      id="transfer-pokemon"
+      class="form-select"
+      formControlName="pokemonId"
+      [class.is-invalid]="form.controls.pokemonId.invalid && form.controls.pokemonId.touched"
+    >
+      <option [value]="null" disabled>Selecione um Pokémon</option>
+      @for (pokemon of pokemons; track pokemon.id) {
+        <option [value]="pokemon.id">{{ pokemon.name }}</option>
+      }
+    </select>
+    <div class="invalid-feedback">Selecione um Pokémon.</div>
+  </div>
+
+  <div class="mb-3">
+    <label for="transfer-trainer" class="form-label">Novo Treinador</label>
+    <select
+      id="transfer-trainer"
+      class="form-select"
+      formControlName="newTrainerId"
+      [class.is-invalid]="form.controls.newTrainerId.invalid && form.controls.newTrainerId.touched"
+    >
+      <option [value]="null" disabled>Selecione o Treinador de destino</option>
+      @for (trainer of trainers; track trainer.id) {
+        <option [value]="trainer.id">{{ trainer.name }}</option>
+      }
+    </select>
+    <div class="invalid-feedback">Selecione o Treinador de destino.</div>
+  </div>
+
+  <button type="submit" class="btn btn-primary" [disabled]="submitting">Transferir</button>
+</form>

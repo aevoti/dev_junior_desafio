@@ -40,12 +40,12 @@ Layout fixado em `plan.md` (Web application):
 
 **Purpose**: inicialização dos projetos e ferramentas, sem lógica de negócio ainda.
 
-- [ ] T001 Criar a estrutura de diretórios raiz: `backend/src/`, `backend/tests/`, `frontend/`, `database/` conforme `plan.md` (Project Structure)
-- [ ] T002 Inicializar a solution .NET e os 5 projetos (`PokemonTrainingCenter.Api`, `.Domain`, `.Infrastructure`, `.UnitTests`, `.IntegrationTests`) com referências entre projetos e pacotes NuGet (`Microsoft.EntityFrameworkCore.SqlServer`, `xunit`) em `backend/` — `.IntegrationTests` é opcional/stretch (plan.md Technical Context > Testing); só popule com testes reais se sobrar tempo após a Fase 7
-- [ ] T003 [P] Inicializar o workspace Angular (standalone components) em `frontend/`
-- [ ] T004 [P] Adicionar Bootstrap ao frontend (`npm install bootstrap`; importar em `frontend/src/styles.css` ou `angular.json`) — research.md item 6
-- [ ] T005 [P] Criar `docker-compose.yml` na raiz com um único serviço de SQL Server — research.md item 8
-- [ ] T006 [P] Configurar a connection string em `backend/src/PokemonTrainingCenter.Api/appsettings.json` apontando para o container do `docker-compose.yml`
+- [X] T001 Criar a estrutura de diretórios raiz: `backend/src/`, `backend/tests/`, `frontend/`, `database/` conforme `plan.md` (Project Structure)
+- [X] T002 Inicializar a solution .NET e os 5 projetos (`PokemonTrainingCenter.Api`, `.Domain`, `.Infrastructure`, `.UnitTests`, `.IntegrationTests`) com referências entre projetos e pacotes NuGet (`Microsoft.EntityFrameworkCore.SqlServer`, `xunit`) em `backend/` — `.IntegrationTests` é opcional/stretch (plan.md Technical Context > Testing); só popule com testes reais se sobrar tempo após a Fase 7
+- [X] T003 [P] Inicializar o workspace Angular (standalone components) em `frontend/`
+- [X] T004 [P] Adicionar Bootstrap ao frontend (`npm install bootstrap`; importar em `frontend/src/styles.css` ou `angular.json`) — research.md item 6
+- [X] T005 [P] Criar `docker-compose.yml` na raiz com um único serviço de SQL Server — research.md item 8
+- [X] T006 [P] Configurar a connection string em `backend/src/PokemonTrainingCenter.Api/appsettings.json` apontando para o container do `docker-compose.yml`
 
 **Checkpoint**: projetos criados e compilando vazios; `docker compose up -d db` sobe o banco.
 
@@ -57,20 +57,20 @@ Layout fixado em `plan.md` (Web application):
 
 **⚠️ CRITICAL**: nenhuma user story pode começar antes desta fase estar completa.
 
-- [ ] T007 [P] Criar o enum `PokemonType` (18 valores fixos — FR-022) em `backend/src/PokemonTrainingCenter.Domain/Enums/PokemonType.cs`
-- [ ] T008 [P] Criar a entidade `Trainer` (FR-001) em `backend/src/PokemonTrainingCenter.Domain/Entities/Trainer.cs`
-- [ ] T009 [P] Criar a entidade `Pokemon` (FR-003) em `backend/src/PokemonTrainingCenter.Domain/Entities/Pokemon.cs`
-- [ ] T010 [P] Criar a entidade `TrainingPlan` em `backend/src/PokemonTrainingCenter.Domain/Entities/TrainingPlan.cs`
-- [ ] T011 [P] Criar a entidade `Enrollment` (data-model.md) em `backend/src/PokemonTrainingCenter.Domain/Entities/Enrollment.cs`
-- [ ] T012 Criar `AppDbContext` com Fluent API: índice único `Trainer.Email`, `CHECK` em `Pokemon.Level` (1-100) e `Pokemon.Type` (lista fixa), índice único filtrado `Enrollment(PokemonId) WHERE EndDate IS NULL` (research.md item 5) em `backend/src/PokemonTrainingCenter.Infrastructure/Persistence/AppDbContext.cs` (depende de T007-T011)
-- [ ] T013 Popular os 3 `TrainingPlan` fixos via `HasData` (Ginásio Local R$50, Liga Regional R$120, Elite dos 4 R$300 — data-model.md) em `backend/src/PokemonTrainingCenter.Infrastructure/Persistence/AppDbContext.cs` (depende de T012)
-- [ ] T014 Gerar a migration inicial do EF Core e exportar `database/schema.sql` via `dotnet ef migrations script` (research.md item 2) (depende de T013)
-- [ ] T015 Configurar `Program.cs` (injeção de dependência, `AppDbContext`, CORS para o dev server do Angular, controllers) em `backend/src/PokemonTrainingCenter.Api/Program.cs` (depende de T012)
-- [ ] T016 [P] Criar middleware global de tratamento de exceções retornando `{ "message": "..." }` em português (contracts/api.md) em `backend/src/PokemonTrainingCenter.Api/Middleware/ErrorHandlingMiddleware.cs`
-- [ ] T017 [P] Implementar `TrainingPlansController` (`GET /api/training-plans`) em `backend/src/PokemonTrainingCenter.Api/Controllers/TrainingPlansController.cs` (depende de T013, T015)
-- [ ] T018 [P] Criar os modelos TypeScript compartilhados (`Trainer`, `Pokemon`, `TrainingPlan`, `Enrollment`) em `frontend/src/app/shared/models/`
-- [ ] T019 [P] Criar interceptor HTTP que traduz respostas de erro da API em mensagens amigáveis em `frontend/src/app/core/error-handling/error.interceptor.ts`
-- [ ] T020 [P] Configurar o esqueleto de rotas do Angular em `frontend/src/app/app.routes.ts`
+- [X] T007 [P] Criar o enum `PokemonType` (18 valores fixos — FR-022) em `backend/src/PokemonTrainingCenter.Domain/Enums/PokemonType.cs`
+- [X] T008 [P] Criar a entidade `Trainer` (FR-001) em `backend/src/PokemonTrainingCenter.Domain/Entities/Trainer.cs`
+- [X] T009 [P] Criar a entidade `Pokemon` (FR-003) em `backend/src/PokemonTrainingCenter.Domain/Entities/Pokemon.cs`
+- [X] T010 [P] Criar a entidade `TrainingPlan` em `backend/src/PokemonTrainingCenter.Domain/Entities/TrainingPlan.cs`
+- [X] T011 [P] Criar a entidade `Enrollment` (data-model.md) em `backend/src/PokemonTrainingCenter.Domain/Entities/Enrollment.cs`
+- [X] T012 Criar `AppDbContext` com Fluent API: índice único `Trainer.Email`, `CHECK` em `Pokemon.Level` (1-100) e `Pokemon.Type` (lista fixa), índice único filtrado `Enrollment(PokemonId) WHERE EndDate IS NULL` (research.md item 5) em `backend/src/PokemonTrainingCenter.Infrastructure/Persistence/AppDbContext.cs` (depende de T007-T011)
+- [X] T013 Popular os 3 `TrainingPlan` fixos via `HasData` (Ginásio Local R$50, Liga Regional R$120, Elite dos 4 R$300 — data-model.md) em `backend/src/PokemonTrainingCenter.Infrastructure/Persistence/AppDbContext.cs` (depende de T012)
+- [X] T014 Gerar a migration inicial do EF Core e exportar `database/schema.sql` via `dotnet ef migrations script` (research.md item 2) (depende de T013)
+- [X] T015 Configurar `Program.cs` (injeção de dependência, `AppDbContext`, CORS para o dev server do Angular, controllers) em `backend/src/PokemonTrainingCenter.Api/Program.cs` (depende de T012)
+- [X] T016 [P] Criar middleware global de tratamento de exceções retornando `{ "message": "..." }` em português (contracts/api.md) em `backend/src/PokemonTrainingCenter.Api/Middleware/ErrorHandlingMiddleware.cs`
+- [X] T017 [P] Implementar `TrainingPlansController` (`GET /api/training-plans`) em `backend/src/PokemonTrainingCenter.Api/Controllers/TrainingPlansController.cs` (depende de T013, T015)
+- [X] T018 [P] Criar os modelos TypeScript compartilhados (`Trainer`, `Pokemon`, `TrainingPlan`, `Enrollment`) em `frontend/src/app/shared/models/`
+- [X] T019 [P] Criar interceptor HTTP que traduz respostas de erro da API em mensagens amigáveis em `frontend/src/app/core/error-handling/error.interceptor.ts`
+- [X] T020 [P] Configurar o esqueleto de rotas do Angular em `frontend/src/app/app.routes.ts`
 
 **Checkpoint**: banco criado com schema e seed; `GET /api/training-plans` retorna os 3 planos; frontend com modelos e interceptor prontos para as telas.
 
@@ -84,22 +84,22 @@ Layout fixado em `plan.md` (Web application):
 
 ### Tests for User Story 1 (OBRIGATÓRIO — Princípio I da constituição) ⚠️
 
-- [ ] T021 [P] [US1] Testes unitários de `EnrollmentService.CreateEnrollment` cobrindo: R1 (matrícula duplicada rejeitada, incluindo o caso de borda em que `EndDate` é igual a hoje — ainda deve contar como ativa, spec.md Edge Cases); R3 (nível <50 rejeitado, nível=50 aceito); FR-004 (nível fora de 1-100 rejeitado); e FR-014 (matrícula com `EndDate` no passado não bloqueia nova matrícula) em `backend/tests/PokemonTrainingCenter.UnitTests/EnrollmentServiceTests.cs`
+- [X] T021 [P] [US1] Testes unitários de `EnrollmentService.CreateEnrollment` cobrindo: R1 (matrícula duplicada rejeitada, incluindo o caso de borda em que `EndDate` é igual a hoje — ainda deve contar como ativa, spec.md Edge Cases); R3 (nível <50 rejeitado, nível=50 aceito, planos não-Elite aceitam qualquer nível); e FR-014 (matrícula com `EndDate` no passado não bloqueia nova matrícula) em `backend/tests/PokemonTrainingCenter.UnitTests/EnrollmentServiceTests.cs` — **nota de implementação**: FR-004 (nível 1-100) foi movido para a validação de criação do Pokémon (T023/PokemonsController + `CK_Pokemon_Level` no schema), já que não é uma regra do `EnrollmentService`
 
 ### Implementation for User Story 1
 
-- [ ] T022 [P] [US1] Implementar `TrainersController` (`POST`, `GET /api/trainers`) — FR-001, FR-002 em `backend/src/PokemonTrainingCenter.Api/Controllers/TrainersController.cs` (depende de T015)
-- [ ] T023 [P] [US1] Implementar `PokemonsController` (`POST`, `GET /api/pokemons`) — FR-003, FR-004, FR-022 em `backend/src/PokemonTrainingCenter.Api/Controllers/PokemonsController.cs` (depende de T015)
-- [ ] T024 [US1] Implementar `EnrollmentService.CreateEnrollment` — FR-005, FR-006, FR-007 em `backend/src/PokemonTrainingCenter.Domain/Services/EnrollmentService.cs` (depende de T008-T011)
-- [ ] T025 [US1] Implementar `EnrollmentsController` (`POST /api/enrollments`) em `backend/src/PokemonTrainingCenter.Api/Controllers/EnrollmentsController.cs` (depende de T024)
-- [ ] T026 [P] [US1] Criar `TrainerApiService` em `frontend/src/app/shared/services/trainer-api.service.ts` (depende de T018)
-- [ ] T027 [P] [US1] Criar `PokemonApiService` em `frontend/src/app/shared/services/pokemon-api.service.ts` (depende de T018)
-- [ ] T028 [P] [US1] Criar `TrainingPlanApiService` em `frontend/src/app/shared/services/training-plan-api.service.ts` (depende de T018)
-- [ ] T029 [P] [US1] Criar `EnrollmentApiService` (criar/listar) em `frontend/src/app/shared/services/enrollment-api.service.ts` (depende de T018)
-- [ ] T030 [US1] Criar o componente de cadastro de Treinador em `frontend/src/app/trainers/trainer-form/trainer-form.component.ts` (depende de T026)
-- [ ] T031 [US1] Criar o componente de cadastro de Pokémon com validação de nível 1-100 e tipo fixo em `frontend/src/app/pokemons/pokemon-form/pokemon-form.component.ts` (depende de T027, T028)
-- [ ] T032 [US1] Criar o componente de nova matrícula (seleção de Pokémon + Plano, validações de campos obrigatórios e nível mínimo Elite dos 4 — FR-018) em `frontend/src/app/enrollment-form/enrollment-form.component.ts` (depende de T029)
-- [ ] T033 [US1] Conectar a exibição amigável (alerta Bootstrap) dos erros de R1/R3 em `frontend/src/app/enrollment-form/enrollment-form.component.ts` (depende de T032, T019)
+- [X] T022 [P] [US1] Implementar `TrainersController` (`POST`, `GET /api/trainers`) — FR-001, FR-002 em `backend/src/PokemonTrainingCenter.Api/Controllers/TrainersController.cs` (depende de T015)
+- [X] T023 [P] [US1] Implementar `PokemonsController` (`POST`, `GET /api/pokemons`) — FR-003, FR-004, FR-022 em `backend/src/PokemonTrainingCenter.Api/Controllers/PokemonsController.cs` (depende de T015)
+- [X] T024 [US1] Implementar `EnrollmentService.CreateEnrollment` — FR-005, FR-006, FR-007 em `backend/src/PokemonTrainingCenter.Domain/Services/EnrollmentService.cs` (depende de T008-T011)
+- [X] T025 [US1] Implementar `EnrollmentsController` (`POST /api/enrollments`) em `backend/src/PokemonTrainingCenter.Api/Controllers/EnrollmentsController.cs` (depende de T024)
+- [X] T026 [P] [US1] Criar `TrainerApiService` em `frontend/src/app/shared/services/trainer-api.service.ts` (depende de T018)
+- [X] T027 [P] [US1] Criar `PokemonApiService` em `frontend/src/app/shared/services/pokemon-api.service.ts` (depende de T018)
+- [X] T028 [P] [US1] Criar `TrainingPlanApiService` em `frontend/src/app/shared/services/training-plan-api.service.ts` (depende de T018)
+- [X] T029 [P] [US1] Criar `EnrollmentApiService` (criar/listar) em `frontend/src/app/shared/services/enrollment-api.service.ts` (depende de T018)
+- [X] T030 [US1] Criar o componente de cadastro de Treinador em `frontend/src/app/trainers/trainer-form/trainer-form.ts` (depende de T026) — nomenclatura de arquivo sem sufixo `.component` (convenção do Angular CLI 22, `ng generate` atual)
+- [X] T031 [US1] Criar o componente de cadastro de Pokémon com validação de nível 1-100 e tipo fixo em `frontend/src/app/pokemons/pokemon-form/pokemon-form.ts` (depende de T027, T028)
+- [X] T032 [US1] Criar o componente de nova matrícula (seleção de Pokémon + Plano, validações de campos obrigatórios e nível mínimo Elite dos 4 — FR-018) em `frontend/src/app/enrollment-form/enrollment-form.ts` (depende de T029)
+- [X] T033 [US1] Conectar a exibição amigável (alerta Bootstrap) dos erros de R1/R3 em `frontend/src/app/enrollment-form/enrollment-form.ts` (depende de T032, T019)
 
 **Checkpoint**: User Story 1 completa e testável de ponta a ponta — MVP alcançado.
 
@@ -113,17 +113,17 @@ Layout fixado em `plan.md` (Web application):
 
 ### Tests for User Story 2 (OBRIGATÓRIO — Princípio I da constituição) ⚠️
 
-- [ ] T034 [P] [US2] Testes unitários de `BillingCycleCalculator` cobrindo: o exemplo do enunciado (dia 16 de um ciclo de 30 dias → R$ 35,00); upgrade no primeiro dia do ciclo (dias restantes = ciclo inteiro) e no último dia do ciclo (dias restantes ≈ 0); ciclos iniciados nos dias 29-31; e arredondamento (0,5 para cima) — spec.md SC-002 e Edge Cases; constituição Princípio I ("ciclo com 0 ou 30 dias restantes, upgrade no mesmo dia") em `backend/tests/PokemonTrainingCenter.UnitTests/BillingCycleCalculatorTests.cs`
-- [ ] T035 [P] [US2] Testes unitários de upgrade em `EnrollmentService` cobrindo: downgrade rejeitado (FR-011); nível mínimo Elite dos 4 em upgrade (R3); e a transição de `ConfirmUpgrade` (FR-010) — matrícula antiga com `EndDate` = data do upgrade, nova matrícula ativa criada no plano correto — em `backend/tests/PokemonTrainingCenter.UnitTests/EnrollmentServiceTests.cs`
+- [X] T034 [P] [US2] Testes unitários de `BillingCycleCalculator` cobrindo: o exemplo do enunciado (dia 16 de um ciclo de 30 dias → R$ 35,00); upgrade no primeiro dia do ciclo (dias restantes = ciclo inteiro) e no último dia do ciclo (dias restantes ≈ 0); ciclos iniciados nos dias 29-31; e arredondamento (0,5 para cima) — spec.md SC-002 e Edge Cases; constituição Princípio I ("ciclo com 0 ou 30 dias restantes, upgrade no mesmo dia") em `backend/tests/PokemonTrainingCenter.UnitTests/BillingCycleCalculatorTests.cs`
+- [X] T035 [P] [US2] Testes unitários de upgrade em `EnrollmentService` cobrindo: downgrade rejeitado (FR-011); nível mínimo Elite dos 4 em upgrade (R3); e a transição de `ConfirmUpgrade` (FR-010) — matrícula antiga com `EndDate` = data do upgrade, nova matrícula ativa criada no plano correto — em `backend/tests/PokemonTrainingCenter.UnitTests/EnrollmentServiceTests.cs`
 
 ### Implementation for User Story 2
 
-- [ ] T036 [US2] Implementar `BillingCycleCalculator` (ciclo via `DateTime.AddMonths` com clamp de fim de mês, arredondamento para 2 casas — FR-021, FR-009) em `backend/src/PokemonTrainingCenter.Domain/Services/BillingCycleCalculator.cs`
-- [ ] T037 [US2] Implementar `EnrollmentService.PreviewUpgrade` — FR-009, FR-011 em `backend/src/PokemonTrainingCenter.Domain/Services/EnrollmentService.cs` (depende de T036, T024)
-- [ ] T038 [US2] Implementar `EnrollmentService.ConfirmUpgrade` — FR-010 em `backend/src/PokemonTrainingCenter.Domain/Services/EnrollmentService.cs` (depende de T037)
-- [ ] T039 [US2] Implementar `EnrollmentsController` (`POST /upgrade/preview`, `POST /upgrade/confirm`) em `backend/src/PokemonTrainingCenter.Api/Controllers/EnrollmentsController.cs` (depende de T038)
-- [ ] T040 [US2] Criar o componente de upgrade com preview do valor antes de confirmar (US2, cenário 1) em `frontend/src/app/enrollment-upgrade/enrollment-upgrade.component.ts` (depende de T029)
-- [ ] T041 [US2] Conectar a confirmação do upgrade e o erro amigável de downgrade/nível mínimo em `frontend/src/app/enrollment-upgrade/enrollment-upgrade.component.ts` (depende de T040, T019, T039)
+- [X] T036 [US2] Implementar `BillingCycleCalculator` (ciclo via `DateTime.AddMonths` com clamp de fim de mês, arredondamento para 2 casas — FR-021, FR-009) em `backend/src/PokemonTrainingCenter.Domain/Services/BillingCycleCalculator.cs`
+- [X] T037 [US2] Implementar `EnrollmentService.PreviewUpgrade` — FR-009, FR-011 em `backend/src/PokemonTrainingCenter.Domain/Services/EnrollmentService.cs` (depende de T036, T024)
+- [X] T038 [US2] Implementar `EnrollmentService.ConfirmUpgrade` — FR-010 em `backend/src/PokemonTrainingCenter.Domain/Services/EnrollmentService.cs` (depende de T037)
+- [X] T039 [US2] Implementar `EnrollmentsController` (`POST /upgrade/preview`, `POST /upgrade/confirm`) em `backend/src/PokemonTrainingCenter.Api/Controllers/EnrollmentsController.cs` (depende de T038)
+- [X] T040 [US2] Criar o componente de upgrade com preview do valor antes de confirmar (US2, cenário 1) em `frontend/src/app/enrollment-upgrade/enrollment-upgrade.ts` (depende de T029)
+- [X] T041 [US2] Conectar a confirmação do upgrade e o erro amigável de downgrade/nível mínimo em `frontend/src/app/enrollment-upgrade/enrollment-upgrade.ts` (depende de T040, T019, T039)
 
 **Checkpoint**: US1 + US2 funcionando juntas — fluxo de upgrade completo com pro-rata.
 
@@ -139,10 +139,10 @@ Layout fixado em `plan.md` (Web application):
 
 *(sem testes obrigatórios pela constituição — cobertura recomendada em T058, Fase de Polish)*
 
-- [ ] T042 [US3] Adicionar o campo calculado `status` (`Active`/`EndingSoon`/`Ended` — FR-020) ao DTO de resposta de Enrollment em `backend/src/PokemonTrainingCenter.Api/Contracts/EnrollmentResponse.cs`
-- [ ] T043 [US3] Implementar `EnrollmentsController` (`GET /api/enrollments?search=&status=`) com busca case/accent-insensitive e filtro por status — FR-016, FR-017 em `backend/src/PokemonTrainingCenter.Api/Controllers/EnrollmentsController.cs` (depende de T025, T042)
-- [ ] T044 [US3] Criar o componente de listagem de matrículas (tabela Bootstrap, busca, filtro por status, com os códigos de status da API traduzidos para os rótulos em português — `Active`→"Ativa", `EndingSoon`→"A encerrar", `Ended`→"Encerrada") em `frontend/src/app/enrollments/enrollments-list.component.ts` (depende de T029)
-- [ ] T045 [US3] Adicionar mensagem de "nenhum resultado" para busca vazia (US3, cenário 4) em `frontend/src/app/enrollments/enrollments-list.component.ts` (depende de T044)
+- [X] T042 [US3] Adicionar o campo calculado `status` (`Active`/`EndingSoon`/`Ended` — FR-020) ao DTO de resposta de Enrollment em `backend/src/PokemonTrainingCenter.Api/Contracts/EnrollmentResponse.cs`
+- [X] T043 [US3] Implementar `EnrollmentsController` (`GET /api/enrollments?search=&status=`) com busca case/accent-insensitive e filtro por status — FR-016, FR-017 em `backend/src/PokemonTrainingCenter.Api/Controllers/EnrollmentsController.cs` (depende de T025, T042) — busca normalizada em memória (remoção de diacríticos), não traduzida para SQL, para funcionar de forma idêntica em qualquer provider do EF Core
+- [X] T044 [US3] Criar o componente de listagem de matrículas (tabela Bootstrap, busca, filtro por status, com os códigos de status da API traduzidos para os rótulos em português — `Active`→"Ativa", `EndingSoon`→"A encerrar", `Ended`→"Encerrada") em `frontend/src/app/enrollments/enrollments-list/enrollments-list.ts` (depende de T029)
+- [X] T045 [US3] Adicionar mensagem de "nenhum resultado" para busca vazia (US3, cenário 4) em `frontend/src/app/enrollments/enrollments-list/enrollments-list.ts` (depende de T044)
 
 **Checkpoint**: as 3 telas mínimas exigidas pelo enunciado já existem e funcionam (listagem, formulário, upgrade).
 
@@ -156,16 +156,16 @@ Layout fixado em `plan.md` (Web application):
 
 ### Tests for User Story 4 (recomendado)
 
-- [ ] T046 [P] [US4] Testes unitários de cancelamento (R4) e de transferência com recriação automática, incluindo Pokémon sem matrícula ativa (R5) em `backend/tests/PokemonTrainingCenter.UnitTests/EnrollmentServiceTests.cs`
+- [X] T046 [P] [US4] Testes unitários de cancelamento (R4) e de transferência com recriação automática, incluindo Pokémon sem matrícula ativa (R5) em `backend/tests/PokemonTrainingCenter.UnitTests/EnrollmentServiceTests.cs`
 
 ### Implementation for User Story 4
 
-- [ ] T047 [US4] Implementar `EnrollmentService.CancelEnrollment` — FR-012 em `backend/src/PokemonTrainingCenter.Domain/Services/EnrollmentService.cs` (depende de T024, T036)
-- [ ] T048 [US4] Implementar `EnrollmentsController` (`POST /api/enrollments/{id}/cancel`) em `backend/src/PokemonTrainingCenter.Api/Controllers/EnrollmentsController.cs` (depende de T047)
-- [ ] T049 [US4] Implementar `EnrollmentService.TransferPokemon` — FR-015 em `backend/src/PokemonTrainingCenter.Domain/Services/EnrollmentService.cs` (depende de T024)
-- [ ] T050 [US4] Implementar `PokemonsController` (`POST /api/pokemons/{id}/transfer`) em `backend/src/PokemonTrainingCenter.Api/Controllers/PokemonsController.cs` (depende de T049)
-- [ ] T051 [US4] Adicionar ação de cancelamento (com aviso de "sem estorno") na listagem de matrículas em `frontend/src/app/enrollments/enrollments-list.component.ts` (depende de T044, T048)
-- [ ] T052 [US4] Criar o componente de transferência de Pokémon (seleção de novo Treinador) em `frontend/src/app/pokemons/pokemon-transfer/pokemon-transfer.component.ts` (depende de T050, T026)
+- [X] T047 [US4] Implementar `EnrollmentService.CancelEnrollment` — FR-012 em `backend/src/PokemonTrainingCenter.Domain/Services/EnrollmentService.cs` (depende de T024, T036)
+- [X] T048 [US4] Implementar `EnrollmentsController` (`POST /api/enrollments/{id}/cancel`) em `backend/src/PokemonTrainingCenter.Api/Controllers/EnrollmentsController.cs` (depende de T047)
+- [X] T049 [US4] Implementar `EnrollmentService.TransferPokemon` — FR-015 em `backend/src/PokemonTrainingCenter.Domain/Services/EnrollmentService.cs` (depende de T024)
+- [X] T050 [US4] Implementar `PokemonsController` (`POST /api/pokemons/{id}/transfer`) em `backend/src/PokemonTrainingCenter.Api/Controllers/PokemonsController.cs` (depende de T049)
+- [X] T051 [US4] Adicionar ação de cancelamento (com aviso de "sem estorno") na listagem de matrículas em `frontend/src/app/enrollments/enrollments-list/enrollments-list.ts` (depende de T044, T048)
+- [X] T052 [US4] Criar o componente de transferência de Pokémon (seleção de novo Treinador) em `frontend/src/app/pokemons/pokemon-transfer/pokemon-transfer.ts` (depende de T050, T026)
 
 **Checkpoint**: todas as regras de negócio (R1-R5) implementadas e utilizáveis pela UI.
 
@@ -177,7 +177,7 @@ Layout fixado em `plan.md` (Web application):
 
 **Independent Test**: rodar `database/consulta-mrr.sql` contra os dados criados nas fases anteriores e conferir que a soma por plano considera só matrículas ativas, e que a linha de Total Geral aparece mesmo com R$ 0,00.
 
-- [ ] T053 [US5] Escrever `database/consulta-mrr.sql` em T-SQL puro, sem ORM, usando `GROUPING SETS` (ou `UNION ALL`) para a linha de Total Geral sempre presente — FR-019, research.md item 3; validar manualmente contra o cenário 9 de `quickstart.md`
+- [X] T053 [US5] Escrever `database/consulta-mrr.sql` em T-SQL puro, sem ORM, usando `GROUPING SETS` (ou `UNION ALL`) para a linha de Total Geral sempre presente — FR-019, research.md item 3; validar manualmente contra o cenário 9 de `quickstart.md` — **validado de ponta a ponta contra o container real** (banco vazio → só Total Geral R$0; dados seed → Ginásio Local R$50 + Elite dos 4 R$600 + Total R$650, com a matrícula encerrada corretamente excluída; índice único filtrado confirmado rejeitando uma segunda matrícula aberta para o mesmo Pokémon)
 
 **Checkpoint**: os dois entregáveis SQL do desafio (`schema.sql`, `consulta-mrr.sql`) existem e foram validados manualmente.
 
@@ -187,11 +187,11 @@ Layout fixado em `plan.md` (Web application):
 
 **Purpose**: melhorias que afetam múltiplas user stories, e as obrigações contínuas de documentação da constituição.
 
-- [ ] T054 [P] Adicionar comentários de documentação (XML doc, em inglês — Princípio II) aos métodos públicos de `EnrollmentService` e `BillingCycleCalculator` em `backend/src/PokemonTrainingCenter.Domain/Services/`
-- [ ] T055 [P] Revisar a clareza em português de todas as mensagens de erro voltadas ao usuário final nos Controllers em `backend/src/PokemonTrainingCenter.Api/Controllers/`
-- [ ] T056 [P] Rodar manualmente os 9 cenários de `quickstart.md` e registrar o resultado
-- [ ] T057 Atualizar `README.md` (Instruções de execução, "O que precisei corrigir/reescrever", Melhorias futuras — Princípios III e V) com o que realmente aconteceu durante a implementação
-- [ ] T058 [P] Testes de busca (case/accent-insensitive) e filtro por status para `EnrollmentsController.GET` (FR-016, FR-017, US3) em `backend/tests/PokemonTrainingCenter.UnitTests/EnrollmentQueryTests.cs`
+- [X] T054 [P] Adicionar comentários de documentação (XML doc, em inglês — Princípio II) aos métodos públicos de `EnrollmentService` e `BillingCycleCalculator` em `backend/src/PokemonTrainingCenter.Domain/Services/` — corrigidos 4 docs que eu tinha escrito em português por engano
+- [X] T055 [P] Revisar a clareza em português de todas as mensagens de erro voltadas ao usuário final nos Controllers em `backend/src/PokemonTrainingCenter.Api/Controllers/`
+- [X] T056 [P] Rodar manualmente os 9 cenários de `quickstart.md` e registrar o resultado — **rodados de ponta a ponta contra a API + banco reais** (não só testes automatizados). Cenários 1-7 e 9 passaram de primeira. O cenário 8 (transferência) revelou um **bug real**: `TransferPokemonAsync` buscava "a matrícula ativa do Pokémon" sem ordenar por `StartDate`, então no mesmo dia de um upgrade anterior podia pegar a matrícula antiga (já superada, mas ainda "ativa" pela regra de granularidade por data do FR-020) em vez da nova — violando o índice único ao tentar reabri-la. Corrigido com `OrderByDescending(StartDate)`; teste de regressão adicionado; revalidado com sucesso contra a API real
+- [X] T057 Atualizar `README.md` (Instruções de execução, "O que precisei corrigir/reescrever", Melhorias futuras — Princípios III e V) com o que realmente aconteceu durante a implementação
+- [X] T058 [P] Testes de busca (case/accent-insensitive) e filtro por status para `EnrollmentsController.GET` (FR-016, FR-017, US3) em `backend/tests/PokemonTrainingCenter.UnitTests/EnrollmentQueryTests.cs`
 
 ---
 

@@ -1,0 +1,22 @@
+# .NET
+backend/**/bin/
+backend/**/obj/
+*.user
+*.suo
+*.pdb
+
+# Node / Angular (frontend has its own .gitignore; these are a defensive backstop)
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+
+# Environment / secrets
+*.env
+.env.local
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log
