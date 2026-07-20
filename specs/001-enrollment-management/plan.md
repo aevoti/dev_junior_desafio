@@ -115,7 +115,7 @@ specs/001-enrollment-management/
 │   └── api.md
 ├── checklists/
 │   └── requirements.md
-└── tasks.md              # Fase 2 (/speckit-tasks, ainda não gerado)
+└── tasks.md              # Fase 2 (/speckit-tasks)
 ```
 
 ### Source Code (repository root)
@@ -128,6 +128,7 @@ backend/
 │   ├── PokemonTrainingCenter.Api/
 │   │   ├── Controllers/       # TrainersController, PokemonsController, EnrollmentsController, TrainingPlansController
 │   │   ├── Contracts/         # DTOs de request/response (ver contracts/api.md)
+│   │   ├── Middleware/        # ErrorHandlingMiddleware (mensagens de erro em português)
 │   │   ├── Program.cs
 │   │   └── appsettings.json
 │   ├── PokemonTrainingCenter.Domain/
@@ -144,6 +145,8 @@ backend/
 frontend/
 └── src/
     └── app/
+        ├── trainers/               # Cadastro de Treinador (US1)
+        ├── pokemons/               # Cadastro e transferência de Pokémon (US1, US4)
         ├── enrollments/            # Listagem + busca + filtro por status (US3)
         ├── enrollment-form/        # Nova matrícula (US1)
         ├── enrollment-upgrade/     # Fluxo de upgrade com preview do valor pro-rata (US2)
