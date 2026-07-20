@@ -144,3 +144,60 @@ GO
 COMMIT;
 GO
 
+BEGIN TRANSACTION;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260720190209_AddEnrollmentTrainerSnapshot'
+)
+BEGIN
+    ALTER TABLE [Enrollments] ADD [TrainerId] int NOT NULL DEFAULT 0;
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260720190209_AddEnrollmentTrainerSnapshot'
+)
+BEGIN
+
+                    UPDATE e
+                    SET e.TrainerId = p.TrainerId
+                    FROM [Enrollments] e
+                    INNER JOIN [Pokemons] p ON p.Id = e.PokemonId;
+                
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260720190209_AddEnrollmentTrainerSnapshot'
+)
+BEGIN
+    CREATE INDEX [IX_Enrollments_TrainerId] ON [Enrollments] ([TrainerId]);
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260720190209_AddEnrollmentTrainerSnapshot'
+)
+BEGIN
+    ALTER TABLE [Enrollments] ADD CONSTRAINT [FK_Enrollments_Trainers_TrainerId] FOREIGN KEY ([TrainerId]) REFERENCES [Trainers] ([Id]) ON DELETE NO ACTION;
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260720190209_AddEnrollmentTrainerSnapshot'
+)
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'20260720190209_AddEnrollmentTrainerSnapshot', N'8.0.11');
+END;
+GO
+
+COMMIT;
+GO
+

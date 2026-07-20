@@ -104,6 +104,15 @@ public class AppDbContext : DbContext
                 .HasForeignKey(e => e.TrainingPlanId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // FR-027: snapshot do dono do Pokémon no momento da criação da
+            // matrícula — sem coleção inversa em Trainer, já que nada no
+            // domínio precisa navegar de Trainer para as matrículas que ele
+            // já teve historicamente.
+            entity.HasOne(e => e.Trainer)
+                .WithMany()
+                .HasForeignKey(e => e.TrainerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             entity.HasIndex(e => e.PokemonId);
 
             // Defense in depth for R1 under concurrent requests (research.md item 5):

@@ -15,6 +15,16 @@ public class Enrollment
     public int TrainingPlanId { get; set; }
     public TrainingPlan? TrainingPlan { get; set; }
 
+    /// <summary>
+    /// Snapshot of the Trainer who owned the Pokémon when this enrollment
+    /// was created (FR-027). Unlike <see cref="Entities.Pokemon.TrainerId"/>,
+    /// this never changes — a later transfer (R5) updates the Pokémon's
+    /// current owner but must not rewrite the owner recorded on existing
+    /// enrollments, active or ended.
+    /// </summary>
+    public int TrainerId { get; set; }
+    public Trainer? Trainer { get; set; }
+
     public DateTime StartDate { get; set; }
     public DateTime? EndDate { get; set; }
 
