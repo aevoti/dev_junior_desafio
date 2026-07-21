@@ -21,14 +21,12 @@ export class EnrollmentsList implements OnInit {
   readonly searchControl = new FormControl('', { nonNullable: true });
   readonly statusControl = new FormControl<EnrollmentStatus | ''>('', { nonNullable: true });
 
-  // signal(), não campos soltos: em change detection zoneless (ver
-  // app.config.ts), só signals/eventos DOM já rastreados pelo Angular
-  // disparam re-render sozinhos — um campo mutado dentro de .subscribe()
-  // ficava "invisível" até o usuário clicar em algo na tela.
+  // em change detection zoneless (ver app.config.ts), usamos signals, não campos soltos
   readonly enrollments = signal<Enrollment[]>([]);
   readonly loading = signal(false);
   readonly errorMessage = signal<string | null>(null);
-  // FR-023: mensagem de sucesso vinda do redirecionamento pós-cadastro (router state).
+  // pega a mensagem de sucesso que a tela anterior possa ter mandado durante o redirecionamento
+  // (ver this.router.navigate no enrollment-form.ts)
   readonly successMessage = signal<string | null>(
     (this.router.getCurrentNavigation()?.extras.state as { successMessage?: string } | undefined)?.successMessage ?? null
   );
@@ -36,11 +34,12 @@ export class EnrollmentsList implements OnInit {
   ngOnInit(): void {
     this.searchControl.valueChanges
       .pipe(
+        // faz uma primeira emissão com uma string vazia ('') para disparar a busca inicial
         startWith(this.searchControl.value),
         debounceTime(300),
         switchMap((search) => this.fetch(search, this.statusControl.value))
       )
-      .subscribe();
+      .subscribe(); // garante que o Observable do fetch() seja disparado
 
     this.statusControl.valueChanges
       .pipe(switchMap((status) => this.fetch(this.searchControl.value, status)))
@@ -66,8 +65,6 @@ export class EnrollmentsList implements OnInit {
   private fetch(search: string, status: EnrollmentStatus | '') {
     this.loading.set(true);
     return this.enrollmentApi.list(search || undefined, status || undefined).pipe(
-      // Atualiza a lista assim que a resposta chega; erros já viram alerta amigável via interceptor.
-      // (mantido simples: sem tratamento de erro dedicado nesta tela de listagem)
       switchMap((enrollments) => {
         this.enrollments.set(enrollments);
         this.loading.set(false);

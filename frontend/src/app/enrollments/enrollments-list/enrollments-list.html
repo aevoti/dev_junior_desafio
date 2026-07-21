@@ -72,8 +72,6 @@
               <a [routerLink]="['/matriculas', enrollment.id, 'upgrade']" class="btn btn-sm btn-outline-primary me-1">
                 Upgrade
               </a>
-            }
-            @if (enrollment.status === 'Active') {
               <button type="button" class="btn btn-sm btn-outline-danger" (click)="cancel(enrollment)">
                 Cancelar
               </button>

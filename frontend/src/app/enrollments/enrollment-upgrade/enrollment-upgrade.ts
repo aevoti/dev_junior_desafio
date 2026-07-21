@@ -27,7 +27,8 @@ export class EnrollmentUpgrade implements OnInit {
   readonly errorMessage = signal<string | null>(null);
   readonly submitting = signal(false);
 
-  /** Preenchido após "Calcular" (US2, cenário 1) — só confirma depois de ver o valor. */
+  // null é o estado inicial. Quando o usuário calcula a prévia, esse signal
+  // passa a guardar o objeto de resposta da API (com os valores)
   readonly preview = signal<UpgradePreviewResponse | null>(null);
 
   readonly form = this.fb.nonNullable.group({

@@ -24,9 +24,7 @@ export class EnrollmentForm implements OnInit {
   private readonly trainingPlanApi = inject(TrainingPlanApiService);
   private readonly router = inject(Router);
 
-  // signal(), não campos soltos — em change detection zoneless, mutações de
-  // campo dentro de .subscribe() não disparam re-render sozinhas (ver
-  // app.config.ts e enrollments-list.ts).
+  // signal(), não campos soltos (change detection zoneless)
   readonly pokemons = signal<Pokemon[]>([]);
   readonly trainingPlans = signal<TrainingPlan[]>([]);
   readonly errorMessage = signal<string | null>(null);
@@ -40,7 +38,10 @@ export class EnrollmentForm implements OnInit {
   private readonly selectedPokemonId = signal<number | null>(null);
   private readonly selectedTrainingPlanId = signal<number | null>(null);
 
-  /** Validação de R3 (FR-018) no cliente, antes mesmo de submeter ao backend. */
+  // computed() é um signal cujo valor é derivado de outros signals
+  // aqui, visa validar se o nível do pokémon é suficiente para o plano
+  // (se for elite dos 4) sem precisar submeter ao backend. recalcula
+  // sempre os signals de que depende mudarem
   readonly eliteDosQuatroWarning = computed(() => {
     const pokemon = this.pokemons().find((p) => p.id === this.selectedPokemonId());
     const plan = this.trainingPlans().find((p) => p.id === this.selectedTrainingPlanId());
@@ -58,6 +59,10 @@ export class EnrollmentForm implements OnInit {
     this.pokemonApi.list().subscribe((pokemons) => this.pokemons.set(pokemons));
     this.trainingPlanApi.list().subscribe((plans) => this.trainingPlans.set(plans));
 
+    // o FormControl não é um signal (não avisa das suas mudanças ao Angular)
+    // como precisamos reagir às mudanças desses campos e estamos trabalhando
+    // com Angular moderno (signals), fazemos uma adaptação: criamos um signal
+    // para cada FormControl e o atualizamos sempre que valueChanges
     this.form.controls.pokemonId.valueChanges.subscribe((id) => this.selectedPokemonId.set(id));
     this.form.controls.trainingPlanId.valueChanges.subscribe((id) => this.selectedTrainingPlanId.set(id));
   }
