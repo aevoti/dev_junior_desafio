@@ -1,0 +1,84 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2 class="h5 mb-0">Matrículas</h2>
+  <a routerLink="/matriculas/nova" class="btn btn-primary btn-sm">+ Novo</a>
+</div>
+
+@if (successMessage()) {
+  <div class="alert alert-success" role="alert">{{ successMessage() }}</div>
+}
+
+@if (errorMessage()) {
+  <div class="alert alert-danger" role="alert">{{ errorMessage() }}</div>
+}
+
+<div class="row g-2 mb-3">
+  <div class="col-sm-6">
+    <input
+      type="search"
+      class="form-control"
+      placeholder="Buscar por nome do Pokémon ou do Treinador"
+      [formControl]="searchControl"
+    />
+  </div>
+  <div class="col-sm-4">
+    <select class="form-select" [formControl]="statusControl">
+      <option value="">Todos os status</option>
+      <option value="Active">{{ statusLabels.Active }}</option>
+      <option value="EndingSoon">{{ statusLabels.EndingSoon }}</option>
+      <option value="Ended">{{ statusLabels.Ended }}</option>
+    </select>
+  </div>
+</div>
+
+@if (!loading() && enrollments().length === 0) {
+  <p class="text-muted">Nenhum resultado encontrado.</p>
+}
+
+@if (enrollments().length > 0) {
+  <table class="table table-striped align-middle">
+    <thead>
+      <tr>
+        <th>Pokémon</th>
+        <th>Treinador</th>
+        <th>Plano</th>
+        <th>Valor mensal</th>
+        <th>Início</th>
+        <th>Término</th>
+        <th>Status</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (enrollment of enrollments(); track enrollment.id) {
+        <tr>
+          <td>{{ enrollment.pokemonName }}</td>
+          <td>{{ enrollment.trainerName }}</td>
+          <td>{{ enrollment.trainingPlanName }}</td>
+          <td>R$ {{ enrollment.monthlyPrice.toFixed(2) }}</td>
+          <td>{{ enrollment.startDate | date: 'dd/MM/yyyy HH:mm' }}</td>
+          <td>{{ enrollment.endDate ? (enrollment.endDate | date: 'dd/MM/yyyy HH:mm') : '—' }}</td>
+          <td>
+            <span
+              class="badge"
+              [class.text-bg-success]="enrollment.status === 'Active'"
+              [class.text-bg-warning]="enrollment.status === 'EndingSoon'"
+              [class.text-bg-secondary]="enrollment.status === 'Ended'"
+            >
+              {{ statusLabels[enrollment.status] }}
+            </span>
+          </td>
+          <td class="text-nowrap">
+            @if (enrollment.status === 'Active') {
+              <a [routerLink]="['/matriculas', enrollment.id, 'upgrade']" class="btn btn-sm btn-outline-primary me-1">
+                Upgrade
+              </a>
+              <button type="button" class="btn btn-sm btn-outline-danger" (click)="cancel(enrollment)">
+                Cancelar
+              </button>
+            }
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}

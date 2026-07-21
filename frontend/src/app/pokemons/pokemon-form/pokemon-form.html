@@ -1,0 +1,67 @@
+<form [formGroup]="form" (ngSubmit)="submit()" class="mb-4">
+  <h2 class="h5">Cadastrar Pokémon</h2>
+
+  @if (errorMessage()) {
+    <div class="alert alert-danger" role="alert">{{ errorMessage() }}</div>
+  }
+
+  <div class="mb-2">
+    <label for="pokemon-name" class="form-label">Nome</label>
+    <input
+      id="pokemon-name"
+      type="text"
+      class="form-control"
+      formControlName="name"
+      [class.is-invalid]="form.controls.name.invalid && form.controls.name.touched"
+    />
+    <div class="invalid-feedback">O nome é obrigatório.</div>
+  </div>
+
+  <div class="mb-2">
+    <label for="pokemon-type" class="form-label">Tipo</label>
+    <select
+      id="pokemon-type"
+      class="form-select"
+      formControlName="type"
+      [class.is-invalid]="form.controls.type.invalid && form.controls.type.touched"
+    >
+      <option value="" disabled>Selecione um tipo</option>
+      @for (type of pokemonTypes; track type.value) {
+        <option [value]="type.value">{{ type.label }}</option>
+      }
+    </select>
+    <div class="invalid-feedback">Selecione um tipo válido.</div>
+  </div>
+
+  <div class="mb-2">
+    <label for="pokemon-level" class="form-label">Nível (1-100)</label>
+    <input
+      id="pokemon-level"
+      type="number"
+      min="1"
+      max="100"
+      class="form-control"
+      formControlName="level"
+      [class.is-invalid]="form.controls.level.invalid && form.controls.level.touched"
+    />
+    <div class="invalid-feedback">O nível deve estar entre 1 e 100.</div>
+  </div>
+
+  <div class="mb-3">
+    <label for="pokemon-trainer" class="form-label">Treinador</label>
+    <select
+      id="pokemon-trainer"
+      class="form-select"
+      formControlName="trainerId"
+      [class.is-invalid]="form.controls.trainerId.invalid && form.controls.trainerId.touched"
+    >
+      <option [value]="null" disabled>Selecione um Treinador</option>
+      @for (trainer of trainers(); track trainer.id) {
+        <option [value]="trainer.id">{{ trainer.name }}</option>
+      }
+    </select>
+    <div class="invalid-feedback">Selecione um Treinador.</div>
+  </div>
+
+  <button type="submit" class="btn btn-primary" [disabled]="submitting()">Cadastrar</button>
+</form>

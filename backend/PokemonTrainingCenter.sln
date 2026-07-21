@@ -1,0 +1,57 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{0BCF3195-5316-4640-A234-9DE316B10952}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PokemonTrainingCenter.Api", "src\PokemonTrainingCenter.Api\PokemonTrainingCenter.Api.csproj", "{B48E4F9B-9BCE-4DCB-B2DE-541AF14D90D3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PokemonTrainingCenter.Domain", "src\PokemonTrainingCenter.Domain\PokemonTrainingCenter.Domain.csproj", "{32A19719-FE6C-4EEC-9C17-46A0F3C528BC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PokemonTrainingCenter.Infrastructure", "src\PokemonTrainingCenter.Infrastructure\PokemonTrainingCenter.Infrastructure.csproj", "{351B6AEB-B8A5-4C67-BD2C-D9CEBCA77929}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{D94951D5-7343-42DB-8846-BE42B49FF0FF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PokemonTrainingCenter.UnitTests", "tests\PokemonTrainingCenter.UnitTests\PokemonTrainingCenter.UnitTests.csproj", "{2BA95754-62D2-4B14-93D7-2F9A17809235}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PokemonTrainingCenter.IntegrationTests", "tests\PokemonTrainingCenter.IntegrationTests\PokemonTrainingCenter.IntegrationTests.csproj", "{EEB84CA8-97B7-455F-A08C-BD5B87623DF3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B48E4F9B-9BCE-4DCB-B2DE-541AF14D90D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B48E4F9B-9BCE-4DCB-B2DE-541AF14D90D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B48E4F9B-9BCE-4DCB-B2DE-541AF14D90D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B48E4F9B-9BCE-4DCB-B2DE-541AF14D90D3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32A19719-FE6C-4EEC-9C17-46A0F3C528BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32A19719-FE6C-4EEC-9C17-46A0F3C528BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32A19719-FE6C-4EEC-9C17-46A0F3C528BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32A19719-FE6C-4EEC-9C17-46A0F3C528BC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{351B6AEB-B8A5-4C67-BD2C-D9CEBCA77929}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{351B6AEB-B8A5-4C67-BD2C-D9CEBCA77929}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{351B6AEB-B8A5-4C67-BD2C-D9CEBCA77929}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{351B6AEB-B8A5-4C67-BD2C-D9CEBCA77929}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2BA95754-62D2-4B14-93D7-2F9A17809235}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2BA95754-62D2-4B14-93D7-2F9A17809235}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2BA95754-62D2-4B14-93D7-2F9A17809235}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2BA95754-62D2-4B14-93D7-2F9A17809235}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EEB84CA8-97B7-455F-A08C-BD5B87623DF3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EEB84CA8-97B7-455F-A08C-BD5B87623DF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EEB84CA8-97B7-455F-A08C-BD5B87623DF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EEB84CA8-97B7-455F-A08C-BD5B87623DF3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B48E4F9B-9BCE-4DCB-B2DE-541AF14D90D3} = {0BCF3195-5316-4640-A234-9DE316B10952}
+		{32A19719-FE6C-4EEC-9C17-46A0F3C528BC} = {0BCF3195-5316-4640-A234-9DE316B10952}
+		{351B6AEB-B8A5-4C67-BD2C-D9CEBCA77929} = {0BCF3195-5316-4640-A234-9DE316B10952}
+		{2BA95754-62D2-4B14-93D7-2F9A17809235} = {D94951D5-7343-42DB-8846-BE42B49FF0FF}
+		{EEB84CA8-97B7-455F-A08C-BD5B87623DF3} = {D94951D5-7343-42DB-8846-BE42B49FF0FF}
+	EndGlobalSection
+EndGlobal

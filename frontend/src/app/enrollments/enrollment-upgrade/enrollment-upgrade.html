@@ -1,0 +1,41 @@
+<form [formGroup]="form" (ngSubmit)="calculatePreview()" class="mb-4">
+  <h2 class="h5">Upgrade de Matrícula</h2>
+
+  @if (errorMessage()) {
+    <div class="alert alert-danger" role="alert">{{ errorMessage() }}</div>
+  }
+
+  <div class="mb-3">
+    <label for="upgrade-plan" class="form-label">Novo plano</label>
+    <select
+      id="upgrade-plan"
+      class="form-select"
+      formControlName="newTrainingPlanId"
+      [class.is-invalid]="form.controls.newTrainingPlanId.invalid && form.controls.newTrainingPlanId.touched"
+    >
+      <option [value]="null" disabled>Selecione o novo plano</option>
+      @for (plan of trainingPlans(); track plan.id) {
+        <option [value]="plan.id">{{ plan.name }} — R$ {{ plan.monthlyPrice.toFixed(2) }}</option>
+      }
+    </select>
+    <div class="invalid-feedback">Selecione o plano de destino.</div>
+  </div>
+
+  @if (!preview()) {
+    <button type="submit" class="btn btn-secondary" [disabled]="submitting()">Calcular valor</button>
+  }
+</form>
+
+@if (preview(); as previewValue) {
+  <div class="card mb-3">
+    <div class="card-body">
+      <h3 class="h6">Prévia da cobrança</h3>
+      <p class="mb-1">Crédito do plano atual: R$ {{ previewValue.currentPlanCredit.toFixed(2) }}</p>
+      <p class="mb-1">Custo proporcional do novo plano: R$ {{ previewValue.newPlanProratedCost.toFixed(2) }}</p>
+      <p class="fw-bold">Primeira cobrança: R$ {{ previewValue.firstChargeAmount.toFixed(2) }}</p>
+      <button type="button" class="btn btn-primary" [disabled]="submitting()" (click)="confirm()">
+        Confirmar upgrade
+      </button>
+    </div>
+  </div>
+}

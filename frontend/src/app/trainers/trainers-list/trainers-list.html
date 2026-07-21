@@ -1,0 +1,33 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2 class="h5 mb-0">Treinadores</h2>
+  <a routerLink="/treinadores/novo" class="btn btn-primary btn-sm">+ Novo</a>
+</div>
+
+@if (successMessage()) {
+  <div class="alert alert-success" role="alert">{{ successMessage() }}</div>
+}
+
+@if (!loading() && trainers().length === 0) {
+  <p class="text-muted">Nenhum Treinador cadastrado.</p>
+}
+
+@if (trainers().length > 0) {
+  <table class="table table-striped align-middle">
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>E-mail</th>
+        <th>Cidade</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (trainer of trainers(); track trainer.id) {
+        <tr>
+          <td>{{ trainer.name }}</td>
+          <td>{{ trainer.email }}</td>
+          <td>{{ trainer.city }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}
