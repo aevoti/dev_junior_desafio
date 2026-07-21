@@ -1,0 +1,12 @@
+C:\Users\anyss\teste aevo\dev_junior_desafio\backend\src\PokemonCenter.Domain\bin\Debug\net10.0\PokemonCenter.Domain.deps.json
+C:\Users\anyss\teste aevo\dev_junior_desafio\backend\src\PokemonCenter.Domain\bin\Debug\net10.0\PokemonCenter.Domain.dll
+C:\Users\anyss\teste aevo\dev_junior_desafio\backend\src\PokemonCenter.Domain\bin\Debug\net10.0\PokemonCenter.Domain.pdb
+C:\Users\anyss\teste aevo\dev_junior_desafio\backend\src\PokemonCenter.Domain\obj\Debug\net10.0\PokemonCenter.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\anyss\teste aevo\dev_junior_desafio\backend\src\PokemonCenter.Domain\obj\Debug\net10.0\PokemonCenter.Domain.AssemblyInfoInputs.cache
+C:\Users\anyss\teste aevo\dev_junior_desafio\backend\src\PokemonCenter.Domain\obj\Debug\net10.0\PokemonCenter.Domain.AssemblyInfo.cs
+C:\Users\anyss\teste aevo\dev_junior_desafio\backend\src\PokemonCenter.Domain\obj\Debug\net10.0\PokemonCenter.Domain.csproj.CoreCompileInputs.cache
+C:\Users\anyss\teste aevo\dev_junior_desafio\backend\src\PokemonCenter.Domain\obj\Debug\net10.0\PokemonCenter.Domain.sourcelink.json
+C:\Users\anyss\teste aevo\dev_junior_desafio\backend\src\PokemonCenter.Domain\obj\Debug\net10.0\PokemonCenter.Domain.dll
+C:\Users\anyss\teste aevo\dev_junior_desafio\backend\src\PokemonCenter.Domain\obj\Debug\net10.0\refint\PokemonCenter.Domain.dll
+C:\Users\anyss\teste aevo\dev_junior_desafio\backend\src\PokemonCenter.Domain\obj\Debug\net10.0\PokemonCenter.Domain.pdb
+C:\Users\anyss\teste aevo\dev_junior_desafio\backend\src\PokemonCenter.Domain\obj\Debug\net10.0\ref\PokemonCenter.Domain.dll

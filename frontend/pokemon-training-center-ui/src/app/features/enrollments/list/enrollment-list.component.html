@@ -1,0 +1,77 @@
+<app-parallax-hero eyebrow="Centro de Treinamento" title="Alto Nível"
+  subtitle="Acompanhe as matrículas dos Pokémon nos planos de treinamento.">
+</app-parallax-hero>
+
+<section class="container list-section">
+  <div class="list-header">
+    <h2>Matrículas</h2>
+    <div class="header-actions">
+      <a routerLink="/pokemons/transferir" class="btn-ghost">Transferir Pokémon</a>
+      <a routerLink="/matriculas/nova" class="btn-primary">+ Nova matrícula</a>
+    </div>
+  </div>
+
+  <div class="filters">
+    <input type="text" placeholder="Buscar por Pokémon ou Treinador..." [(ngModel)]="busca"
+      (ngModelChange)="carregar()">
+
+    <select [(ngModel)]="statusFiltro" (ngModelChange)="carregar()">
+      <option value="">Todos os status</option>
+      <option value="Ativa">Ativa</option>
+      <option value="Cancelada">Cancelada</option>
+      <option value="Concluida">Concluída</option>
+    </select>
+  </div>
+
+  @if (loading()) {
+  <p class="empty-state">Carregando...</p>
+  } @else if (enrollments().length === 0) {
+  <p class="empty-state">Nenhuma matrícula encontrada.</p>
+  } @else {
+  <table class="enrollment-table">
+    <thead>
+      <tr>
+        <th>Pokémon</th>
+        <th>Treinador</th>
+        <th>Plano</th>
+        <th>Valor</th>
+        <th>Início</th>
+        <th>Status</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (e of enrollments(); track e.id) {
+      <tr>
+        <td data-label="Pokémon">{{ e.pokemonNome }}</td>
+        <td data-label="Treinador">{{ e.treinadorNome }}</td>
+        <td data-label="Plano">{{ e.planoNome }}</td>
+        <td data-label="Valor">{{ e.valorMensal | currency:'BRL' }}</td>
+        <td data-label="Início">{{ e.dataInicio | date:'dd/MM/yyyy' }}</td>
+        <td data-label="Status">
+          <span class="status" [ngClass]="statusClass(e.status)">{{ e.status }}</span>
+        </td>
+        <td class="actions" data-label="">
+          @if (e.status === 'Ativa') {
+          <button class="btn-ghost btn-sm" (click)="abrirUpgrade(e)">Upgrade</button>
+          <button class="btn-ghost btn-sm btn-danger" (click)="abrirCancelamento(e)">
+            Cancelar
+          </button> }
+        </td>
+      </tr>
+      }
+    </tbody>
+  </table>
+  }
+</section>
+
+@if (upgradeAlvo(); as enrollment) {
+<app-enrollment-upgrade-dialog [enrollment]="enrollment" (close)="fecharUpgrade()" (confirmed)="aoConfirmarUpgrade()">
+</app-enrollment-upgrade-dialog>
+}
+
+@if (cancelamentoAlvo(); as enrollment) {
+<app-enrollment-cancel-dialog [enrollment]="enrollment" (close)="fecharCancelamento()"
+  (confirmed)="aoConfirmarCancelamento()">
+</app-enrollment-cancel-dialog>
+}

@@ -1,0 +1,72 @@
+<section class="form-page">
+  <div class="container form-container">
+
+    <p class="eyebrow">Gestão de Pokémon</p>
+    <h2>Transferência</h2>
+
+    <button
+      type="button"
+      class="btn-back"
+      routerLink="/matriculas">
+      ← Voltar
+    </button>
+
+    @if (loading()) {
+      <p class="empty-state">Carregando...</p>
+    } @else {
+
+      <div class="transfer-card">
+
+        <div class="field">
+          <label>Pokémon</label>
+          <select [(ngModel)]="pokemonSelecionadoId"
+                  (ngModelChange)="novoTreinadorId = null">
+            <option [ngValue]="null">Selecione um Pokémon</option>
+
+            @for (p of pokemons(); track p.id) {
+              <option [ngValue]="p.id">
+                {{ p.nome }} (Nv. {{ p.nivel }}) — dono atual: {{ p.treinadorNome }}
+              </option>
+            }
+          </select>
+        </div>
+
+        @if (pokemonSelecionado) {
+
+          <div class="current-owner">
+            Dono atual:
+            <strong>{{ pokemonSelecionado.treinadorNome }}</strong>
+          </div>
+
+          <div class="field">
+            <label>Novo Treinador</label>
+
+            <select [(ngModel)]="novoTreinadorId">
+              <option [ngValue]="null">
+                Selecione o novo Treinador
+              </option>
+
+              @for (t of treinadoresDisponiveis; track t.id) {
+                <option [ngValue]="t.id">
+                  {{ t.nome }}
+                </option>
+              }
+            </select>
+          </div>
+
+          <button
+            class="btn-primary"
+            [disabled]="!novoTreinadorId || transferindo()"
+            (click)="transferir()">
+
+            {{ transferindo() ? 'Transferindo...' : 'Confirmar transferência' }}
+
+          </button>
+
+        }
+
+      </div>
+
+    }
+  </div>
+</section>

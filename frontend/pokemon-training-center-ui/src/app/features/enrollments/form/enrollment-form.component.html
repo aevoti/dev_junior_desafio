@@ -1,0 +1,60 @@
+<section class="form-page">
+  <div class="container form-container">
+
+    <p class="eyebrow">Nova matrícula</p>
+    <h2>Matricular Pokémon</h2>
+    <button
+  type="button"
+  class="btn-back"
+  routerLink="/matriculas">
+  ← Voltar
+</button>
+
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="enrollment-form">
+      <div class="field">
+        <label>Pokémon</label>
+        <select formControlName="pokemonId">
+          <option [ngValue]="null">Selecione um Pokémon</option>
+          @for (p of pokemons(); track p.id) {
+          <option [ngValue]="p.id">{{ p.nome }} (Nv. {{ p.nivel }}) — {{ p.treinador?.nome }}</option>
+          }
+        </select>
+        @if (form.get('pokemonId')?.touched && form.get('pokemonId')?.invalid) {
+        <span class="error-text">Selecione um Pokémon.</span>
+        }
+      </div>
+
+      <div class="field">
+        <label>Plano de treinamento</label>
+        <select formControlName="planoId">
+          <option [ngValue]="null">Selecione um plano</option>
+          @for (p of plans(); track p.id) {
+          <option [ngValue]="p.id">{{ p.nome }} — {{ p.valorMensal | currency:'BRL' }}</option>
+          }
+        </select>
+        @if (form.get('planoId')?.touched && form.get('planoId')?.invalid) {
+        <span class="error-text">Selecione um plano.</span>
+        }
+      </div>
+
+      @if (nivelInsuficiente) {
+      <div class="warning-banner">
+        {{ pokemonSelecionado?.nome }} está no nível {{ pokemonSelecionado?.nivel }}, mas o plano
+        {{ planoSelecionado?.nome }} exige nível mínimo {{ planoSelecionado?.nivelMinimoRequerido }}.
+      </div>
+      }
+
+      <div class="field">
+        <label>Data de início</label>
+        <input type="date" formControlName="dataInicio">
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn-primary" [disabled]="submitting() || nivelInsuficiente">
+          {{ submitting() ? 'Matriculando...' : 'Confirmar matrícula' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</section>

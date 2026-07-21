@@ -1,0 +1,16 @@
+C:\Users\anyss\teste aevo\dev_junior_desafio\backend\src\PokemonCenter.Application\bin\Debug\net10.0\PokemonCenter.Application.deps.json
+C:\Users\anyss\teste aevo\dev_junior_desafio\backend\src\PokemonCenter.Application\bin\Debug\net10.0\PokemonCenter.Application.dll
+C:\Users\anyss\teste aevo\dev_junior_desafio\backend\src\PokemonCenter.Application\bin\Debug\net10.0\PokemonCenter.Application.pdb
+C:\Users\anyss\teste aevo\dev_junior_desafio\backend\src\PokemonCenter.Application\bin\Debug\net10.0\PokemonCenter.Domain.dll
+C:\Users\anyss\teste aevo\dev_junior_desafio\backend\src\PokemonCenter.Application\bin\Debug\net10.0\PokemonCenter.Domain.pdb
+C:\Users\anyss\teste aevo\dev_junior_desafio\backend\src\PokemonCenter.Application\obj\Debug\net10.0\PokemonCenter.Application.csproj.AssemblyReference.cache
+C:\Users\anyss\teste aevo\dev_junior_desafio\backend\src\PokemonCenter.Application\obj\Debug\net10.0\PokemonCenter.Application.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\anyss\teste aevo\dev_junior_desafio\backend\src\PokemonCenter.Application\obj\Debug\net10.0\PokemonCenter.Application.AssemblyInfoInputs.cache
+C:\Users\anyss\teste aevo\dev_junior_desafio\backend\src\PokemonCenter.Application\obj\Debug\net10.0\PokemonCenter.Application.AssemblyInfo.cs
+C:\Users\anyss\teste aevo\dev_junior_desafio\backend\src\PokemonCenter.Application\obj\Debug\net10.0\PokemonCenter.Application.csproj.CoreCompileInputs.cache
+C:\Users\anyss\teste aevo\dev_junior_desafio\backend\src\PokemonCenter.Application\obj\Debug\net10.0\PokemonCenter.Application.sourcelink.json
+C:\Users\anyss\teste aevo\dev_junior_desafio\backend\src\PokemonCenter.Application\obj\Debug\net10.0\PokemonC.E8F83C1D.Up2Date
+C:\Users\anyss\teste aevo\dev_junior_desafio\backend\src\PokemonCenter.Application\obj\Debug\net10.0\PokemonCenter.Application.dll
+C:\Users\anyss\teste aevo\dev_junior_desafio\backend\src\PokemonCenter.Application\obj\Debug\net10.0\refint\PokemonCenter.Application.dll
+C:\Users\anyss\teste aevo\dev_junior_desafio\backend\src\PokemonCenter.Application\obj\Debug\net10.0\PokemonCenter.Application.pdb
+C:\Users\anyss\teste aevo\dev_junior_desafio\backend\src\PokemonCenter.Application\obj\Debug\net10.0\ref\PokemonCenter.Application.dll

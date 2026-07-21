@@ -1,0 +1,1 @@
+export type EnrollmentStatus = 'Ativa' | 'Cancelada' | 'Concluida';

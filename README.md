@@ -1,124 +1,106 @@
-# Desafio Técnico — Desenvolvedor(a) Junior
+# Centro de Treinamento Pokémon "Alto Nível"
 
-## Centro de Treinamento Pokémon "Alto Nível"
+Sistema de gestão de matrículas de Pokémon em planos de treinamento mensais, desenvolvido como desafio técnico.
 
-Olá candidato(a),![alt text](https://static.wikia.nocookie.net/pokemongo/images/c/cd/Sticker_Funwari_Charmander.png/revision/latest?cb=20200817175607)
+## 🧱 Stack
 
-Primeiramente, parabéns por ter chegado até aqui! Essa tem sido uma Jornada Seletiva de altíssimo nível, mas o seu cadastro se destacou e não temos dúvidas de que você pode ser a pessoa certa para compor o nosso time.<br><br>
-Abaixo, você encontrará todos as informações necessárias para realizar a sua Etapa de Task.<br>
-
-Este desafio simula um problema real, com uma temática mais divertida.
-
-
-O **Centro de Treinamento Alto Nível** é um serviço por assinatura onde Treinadores matriculam seus Pokémon em planos de treinamento mensais. Sua missão é construir o sistema de gestão dessas matrículas.
+- **Backend:** .NET 10 / ASP.NET Core Web API
+- **Banco de dados:** SQL Server
+- **ORM:** Entity Framework Core
+- **Frontend:** Angular
+- **Testes:** xUnit + Moq
 
 ---
 
-## 🎯 O que você vai construir
+## ▶️ Como executar
 
-Uma aplicação com três partes:
+### Pré-requisitos
 
-1. **API REST em .NET** — gestão de Treinadores, Pokémon e Matrículas em planos
-2. **Banco de dados SQL Server** — modelagem e uma consulta específica
-3. **Frontend em Angular** — telas de listagem e cadastro
+- [.NET 10 SDK](https://dotnet.microsoft.com/download)
+- SQL Server (local, Docker ou SQL Server Express)
+- [Node.js](https://nodejs.org/) 18+ e Angular CLI (`npm install -g @angular/cli`)
 
----
+### Backend
 
-## 📋 Regras de negócio
+1. Configure a connection string em `backend/src/PokemonCenter.Api/appsettings.json`:
+```json
+   "ConnectionStrings": {
+     "DefaultConnection": "Server=localhost;Database=PokemonTrainingCenter;Trusted_Connection=True;TrustServerCertificate=True;"
+   }
+```
 
-### Entidades
+2. Restaure e crie o banco via migrations do EF Core:
+```bash
+   cd backend
+   dotnet tool install --global dotnet-ef   # se ainda não tiver instalado
+   dotnet ef migrations add InitialCreate -p src/PokemonCenter.Infrastructure -s src/PokemonCenter.Api
+   dotnet ef database update -p src/PokemonCenter.Infrastructure -s src/PokemonCenter.Api
+```
 
-- **Treinador**: nome, e-mail (único), cidade de origem.
-- **Pokémon**: nome, tipo (ex.: Fogo, Água, Planta...), nível (1 a 100) e o Treinador dono.
-- **Matrícula**: vincula um Pokémon a um **Plano de Treinamento**, com data de início, status (Ativa, Cancelada, Concluída) e valor mensal.
+   **Alternativa manual:** em vez das migrations, você pode rodar os scripts em `/database` diretamente no SQL Server (`schema.sql`, depois `seed.sql` opcionalmente).
 
-### Planos de Treinamento
+3. Rode a API:
+```bash
+   cd src/PokemonCenter.Api
+   dotnet run
+```
+   A documentação interativa fica disponível em `https://localhost:<porta>/scalar/v1` (a porta exata aparece no terminal ao iniciar).
 
-| Plano | Valor mensal | Descrição |
-|---|---|---|
-| Ginásio Local | R$ 50,00 | Treinos básicos |
-| Liga Regional | R$ 120,00 | Treinos intermediários + batalhas simuladas |
-| Elite dos 4 | R$ 300,00 | Preparação completa para a Liga |
+### Frontend
 
-### Regras obrigatórias
+```bash
+cd frontend/pokemon-training-center-ui
+npm install
+ng serve
+```
+Acesse `http://localhost:4200`.
 
-**R1 — Matrícula única ativa:** um Pokémon **não pode** ter duas matrículas ativas ao mesmo tempo. A API deve rejeitar a tentativa com uma mensagem de erro clara, e o frontend deve exibir esse erro de forma amigável ao usuário.
+### Banco de dados (scripts SQL puro)
 
-**R2 — Upgrade com cálculo proporcional (pro-rata):** um Treinador pode fazer upgrade da matrícula de um Pokémon para um plano superior a qualquer momento do ciclo mensal. Quando isso acontece:
-
-- A matrícula atual é encerrada e uma nova é criada no plano superior, iniciando na data do upgrade.
-- O valor da **primeira cobrança do novo plano** deve ser proporcional aos dias restantes do ciclo, descontando o valor já pago não utilizado do plano antigo.
-- **Exemplo:** um Pokémon está no plano Ginásio Local (R$ 50) e faz upgrade para Liga Regional (R$ 120) no dia 16 de um ciclo de 30 dias. Restam 15 dias. Crédito do plano antigo: R$ 50 × (15/30) = R$ 25. Custo do novo plano nos dias restantes: R$ 120 × (15/30) = R$ 60. **Primeira cobrança: R$ 60 − R$ 25 = R$ 35.**
-- A API deve expor um endpoint de upgrade que retorna o valor calculado dessa primeira cobrança.
-- Downgrade (plano inferior) **não é permitido** — a API deve rejeitar.
-
-**R3 — Nível mínimo para a Elite dos 4:** apenas Pokémon de nível **50 ou superior** podem ser matriculados (ou receber upgrade) no plano Elite dos 4.
-
-**R4 — Matrículas canceladas devem ser tratadas adequadamente nos cálculos e relatórios.**
-
-**R5 — Se um Pokémon for transferido para outro Treinador, suas matrículas devem se comportar de forma coerente.**
-
-> 💡 Se alguma regra parecer incompleta ou ambígua, você pode nos perguntar **ou** tomar uma decisão e documentá-la no README. As duas atitudes são bem-vindas — o que avaliamos é como você lida com isso.
-
----
-
-## 🗄️ Parte SQL Server
-
-Além da modelagem das tabelas (entregue o script de criação `schema.sql`), escreva **em SQL puro** (arquivo `consulta-mrr.sql`, sem ORM) a seguinte consulta:
-
-> **Receita Mensal Recorrente (MRR) do Centro, agrupada por plano**, considerando apenas matrículas ativas, com uma linha de total geral ao final.
+Localizados em `/database`:
+- `schema.sql` — criação das tabelas, constraints e o índice único filtrado que reforça R1 no próprio banco.
+- `seed.sql` — dados de teste cobrindo os casos de borda das regras de negócio.
+- `consulta-mrr.sql` — consulta de Receita Mensal Recorrente por plano, com total geral.
 
 ---
 
-## 🖥️ Parte Angular
+## 🧩 Decisões técnicas e premissas assumidas
 
-Telas mínimas:
+### R2 — Cálculo pro-rata do upgrade
+O ciclo de cobrança é assumido como **fixo em 30 dias, contado a partir da `DataInicio` da matrícula atual** (conforme o exemplo do enunciado). **Limitação conhecida:** essa implementação não trata múltiplos ciclos/renovações — se o Pokémon estiver matriculado há mais de 30 dias, o cálculo considera o ciclo já esgotado (crédito e cobrança zerados) em vez de recalcular a partir do início do ciclo vigente. Em produção, seria necessário um campo de "início do ciclo atual" separado da data original da matrícula.
 
-1. **Listagem de matrículas** com busca por nome do Pokémon ou do Treinador e filtro por status.
-2. **Formulário de nova matrícula** com validações (campos obrigatórios, nível mínimo para Elite dos 4).
-3. **Fluxo de upgrade**: ao solicitar upgrade, exibir o valor da primeira cobrança retornado pela API antes de confirmar.
-4. **Tratamento de erros da API** de forma amigável (ex.: tentativa de matrícula duplicada — R1).
+O valor mensal de cada matrícula é **congelado no momento da criação** (`Matricula.ValorMensal`), em vez de sempre consultar o valor atual do plano — isso evita que mudanças futuras de preço afetem retroativamente matrículas já ativas.
 
-Não avaliamos beleza visual. Avaliamos organização de componentes, validações e experiência básica de uso.
+### R3 — Tipo do Pokémon como enum
+`Tipo` foi modelado como um enum fechado (`TipoPokemon`) em vez de string livre, para evitar inconsistências (`"Fogo"` vs `"fogo"`) e refletir que o enunciado sugere um conjunto fechado de tipos. **Premissa assumida:** cada Pokémon possui **apenas um tipo** (não foi modelado tipo duplo, como Fogo/Voador, por não estar no escopo do enunciado).
+
+### R4 — Matrículas canceladas
+Matrículas com `Status = Cancelada` não são excluídas do banco (mantidas para histórico), mas são **sempre filtradas fora** de qualquer relatório de receita ativa — inclusive na consulta de MRR (`consulta-mrr.sql`), que considera apenas `Status = 'Ativa'`.
+
+### R5 — Transferência de Pokémon entre Treinadores
+Optamos pela abordagem mais simples: ao transferir um Pokémon para outro Treinador (`PATCH /api/pokemons/{id}/transferir`), a matrícula ativa (se existir) **permanece vinculada ao Pokémon** e passa a ser "herdada" pelo novo Treinador — não há cancelamento automático. Essa foi uma decisão de escopo; uma abordagem mais conservadora (cancelar a matrícula na transferência) também seria válida.
+
+### Índice único filtrado (R1 no banco)
+Além da validação na camada de Application, o `schema.sql` inclui um índice único filtrado (`WHERE Status = 'Ativa'`) na tabela `Matriculas`, reforçando a regra de matrícula única ativa diretamente no banco — protege contra inconsistências mesmo em cenários de acesso concorrente ou escrita direta no banco.
+
+---
+
+## 🔍 O que eu faria diferente ou melhoraria com mais tempo
+
+- Implementar corretamente a renovação de múltiplos ciclos no cálculo pro-rata (hoje simplificado, ver limitação acima).
+- Testes de integração para os Controllers e Repositórios (hoje a cobertura é só de testes unitários do `MatriculaService`, via mocks).
+- Autenticação/autorização (fora do escopo do desafio, mas necessário em produção).
+- Paginação na listagem de matrículas.
+- Modelar tipo duplo de Pokémon (Fogo/Voador, etc.), caso fosse exigido.
+- Migrar a versão do `Microsoft.OpenApi` puxada transitivamente pelo `Scalar.AspNetCore`, que ainda gera um warning de segurança (`NU1903`) por depender de uma versão desatualizada do pacote.
 
 ---
 
 ## 🤖 Uso de Inteligência Artificial
 
-**O uso de IA (Copilot, ChatGPT, Claude etc.) é permitido e incentivado** — faz parte do nosso dia a dia. Pedimos apenas transparência: descreva no README como você usou (o que pediu, o que aproveitou, o que precisou corrigir ou reescrever).
+Utilizei o Claude (Anthropic) ao longo de todo o desenvolvimento, com os seguintes usos principais:
+- Revisão das decisões da arquitetura de pastas do backend (camadas Domain/Application/Infrastructure/Api) e do frontend Angular.
+- Geração dos testes unitários (xUnit + Moq) cobrindo R1, R2, R3 e casos de borda.
+- Depuração de problemas de ambiente (SDK não encontrado, conflito de versão do `Microsoft.OpenApi` com o gerador de OpenAPI nativo do .NET 10).
 
-Importante: haverá uma **sessão de conversa técnica** sobre a sua entrega, onde pediremos que você explique trechos do código e faça pequenas modificações ao vivo. Entregar código que você não compreende não vai te ajudar nessa etapa. 🙂
-
----
-
-## 📦 Entrega
-
-- O Envio deve ser feito por PullRequest com o nome completo do Candidato.
-- Prazo: **5 dias corridos** a partir do recebimento. Estimamos algo entre 4 e 8 horas de trabalho — não é esperado que você use os 5 dias inteiros.
-- O projeto deve rodar localmente com instruções claras no README.
-
-### README obrigatório, contendo:
-
-1. Instruções de execução (backend, frontend e scripts de banco).
-2. Decisões técnicas e premissas assumidas (especialmente sobre R4 e R5).
-3. O que você faria diferente ou melhoraria com mais tempo.
-4. Como utilizou IA durante o desenvolvimento.
-
----
-
-## ✅ O que avaliamos
-
-- Corretude das regras de negócio, incluindo casos de borda (R1, R2, R3).
-- Modelagem do banco e a consulta SQL solicitada.
-- Organização do código no backend e no frontend.
-- Clareza na comunicação: README, premissas documentadas, perguntas feitas.
-- Na conversa técnica: compreensão do próprio código e raciocínio ao modificá-lo.
-
-
-Quaisquer dúvidas técnicas em relação à Task, não deixe de entrar em contato com o e-mail: carlos.pedroni@aevo.com.br!
-
-O nosso Time de Pessoas e Cultura se encontra também à disposição para quaisquer outras questões que achar relevante. Basta nos contatar no e-mail: rh@aevo.com.br!
-
-Estes canais de comunicação estarão sempre abertos para você, não hesite em nos contatar caso tenha dúvidas.
-
-Boa sorte! 🧡 ![alt text](https://static.wikia.nocookie.net/pokemongo/images/a/af/Sticker_Funwari_Bulbasaur_bye.png/revision/latest?cb=20200825201636)
+Todo o código gerado foi revisado, compilado e testado localmente antes de ser incorporado — inclusive corrigindo bugs identificados durante a revisão (ex.: o cálculo de dias restantes não tratava upgrades solicitados após o fim do ciclo).

@@ -1,0 +1,45 @@
+<div class="dialog-backdrop" (click)="close.emit()">
+  <div class="dialog" (click)="$event.stopPropagation()">
+    <h3>Upgrade de plano</h3>
+    <p class="dialog-subtitle">
+      {{ enrollment.pokemonNome }} está atualmente em <strong>{{ enrollment.planoNome }}</strong>
+      ({{ enrollment.valorMensal | currency:'BRL' }}/mês)
+    </p>
+
+    <div class="field">
+      <label>Novo plano</label>
+      <select [(ngModel)]="planoSelecionadoId" (ngModelChange)="simulacao.set(null)">
+        <option [ngValue]="null">Selecione um plano superior</option>
+        @for (p of plans(); track p.id) {
+          <option [ngValue]="p.id">{{ p.nome }} — {{ p.valorMensal | currency:'BRL' }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Data do upgrade</label>
+      <input type="date" [(ngModel)]="dataUpgrade" (ngModelChange)="simulacao.set(null)">
+    </div>
+
+    @if (!simulacao()) {
+      <button
+        class="btn-ghost"
+        [disabled]="!planoSelecionadoId || simulando()"
+        (click)="simular()">
+        {{ simulando() ? 'Calculando...' : 'Calcular primeira cobrança' }}
+      </button>
+    } @else {
+      <div class="simulation-result">
+        <p>Dias restantes no ciclo: <strong>{{ simulacao()!.diasRestantes }}</strong></p>
+        <p class="highlight">Primeira cobrança: {{ simulacao()!.valorPrimeiraCobranca | currency:'BRL' }}</p>
+      </div>
+
+      <div class="dialog-actions">
+        <button class="btn-ghost" (click)="simulacao.set(null)">Recalcular</button>
+        <button class="btn-primary" [disabled]="confirmando()" (click)="confirmar()">
+          {{ confirmando() ? 'Confirmando...' : 'Confirmar upgrade' }}
+        </button>
+      </div>
+    }
+  </div>
+</div>

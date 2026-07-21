@@ -1,0 +1,39 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v10.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v10.0": {
+      "PokemonCenter.Application/1.0.0": {
+        "dependencies": {
+          "PokemonCenter.Domain": "1.0.0"
+        },
+        "runtime": {
+          "PokemonCenter.Application.dll": {}
+        }
+      },
+      "PokemonCenter.Domain/1.0.0": {
+        "runtime": {
+          "PokemonCenter.Domain.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "PokemonCenter.Application/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PokemonCenter.Domain/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

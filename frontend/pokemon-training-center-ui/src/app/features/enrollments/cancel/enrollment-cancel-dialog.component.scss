@@ -1,0 +1,66 @@
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(48, 23, 27, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+  animation: fadeIn .2s ease;
+}
+
+.dialog {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 30px 60px rgba(48, 23, 27, .3);
+
+  h3 {
+    color: var(--color-plum);
+    margin-bottom: .5rem;
+  }
+}
+
+.dialog-subtitle {
+  color: var(--color-wine);
+  margin-bottom: 1.5rem;
+}
+
+.warning-box {
+  background: rgba(183, 48, 68, .08);
+  border-left: 3px solid var(--color-crimson);
+  border-radius: 6px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.warning-text {
+  margin-top: 1rem;
+  color: var(--color-crimson);
+  font-weight: 600;
+}
+
+.dialog-actions {
+  display: flex;
+  gap: .75rem;
+
+  button {
+    flex: 1;
+  }
+}
+
+.btn-danger {
+  background: var(--color-crimson);
+  color: white;
+}
+
+.btn-danger:hover:not(:disabled) {
+  filter: brightness(.95);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

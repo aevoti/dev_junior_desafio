@@ -1,0 +1,64 @@
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(48, 23, 27, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+  animation: fadeIn 0.2s ease;
+}
+
+.dialog {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 30px 60px rgba(48, 23, 27, 0.3);
+
+  h3 {
+    color: var(--color-plum);
+    margin-bottom: 0.5rem;
+  }
+}
+
+.dialog-subtitle {
+  font-size: 0.9rem;
+  color: var(--color-wine);
+  margin-bottom: 1.5rem;
+}
+
+.field {
+  margin-bottom: 1.25rem;
+
+  select, input { width: 100%; }
+}
+
+.simulation-result {
+  background: var(--color-cream);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  margin: 1rem 0;
+  font-size: 0.9rem;
+
+  .highlight {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--color-crimson);
+    margin-top: 0.4rem;
+  }
+}
+
+.dialog-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+
+  .btn-primary { flex: 1; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
