@@ -34,8 +34,11 @@ completa do repositório.
 - Mensagens de commit curtas, de uma linha, no padrão já usado no
   histórico do repositório (`tipo: descrição curta`, ex.: `fix: ...`,
   `feat: ...`, `docs: ...`) — sem corpo com bullets.
-- Preferir vários commits pequenos agrupados por unidade lógica em vez de
-  um único commit com tudo.
+- Preferir um único commit por tarefa/rodada de mudanças. Só dividir em
+  commits separados quando houver unidades claramente distintas e
+  independentes entre si (ex.: uma correção de bug não relacionada
+  descoberta no meio do caminho) — não dividir só porque a mudança tocou
+  várias camadas ou arquivos de uma mesma tarefa.
 - Nunca dar `git add`/`git commit` em `README.md` a menos que o usuário peça
   explicitamente — esse arquivo é commitado por último, pelo próprio
   usuário, mesmo que o resto do trabalho já tenha sido commitado em partes.
