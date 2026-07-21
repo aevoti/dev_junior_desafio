@@ -26,6 +26,8 @@ builder.Services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
 
 builder.Services.AddScoped<EnrollmentService>();
 
+// Cria a política de CORS, que permite requisições vindas de http://localhost:4200
+// aceitando qualquer header e qualquer método
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(AngularDevServerCorsPolicy, policy =>

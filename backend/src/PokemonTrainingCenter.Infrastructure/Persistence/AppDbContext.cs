@@ -7,10 +7,24 @@ namespace PokemonTrainingCenter.Infrastructure.Persistence;
 
 public class AppDbContext : DbContext, IUnitOfWork
 {
+
+    // Injeta a string de conexão + configurações do banco (vem do Program.cs)
+    // e chama o construtor da classe pai
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
     }
 
+    // Trainers é uma property da classe com um getter embutido. A versão completa dessa linha seria:
+    // 
+    // public DbSet<Trainer> Trainers { 
+    //  get { return Set<Trainer>(); }
+    // }
+    //
+    // Set é um método de DbContext, e DbSet<T> é uma classe do EF Core que representa a coleção de
+    // todas as linhas dessa entidade no banco
+    //
+    // Ou seja, Trainers é o ponto de entrada para consultar a entity Trainer no banco — não 
+    // carrega os dados na hora, só quando algo como .ToList() é chamado
     public DbSet<Trainer> Trainers => Set<Trainer>();
     public DbSet<Pokemon> Pokemons => Set<Pokemon>();
     public DbSet<TrainingPlan> TrainingPlans => Set<TrainingPlan>();
@@ -20,13 +34,13 @@ public class AppDbContext : DbContext, IUnitOfWork
     {
         base.ConfigureConventions(configurationBuilder);
 
-        // Todos os timestamps são gravados em UTC (DateTime.UtcNow — ver
-        // spec.md Assumptions "Armazenamento de datas em UTC"), mas o SQL
-        // Server (datetime2) não preserva DateTimeKind: ao reler, o EF Core
-        // devolve Kind=Unspecified, o que fazia o JSON da API sair sem o
-        // sufixo "Z" — o navegador então interpretava o valor UTC como se já
-        // fosse hora local, sem nenhuma conversão (bug encontrado ao validar
-        // a exibição de datas na listagem de matrículas contra a API real).
+        // Para todo campo do tipo DateTime em qualquer entidade do projeto, aplica
+        // um conversor que corrige o problema de UTC.
+        //
+        // O SQL Server devolve esses campos sem a tag Kind=Utc. Estes conversores
+        // recolocam a tag, e com isso o serializador JSON sabe que tem que colocar
+        // o Z ao final da data, e o navegador compreende que se trata de uma hora UTC,
+        // resolvendo o bug da exibição de datas na listagem de matrículas.
         configurationBuilder.Properties<DateTime>().HaveConversion<UtcDateTimeConverter>();
         configurationBuilder.Properties<DateTime?>().HaveConversion<NullableUtcDateTimeConverter>();
     }
@@ -35,6 +49,7 @@ public class AppDbContext : DbContext, IUnitOfWork
     {
         public UtcDateTimeConverter() : base(
             v => v,
+            // ao ler do banco, recoloca a etiqueta UTC
             v => DateTime.SpecifyKind(v, DateTimeKind.Utc))
         {
         }
@@ -44,11 +59,15 @@ public class AppDbContext : DbContext, IUnitOfWork
     {
         public NullableUtcDateTimeConverter() : base(
             v => v,
+            // ao ler do banco, recoloca a etiqueta UTC
             v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : v)
         {
         }
     }
 
+    /// <summary>
+    /// Hook chamado pela classe base (DbContext) para configurar o mapeamento das entidades.
+    /// </summary>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -127,6 +146,9 @@ public class AppDbContext : DbContext, IUnitOfWork
         SeedTrainingPlans(modelBuilder);
     }
 
+    /// <summary>
+    /// Insere dados de seed na tabela de training plans via migration.
+    /// </summary>
     private static void SeedTrainingPlans(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<TrainingPlan>().HasData(

@@ -22,6 +22,8 @@ public class ErrorHandlingMiddleware
     {
         try
         {
+            // executa o resto do pipeline, ou seja, deixa a requisição seguir pro controller
+            // e monitora se vai lançar exceção
             await _next(context);
         }
         catch (Domain.Exceptions.DomainValidationException ex)
